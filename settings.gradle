@@ -1,0 +1,3 @@
+rootProject.name = 'atlacore'
+
+include 'core', 'atlacore-bukkit', 'atlacore-sponge'

@@ -1,0 +1,52 @@
+apply plugin: 'idea'
+
+repositories {
+	mavenCentral()
+	maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+	maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+	flatDir {
+		dirs 'libs'
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src/main/java']
+		}
+		resources {
+			srcDirs = ['src/main/resources']
+		}
+	}
+}
+
+processResources {
+	filter {
+		line ->
+		line
+		.replace('${name}', 'AtlaCore')
+		.replace('${version}', project.version)
+	}
+}
+
+jar {
+	manifest {
+		attributes 'Implementation-Title': 'AtlaCore',
+		           'Implementation-Version': project.version
+	}
+	from {
+		(configurations.runtime - configurations.provided).collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}
+
+configurations {
+	provided
+	compile.extendsFrom provided
+}
+
+dependencies {
+	compile project(':core')
+	provided 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+}
+
+buildDir = 'bin'

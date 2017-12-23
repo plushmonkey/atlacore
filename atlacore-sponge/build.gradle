@@ -1,0 +1,20 @@
+plugins {
+    id 'org.spongepowered.plugin' version '0.8.1'
+}
+
+description = 'Avatar bending plugin'
+
+sponge {
+    plugin {
+        meta {
+            name = 'AtlaCore'
+            version = project.version
+            description = project.description
+        }
+    }
+}
+
+dependencies {
+    compile project(':core')
+    compile 'org.spongepowered:spongeapi:6.0.0'
+}
