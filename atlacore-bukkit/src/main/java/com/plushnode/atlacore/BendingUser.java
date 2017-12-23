@@ -16,6 +16,19 @@ public class BendingUser extends LivingEntityWrapper implements User {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BendingUser) {
+            return entity.equals(((BendingUser)obj).entity);
+        }
+        return entity.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return entity.hashCode();
+    }
+
+    @Override
     public List<Element> getElements() {
         return Arrays.asList(new Element() {
             @Override

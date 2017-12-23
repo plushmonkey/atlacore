@@ -24,6 +24,19 @@ public class WorldWrapper implements com.plushnode.atlacore.World {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof WorldWrapper) {
+            return world.equals(((WorldWrapper)obj).world);
+        }
+        return world.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return world.hashCode();
+    }
+
+    @Override
     public String toString() {
         return world.toString();
     }

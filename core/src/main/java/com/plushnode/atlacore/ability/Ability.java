@@ -6,7 +6,7 @@ import com.plushnode.atlacore.config.Configuration;
 
 public interface Ability {
     // return true if the ability can be created
-    boolean create(Entity entity, ActivationMethod method);
+    boolean create(User user, ActivationMethod method);
     // Return true to destroy instance
     boolean update();
 

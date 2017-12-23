@@ -18,6 +18,19 @@ public class LocationWrapper implements Location {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LocationWrapper) {
+            return location.equals(((LocationWrapper)obj).location);
+        }
+        return location.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return location.hashCode();
+    }
+
+    @Override
     public String toString() {
         return location.toString();
     }

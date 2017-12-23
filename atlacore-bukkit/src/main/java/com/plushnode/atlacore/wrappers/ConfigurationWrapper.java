@@ -10,8 +10,21 @@ public class ConfigurationWrapper implements Configuration {
 
     public ConfigurationWrapper(ConfigurationSection section) {
         this.section = section;
-
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ConfigurationWrapper) {
+            return section.equals(((ConfigurationWrapper)obj).section);
+        }
+        return section.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return section.hashCode();
+    }
+
     @Override
     public boolean getBoolean(String path) {
         return section.getBoolean(path);

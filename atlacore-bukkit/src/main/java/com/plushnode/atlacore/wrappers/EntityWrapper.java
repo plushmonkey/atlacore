@@ -23,6 +23,19 @@ public class EntityWrapper implements Entity {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof EntityWrapper) {
+            return entity.equals(((EntityWrapper)obj).entity);
+        }
+        return entity.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return entity.hashCode();
+    }
+
+    @Override
     public String toString() {
         return entity.toString();
     }

@@ -15,6 +15,19 @@ public class BlockStateWrapper implements BlockState {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BlockStateWrapper) {
+            return state.equals(((BlockStateWrapper)obj).state);
+        }
+        return state.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return state.hashCode();
+    }
+
+    @Override
     public String toString() {
         return state.toString();
     }

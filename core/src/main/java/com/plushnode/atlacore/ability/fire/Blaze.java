@@ -1,9 +1,6 @@
 package com.plushnode.atlacore.ability.fire;
 
-import com.plushnode.atlacore.Entity;
-import com.plushnode.atlacore.LivingEntity;
-import com.plushnode.atlacore.Location;
-import com.plushnode.atlacore.User;
+import com.plushnode.atlacore.*;
 import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.ActivationMethod;
 import com.plushnode.atlacore.block.Block;
@@ -16,14 +13,17 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import java.util.*;
 
 public class Blaze implements Ability {
+    private User user;
+
     private Location location;
     private List<FireStream> fireStreams;
 
     @Override
-    public boolean create(Entity caster, ActivationMethod method) {
-        System.out.println("Creating blaze for caster " + caster);
-        this.location = caster.getLocation();
+    public boolean create(User user, ActivationMethod method) {
+        System.out.println("Creating blaze for caster " + user);
+        this.location = user.getLocation();
         this.fireStreams = new ArrayList<>();
+        this.user = user;
 
         int arcBegin = 0;
         int arcEnd = 360;
@@ -35,10 +35,7 @@ public class Blaze implements Ability {
             stepSize = 2;
         }
 
-        Location eyeLocation = caster.getLocation();
-        if (caster instanceof LivingEntity) {
-            eyeLocation = ((LivingEntity) caster).getEyeLocation();
-        }
+        Location eyeLocation = user.getEyeLocation();
 
         for (double degrees = arcBegin; degrees < arcEnd; degrees += stepSize) {
             double angle = Math.toRadians(degrees);
@@ -159,10 +156,12 @@ public class Blaze implements Ability {
 
             if (state.getType() == Material.FIRE) return;
 
-            // TODO: region protection check
-
-            TempBlock tempBlock = new TempBlock(state, Material.FIRE);
-            ignitedBlocks.put(tempBlock, DURATION);
+            if (Game.getProtectionSystem().canBuild(user, block.getLocation())) {
+                TempBlock tempBlock = new TempBlock(state, Material.FIRE);
+                ignitedBlocks.put(tempBlock, DURATION);
+            } else {
+                this.blocked = true;
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.listeners;
 
 import com.plushnode.atlacore.AtlaCorePlugin;
+import com.plushnode.atlacore.BendingPlayer;
 import com.plushnode.atlacore.BendingUser;
 import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.AbilityDescription;
@@ -38,7 +39,7 @@ public class PlayerListener implements Listener {
         }
 
         Ability ability = abilityDesc.createAbility();
-        BendingUser user = new BendingUser(player);
+        BendingUser user = new BendingPlayer(player);
 
         if (ability.create(user, ActivationMethod.Sneak)) {
             plugin.getGame().addAbility(user, ability);

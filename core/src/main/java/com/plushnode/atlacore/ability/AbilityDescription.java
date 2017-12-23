@@ -10,6 +10,8 @@ public interface AbilityDescription {
     boolean isEnabled();
     void setEnabled(boolean enabled);
 
+    boolean isHarmless();
+
     boolean isActivatedBy(ActivationMethod method);
     boolean isAbility(Ability ability);
 

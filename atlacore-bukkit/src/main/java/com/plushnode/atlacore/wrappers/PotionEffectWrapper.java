@@ -16,6 +16,19 @@ public class PotionEffectWrapper implements PotionEffect {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof PotionEffectWrapper) {
+            return effect.equals(((PotionEffectWrapper)obj).effect);
+        }
+        return effect.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return effect.hashCode();
+    }
+
+    @Override
     public boolean apply(LivingEntity entity) {
         LivingEntityWrapper wrapper = (LivingEntityWrapper)entity;
         return effect.apply((org.bukkit.entity.LivingEntity)wrapper.getBukkitEntity());

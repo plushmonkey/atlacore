@@ -47,6 +47,12 @@ configurations {
 dependencies {
 	compile project(':core')
 	provided 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+	provided name: 'worldguard-6.1'
+	provided name: 'Towny-0.90'
+	provided name: 'Factions-2.7.5'
+	provided name: 'MassiveCore-2.7.5'
+	provided name: 'LWC-4.5.0-SNAPSHOT'
+	provided name: 'GriefPrevention-13.9.1'
 }
 
 buildDir = 'bin'

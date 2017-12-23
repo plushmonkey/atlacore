@@ -21,6 +21,19 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LivingEntityWrapper) {
+            return entity.equals(((LivingEntityWrapper)obj).entity);
+        }
+        return entity.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return entity.hashCode();
+    }
+
+    @Override
     public void damage(double amount) {
         ((org.bukkit.entity.LivingEntity)entity).damage(amount);
     }

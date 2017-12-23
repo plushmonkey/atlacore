@@ -15,6 +15,23 @@ public class BlockWrapper implements Block {
         this.block = block;
     }
 
+    public org.bukkit.block.Block getBukkitBlock() {
+        return block;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BlockWrapper) {
+            return block.equals(((BlockWrapper)obj).block);
+        }
+        return block.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return block.hashCode();
+    }
+
     @Override
     public String toString() {
         return block.toString();
