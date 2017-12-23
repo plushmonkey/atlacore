@@ -1,25 +1,29 @@
 package com.plushnode.atlacore.ability;
 
+import com.plushnode.atlacore.element.Element;
+
 import java.util.List;
 
 public class GenericAbilityDescription<T extends Ability> implements AbilityDescription {
     private String name;
     private String description;
     private long cooldown;
+    private Element element;
     private List<ActivationMethod> activationMethods;
     private final Class<T> type;
     private boolean enabled;
     private boolean harmless;
 
-    public GenericAbilityDescription(String name, String desc, int cooldown, List<ActivationMethod> activation, Class<T> type, boolean harmless) {
+    public GenericAbilityDescription(String name, String desc, Element element, int cooldown, List<ActivationMethod> activation, Class<T> type, boolean harmless) {
         super();
         this.name = name;
         this.description = desc;
         this.cooldown = cooldown;
-        this.type = type;
+        this.element = element;
         this.activationMethods = activation;
-        this.enabled = true;
+        this.type = type;
         this.harmless = harmless;
+        this.enabled = true;
     }
 
     @Override
@@ -70,6 +74,11 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public Element getElement() {
+        return this.element;
     }
 
     public boolean isAbility(Ability ability) {

@@ -51,7 +51,7 @@ public class ConfigurationWrapper implements Configuration {
     }
 
     @Override
-    public Configuration getConfigSection(String path) {
+    public Configuration getConfigurationSection(String path) {
         return new ConfigurationWrapper(section.getConfigurationSection(path));
     }
 
@@ -63,5 +63,15 @@ public class ConfigurationWrapper implements Configuration {
     @Override
     public long getLong(String path, long def) {
         return section.getLong(path, def);
+    }
+
+    @Override
+    public double getDouble(String path) {
+        return section.getDouble(path);
+    }
+
+    @Override
+    public double getDouble(String path, double def) {
+        return section.getDouble(path, def);
     }
 }

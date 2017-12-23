@@ -77,6 +77,11 @@ public class Blaze implements Ability {
         }
     }
 
+    @Override
+    public String getName() {
+        return "Blaze";
+    }
+
     private class FireStream {
         private final static int INTERVAL = 50;
         private final static int DURATION = 400;

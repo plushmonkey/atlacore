@@ -21,4 +21,14 @@ public class BendingPlayer extends BendingUser implements Player {
     public int hashCode() {
         return getBukkitPlayer().hashCode();
     }
+
+    @Override
+    public boolean isOnline() {
+        return getBukkitPlayer().isOnline();
+    }
+
+    @Override
+    public boolean isSneaking() {
+        return getBukkitPlayer().isSneaking();
+    }
 }

@@ -13,4 +13,6 @@ public interface CorePlugin {
     Task createTask(Task task, long delay);
     // The task returned contains the cancel method.
     Task createTaskTimer(Task task, long delay, long period);
+
+    ParticleEffectRenderer getParticleRenderer();
 }

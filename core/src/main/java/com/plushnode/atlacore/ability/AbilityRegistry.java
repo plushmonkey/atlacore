@@ -31,4 +31,8 @@ public class AbilityRegistry {
     public Collection<AbilityDescription> getAbilities() {
         return abilities.values();
     }
+
+    public AbilityDescription getAbilityDescription(Ability ability) {
+        return abilities.get(ability.getName().toLowerCase());
+    }
 }

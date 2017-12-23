@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.util;
 
+import com.plushnode.atlacore.Location;
+import com.plushnode.atlacore.wrappers.LocationWrapper;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
@@ -23,5 +25,13 @@ public final class TypeUtil {
 
     public static Vector3D adapt(Vector vec) {
         return new Vector3D(vec.getX(), vec.getY(), vec.getZ());
+    }
+
+    public static org.bukkit.Location adapt(Location loc) {
+        return ((LocationWrapper)loc).getBukkitLocation();
+    }
+
+    public static Location adapt(org.bukkit.Location loc) {
+        return new LocationWrapper(loc);
     }
 }

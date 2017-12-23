@@ -484,4 +484,8 @@ public enum Material {
         this.stack = stack;
         this.durability = durability;
     }
+
+    public int getId() {
+        return id;
+    }
 }

@@ -37,6 +37,31 @@ public class AbilityInstanceManager {
         }
     }
 
+    public boolean hasAbility(User user, AbilityDescription desc) {
+        Ability checkAbility = desc.createAbility();
+
+        List<Ability> abilities = globalInstances.get(user);
+        if (abilities == null) return false;
+
+        for (Ability ability : abilities) {
+            if (ability.getClass().equals(checkAbility.getClass())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void destroyInstance(User user, Ability ability) {
+        List<Ability> abilities = globalInstances.get(user);
+        if (ability == null) {
+            return;
+        }
+
+        abilities.remove(ability);
+        ability.destroy();
+    }
+
     // Get the number of active abilities.
     public int getInstanceCount() {
         int size = 0;
@@ -47,7 +72,9 @@ public class AbilityInstanceManager {
     }
 
     public List<Ability> getPlayerInstances(User user) {
-        return globalInstances.get(user);
+        List<Ability> abilities = globalInstances.get(user);
+        if (abilities == null) return new ArrayList<>();
+        return abilities;
     }
 
     public List<Ability> getInstances() {

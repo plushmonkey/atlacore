@@ -5,6 +5,7 @@ import com.plushnode.atlacore.block.BlockSetter;
 import com.plushnode.atlacore.block.Material;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
 import com.plushnode.atlacore.block.setters.StandardBlockSetter;
+import com.plushnode.atlacore.collision.BukkitCollisionSystem;
 import com.plushnode.atlacore.config.Configuration;
 import com.plushnode.atlacore.listeners.PlayerListener;
 import com.plushnode.atlacore.protection.PluginNotFoundException;
@@ -18,13 +19,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     public static AtlaCorePlugin plugin;
     private BlockSetterFactory blockSetterFactory;
+    private BukkitParticleEffectRenderer particleRenderer = new BukkitParticleEffectRenderer();
     private Game game;
 
     @Override
     public void onEnable() {
         plugin = this;
 
-        this.game = new Game(this);
+        this.game = new Game(this, new BukkitCollisionSystem());
         this.blockSetterFactory = new BlockSetterFactory();
 
         ProtectionSystem protection = Game.getProtectionSystem();
@@ -115,5 +117,10 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
                 runnable.cancel();
             }
         };
+    }
+
+    @Override
+    public ParticleEffectRenderer getParticleRenderer() {
+        return particleRenderer;
     }
 }

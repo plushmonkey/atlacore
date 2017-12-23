@@ -21,4 +21,6 @@ public interface Ability {
     default void onConfigReload(Configuration config) {
 
     }
+
+    String getName();
 }

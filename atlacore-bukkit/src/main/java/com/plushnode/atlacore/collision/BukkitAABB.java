@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.collision;
 
+import com.plushnode.atlacore.util.TypeUtil;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -14,9 +16,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AABB {
-    public static AABB PlayerBounds = new AABB(new Vector(-0.3, 0.0, -0.3), new Vector(0.3, 1.8, 0.3));
-    public static AABB BlockBounds = new AABB(new Vector(0.0, 0.0, 0.0), new Vector(1.0, 1.0, 1.0));
+public class BukkitAABB implements AABB {
+    public static BukkitAABB PlayerBounds = new BukkitAABB(new Vector(-0.3, 0.0, -0.3), new Vector(0.3, 1.8, 0.3));
+    public static BukkitAABB BlockBounds = new BukkitAABB(new Vector(0.0, 0.0, 0.0), new Vector(1.0, 1.0, 1.0));
 
     private static Class<?> CraftWorld, CraftEntity, World, AxisAlignedBB, Block, BlockPosition, IBlockData, Entity;
     private static Method getHandle, getEntityHandle, getType, getBlock, getBlockBoundingBox, getBoundingBox;
@@ -35,18 +37,18 @@ public class AABB {
         }
 
         if (!setupReflection(serverVersion)) {
-            System.out.println("ERROR: Failed to setup AABB reflection.");
+            System.out.println("ERROR: Failed to setup BukkitAABB reflection.");
         }
     }
 
-    public AABB(Block block) {
-        this.min = min(block);
-        this.max = max(block);
+    public BukkitAABB(Block block) {
+        this.min = minInternal(block);
+        this.max = maxInternal(block);
     }
 
-    public AABB(Entity entity) {
-        this.min = min(entity);
-        this.max = max(entity);
+    public BukkitAABB(Entity entity) {
+        this.min = minInternal(entity);
+        this.max = maxInternal(entity);
 
         if (this.min != null) {
             this.min = this.min.subtract(entity.getLocation().toVector());
@@ -57,33 +59,71 @@ public class AABB {
         }
     }
 
-    private AABB(Vector min, Vector max) {
+    private BukkitAABB(Vector min, Vector max) {
         this.min = min;
         this.max = max;
     }
 
-    public AABB at(Vector pos) {
-        if (min == null || max == null) return new AABB(null, null);
+    public BukkitAABB at(Vector pos) {
+        if (min == null || max == null) return new BukkitAABB(null, null);
 
-        return new AABB(min.clone().add(pos), max.clone().add(pos));
+        return new BukkitAABB(min.clone().add(pos), max.clone().add(pos));
     }
 
-    public AABB at(Location location) {
-        if (min == null || max == null) return new AABB(null, null);
+    public BukkitAABB at(Location location) {
+        if (min == null || max == null) return new BukkitAABB(null, null);
 
         return at(location.toVector());
     }
 
-    public Vector min() {
+    @Override
+    public AABB at(Vector3D pos) {
+        return at(TypeUtil.adapt(pos));
+    }
+
+    @Override
+    public AABB at(com.plushnode.atlacore.Location location) {
+        return at(TypeUtil.adapt(location));
+    }
+
+    @Override
+    public boolean contains(Vector3D test) {
+        return contains(TypeUtil.adapt(test));
+    }
+
+    @Override
+    public boolean intersects(AABB other) {
+        return intersects((BukkitAABB)other);
+    }
+
+    @Override
+    public Vector3D max() {
+        if (maxInternal() == null) return null;
+        return TypeUtil.adapt(maxInternal());
+    }
+
+    @Override
+    public Vector3D mid() {
+        if (midInternal() == null) return null;
+        return TypeUtil.adapt(midInternal());
+    }
+
+    @Override
+    public Vector3D min() {
+        if (minInternal() == null) return null;
+        return TypeUtil.adapt(minInternal());
+    }
+
+    private Vector minInternal() {
         return this.min;
     }
 
-    public Vector max() {
+    private Vector maxInternal() {
         return this.max;
     }
 
-    public Vector mid() {
-        return this.min.clone().add(this.max().clone().subtract(this.min()).multiply(0.5));
+    private Vector midInternal() {
+        return this.min.clone().add(this.maxInternal().clone().subtract(this.minInternal()).multiply(0.5));
     }
 
     public boolean contains(Vector test) {
@@ -94,6 +134,7 @@ public class AABB {
                 (test.getZ() >= min.getZ() && test.getZ() <= max.getZ());
     }
 
+    @Override
     public Optional<Double> intersects(Ray ray) {
         if (min == null || max == null) return Optional.empty();
 
@@ -116,7 +157,7 @@ public class AABB {
         return Optional.of(tmin);
     }
 
-    public boolean intersects(AABB other) {
+    public boolean intersects(BukkitAABB other) {
         if (min == null || max == null || other.min == null || other.max == null) {
             return false;
         }
@@ -129,7 +170,7 @@ public class AABB {
                 min.getZ() < other.max.getZ());
     }
 
-    private Vector min(Entity entity) {
+    private Vector minInternal(Entity entity) {
         try {
             Object handle = getEntityHandle.invoke(CraftEntity.cast(entity));
             Object aabb = getBoundingBox.invoke(handle);
@@ -148,7 +189,7 @@ public class AABB {
         return null;
     }
 
-    private Vector max(Entity entity) {
+    private Vector maxInternal(Entity entity) {
         try {
             Object handle = getEntityHandle.invoke(CraftEntity.cast(entity));
             Object aabb = getBoundingBox.invoke(handle);
@@ -167,7 +208,7 @@ public class AABB {
         return null;
     }
 
-    private Vector min(Block block) {
+    private Vector minInternal(Block block) {
         Object aabb = getAABB(block);
         if (aabb == null) return null;
 
@@ -184,7 +225,7 @@ public class AABB {
         return null;
     }
 
-    private Vector max(Block block) {
+    private Vector maxInternal(Block block) {
         Object aabb = getAABB(block);
         if (aabb == null) return null;
 

@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.ability;
 
+import com.plushnode.atlacore.element.Element;
+
 public interface AbilityDescription {
     String getName();
     String getDescription();
@@ -16,4 +18,6 @@ public interface AbilityDescription {
     boolean isAbility(Ability ability);
 
     Ability createAbility();
+
+    Element getElement();
 }

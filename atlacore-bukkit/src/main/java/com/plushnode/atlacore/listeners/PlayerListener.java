@@ -3,11 +3,14 @@ package com.plushnode.atlacore.listeners;
 import com.plushnode.atlacore.AtlaCorePlugin;
 import com.plushnode.atlacore.BendingPlayer;
 import com.plushnode.atlacore.BendingUser;
+import com.plushnode.atlacore.Game;
 import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.ability.ActivationMethod;
-import com.plushnode.atlacore.collision.AABB;
+import com.plushnode.atlacore.collision.BukkitAABB;
 import com.plushnode.atlacore.collision.Ray;
+import com.plushnode.atlacore.util.TypeUtil;
+import com.plushnode.atlacore.wrappers.LocationWrapper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -49,10 +52,36 @@ public class PlayerListener implements Listener {
         }
     }
 
-    // Test code for activating abilities on general entities.
     @EventHandler
     public void onPlayerSwing(PlayerAnimationEvent event) {
         Player player = event.getPlayer();
+
+        AbilityDescription abilityDesc = plugin.getGame().getAbilityDescription("AirScooter");
+        if (abilityDesc == null) {
+            System.out.println("AirScooter not found.");
+            return;
+        }
+
+        Ability ability = abilityDesc.createAbility();
+        BendingUser user = new BendingPlayer(player);
+
+        // todo: test code, formalize later
+        for (Ability abil : Game.getAbilityInstanceManager().getPlayerInstances(user)) {
+            if (abil.getClass() == ability.getClass()) {
+                Game.getAbilityInstanceManager().destroyInstance(user, abil);
+                return;
+            }
+        }
+
+        if (ability.create(user, ActivationMethod.Punch)) {
+            plugin.getGame().addAbility(user, ability);
+            System.out.println("AirScooter created!");
+        } else {
+            System.out.println("Failed to create AirScooter.");
+        }
+
+
+        /*Player player = event.getPlayer();
         LivingEntity target = getTargetEntity(player, 30);
 
         if (target == null) return;
@@ -71,11 +100,11 @@ public class PlayerListener implements Listener {
             System.out.println("Blaze created for target!");
         } else {
             System.out.println("Failed to create blaze for target.");
-        }
+        }*/
     }
 
     private LivingEntity getTargetEntity(Player player, int range) {
-        Ray ray = new Ray(player.getEyeLocation(), player.getEyeLocation().getDirection());
+        Ray ray = new Ray(TypeUtil.adapt(player.getEyeLocation()), TypeUtil.adapt(player.getEyeLocation().getDirection()));
 
         LivingEntity closest = null;
         double closestDist = Double.MAX_VALUE;
@@ -84,7 +113,7 @@ public class PlayerListener implements Listener {
             if (entity == player) continue;
             if (!(entity instanceof LivingEntity)) continue;
 
-            AABB entityBounds = new AABB(entity).at(entity.getLocation());
+            BukkitAABB entityBounds = new BukkitAABB(entity).at(entity.getLocation());
 
             Optional<Double> result = entityBounds.intersects(ray);
             if (result.isPresent()) {
