@@ -40,8 +40,7 @@ public class BukkitParticleEffectRenderer implements ParticleEffectRenderer {
             return true;
         }
 
-        // todo: particlepacket
-        return false;
+        return ParticlePacket.getVersion() >= effect.getRequiredVersion();
     }
 
     private static boolean isWater(org.bukkit.Location location) {

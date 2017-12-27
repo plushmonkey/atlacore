@@ -24,14 +24,15 @@ public class BukkitCollisionSystem implements CollisionSystem {
         org.bukkit.entity.Entity bEntity = ((EntityWrapper)entity).getBukkitEntity();
 
         Location location = bEntity.getLocation();
-        BukkitAABB entityBounds = new BukkitAABB(bEntity).at(location.clone().subtract(0, epsilon, 0));
+        AABB entityBounds = getAABB(bEntity).at(new LocationWrapper(location).subtract(0, epsilon, 0));
 
         for (int x = -1; x <= 1; ++x) {
             for (int z = -1; z <= 1; ++z) {
                 org.bukkit.block.Block checkBlock = location.clone().add(x, -epsilon, z).getBlock();
                 if (checkBlock.getType() == org.bukkit.Material.AIR) continue;
 
-                BukkitAABB checkBounds = new BukkitAABB(checkBlock).at(checkBlock.getLocation());
+                LocationWrapper wrapper = new LocationWrapper(checkBlock.getLocation());
+                AABB checkBounds = getAABB(checkBlock).at(wrapper);
 
                 if (entityBounds.intersects(checkBounds)) {
                     return true;
@@ -59,15 +60,15 @@ public class BukkitCollisionSystem implements CollisionSystem {
             location.setY(y);
 
             org.bukkit.block.Block block = location.getBlock();
-            BukkitAABB checkBounds;
+            AABB checkBounds;
 
             if (bMaterials.contains(block.getType())) {
-                checkBounds = BukkitAABB.BlockBounds;
+                checkBounds = AABB.BLOCK_BOUNDS;
             } else {
-                checkBounds = new BukkitAABB(block);
+                checkBounds = getAABB(block);
             }
 
-            checkBounds = checkBounds.at(block.getLocation());
+            checkBounds = checkBounds.at(new LocationWrapper(block.getLocation()));
 
             Optional<Double> rayHit = checkBounds.intersects(ray);
 
@@ -81,11 +82,19 @@ public class BukkitCollisionSystem implements CollisionSystem {
 
     @Override
     public AABB getAABB(Entity entity) {
-        return new BukkitAABB(((EntityWrapper)entity).getBukkitEntity());
+        return BukkitAABB.getEntityBounds(((EntityWrapper)entity).getBukkitEntity());
     }
 
     @Override
     public AABB getAABB(Block block) {
-        return new BukkitAABB(((BlockWrapper)block).getBukkitBlock());
+        return BukkitAABB.getBlockBounds(((BlockWrapper)block).getBukkitBlock());
+    }
+
+    private AABB getAABB(org.bukkit.block.Block block) {
+        return BukkitAABB.getBlockBounds(block);
+    }
+
+    private AABB getAABB(org.bukkit.entity.Entity entity) {
+        return BukkitAABB.getEntityBounds(entity);
     }
 }

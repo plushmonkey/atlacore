@@ -1,20 +1,21 @@
 package com.plushnode.atlacore.wrappers;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.World;
 import com.plushnode.atlacore.block.Block;
-import com.plushnode.atlacore.util.TypeUtil;
+import com.plushnode.atlacore.util.SpongeTypeUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-// This is an immutable wrapper around Bukkit's mutable location.
+// Immutable implementation of Location
 public class LocationWrapper implements Location {
-    private org.bukkit.Location location;
+    private org.spongepowered.api.world.Location<org.spongepowered.api.world.World> location;
 
-    public LocationWrapper(org.bukkit.Location location) {
-        this.location = location.clone();
+    public LocationWrapper(org.spongepowered.api.world.Location<org.spongepowered.api.world.World> location) {
+        this.location = location;
     }
 
-    public org.bukkit.Location getBukkitLocation() {
+    public org.spongepowered.api.world.Location<org.spongepowered.api.world.World> getSpongeLocation() {
         return location;
     }
 
@@ -38,47 +39,38 @@ public class LocationWrapper implements Location {
 
     @Override
     public Location add(double x, double y, double z) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.getBukkitLocation().add(x, y, z);
-        return newLoc;
+        return new LocationWrapper(location.add(x, y, z));
     }
 
     @Override
     public Location add(Location vec) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.getBukkitLocation().add(TypeUtil.adapt(vec));
-        return newLoc;
+        Vector3d vector = SpongeTypeUtil.toVector(((LocationWrapper)vec).getSpongeLocation());
+        return new LocationWrapper(location.add(vector));
     }
 
     @Override
     public Location add(Vector3D vec) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.getBukkitLocation().add(TypeUtil.adapt(vec));
-        return newLoc;
+        return new LocationWrapper(location.add(SpongeTypeUtil.adapt(vec)));
     }
 
     @Override
     public Location clone() {
-        return new LocationWrapper(location);
+        return new LocationWrapper(location.copy());
     }
 
     @Override
     public double distance(Location o) {
-        LocationWrapper wrapper = (LocationWrapper)o;
-
-        return location.distance(wrapper.getBukkitLocation());
+        return SpongeTypeUtil.toVector(location).distance(SpongeTypeUtil.toVector(o));
     }
 
     @Override
     public double distanceSquared(Location o) {
-        LocationWrapper wrapper = (LocationWrapper)o;
-
-        return location.distanceSquared(wrapper.getBukkitLocation());
+        return SpongeTypeUtil.toVector(location).distanceSquared(SpongeTypeUtil.toVector(o));
     }
 
     @Override
     public Block getBlock() {
-        return new BlockWrapper(location.getBlock());
+        return new BlockWrapper(location);
     }
 
     @Override
@@ -98,7 +90,7 @@ public class LocationWrapper implements Location {
 
     @Override
     public World getWorld() {
-        return new WorldWrapper(location.getWorld());
+        return new WorldWrapper(location.getExtent());
     }
 
     @Override
@@ -118,64 +110,55 @@ public class LocationWrapper implements Location {
 
     @Override
     public double length() {
-        return location.length();
+        return SpongeTypeUtil.toVector(location).length();
     }
 
     @Override
     public double lengthSquared() {
-        return location.lengthSquared();
+        return SpongeTypeUtil.toVector(location).lengthSquared();
     }
 
     @Override
     public Location setWorld(World world) {
-        LocationWrapper newLoc = new LocationWrapper(location);
+        org.spongepowered.api.world.World spongeWorld = ((WorldWrapper)world).getSpongeWorld();
 
-        WorldWrapper wrapper = (WorldWrapper)world;
-        newLoc.location.setWorld(wrapper.getBukkitWorld());
-
-        return newLoc;
+        return new LocationWrapper(location.setExtent(spongeWorld));
     }
 
     @Override
     public Location setX(double x) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.location.setX(x);
-        return newLoc;
+        Vector3d p = location.getPosition();
+        Vector3d np = new Vector3d(x, p.getY(), p.getZ());
+        return new LocationWrapper(location.setPosition(np));
     }
 
     @Override
     public Location setY(double y) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.location.setY(y);
-        return newLoc;
+        Vector3d p = location.getPosition();
+        Vector3d np = new Vector3d(p.getX(), y, p.getZ());
+        return new LocationWrapper(location.setPosition(np));
     }
 
     @Override
     public Location setZ(double z) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.location.setZ(z);
-        return newLoc;
+        Vector3d p = location.getPosition();
+        Vector3d np = new Vector3d(p.getZ(), p.getY(), z);
+        return new LocationWrapper(location.setPosition(np));
     }
 
     @Override
     public Location subtract(double x, double y, double z) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.location = newLoc.location.subtract(x, y, z);
-        return newLoc;
+        return new LocationWrapper(location.sub(x, y, z));
     }
 
     @Override
     public Location subtract(Location loc) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.location = newLoc.location.subtract(TypeUtil.adapt(loc));
-        return newLoc;
+        return new LocationWrapper(location.sub(SpongeTypeUtil.toVector(loc)));
     }
 
     @Override
     public Location subtract(Vector3D vec) {
-        LocationWrapper newLoc = new LocationWrapper(location);
-        newLoc.location = newLoc.location.subtract(TypeUtil.adapt(vec));
-        return newLoc;
+        return new LocationWrapper(location.sub(SpongeTypeUtil.adapt(vec)));
     }
 
     @Override

@@ -7,10 +7,10 @@ import com.plushnode.atlacore.Game;
 import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.ability.ActivationMethod;
-import com.plushnode.atlacore.collision.BukkitAABB;
+import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.collision.Ray;
 import com.plushnode.atlacore.util.TypeUtil;
-import com.plushnode.atlacore.wrappers.LocationWrapper;
+import com.plushnode.atlacore.wrappers.EntityWrapper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -113,7 +113,8 @@ public class PlayerListener implements Listener {
             if (entity == player) continue;
             if (!(entity instanceof LivingEntity)) continue;
 
-            BukkitAABB entityBounds = new BukkitAABB(entity).at(entity.getLocation());
+            EntityWrapper ew = new EntityWrapper(entity);
+            AABB entityBounds = Game.getCollisionSystem().getAABB(ew).at(ew.getLocation());
 
             Optional<Double> result = entityBounds.intersects(ray);
             if (result.isPresent()) {

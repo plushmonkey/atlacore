@@ -3,11 +3,14 @@ package com.plushnode.atlacore.wrappers;
 import com.plushnode.atlacore.*;
 import com.plushnode.atlacore.Entity;
 import com.plushnode.atlacore.LivingEntity;
+import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.PotionEffect;
 import com.plushnode.atlacore.PotionEffectType;
 import com.plushnode.atlacore.block.Block;
 import com.plushnode.atlacore.block.Material;
 import com.plushnode.atlacore.util.TypeUtil;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.bukkit.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -242,5 +245,11 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
     @Override
     public void setRemainingAir(int ticks) {
         ((org.bukkit.entity.LivingEntity)entity).setRemainingAir(ticks);
+    }
+
+    @Override
+    public Vector3D getDirection() {
+        org.bukkit.Location loc = ((LocationWrapper)getEyeLocation()).getBukkitLocation();
+        return TypeUtil.adapt(loc.getDirection());
     }
 }

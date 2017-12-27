@@ -52,11 +52,6 @@ public class EntityWrapper implements Entity {
     }
 
     @Override
-    public int getEntityId() {
-        return entity.getEntityId();
-    }
-
-    @Override
     public float getFallDistance() {
         return entity.getFallDistance();
     }
@@ -230,5 +225,35 @@ public class EntityWrapper implements Entity {
     public boolean teleport(Location location) {
         LocationWrapper wrapper = (LocationWrapper)location;
         return entity.teleport(wrapper.getBukkitLocation());
+    }
+
+    @Override
+    public Vector3D getDirection() {
+        return TypeUtil.adapt(TypeUtil.adapt(getLocation()).getDirection());
+    }
+
+    @Override
+    public void setDirection(Vector3D direction) {
+        entity.getLocation().setDirection(TypeUtil.adapt(direction));
+    }
+
+    @Override
+    public float getPitch() {
+        return entity.getLocation().getPitch();
+    }
+
+    @Override
+    public float getYaw() {
+        return entity.getLocation().getYaw();
+    }
+
+    @Override
+    public void setPitch(float pitch) {
+        entity.getLocation().setPitch(pitch);
+    }
+
+    @Override
+    public void setYaw(float yaw) {
+        entity.getLocation().setYaw(yaw);
     }
 }

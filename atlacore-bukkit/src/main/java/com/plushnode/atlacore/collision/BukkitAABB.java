@@ -3,7 +3,6 @@ package com.plushnode.atlacore.collision;
 import com.plushnode.atlacore.util.TypeUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
@@ -12,14 +11,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BukkitAABB implements AABB {
-    public static BukkitAABB PlayerBounds = new BukkitAABB(new Vector(-0.3, 0.0, -0.3), new Vector(0.3, 1.8, 0.3));
-    public static BukkitAABB BlockBounds = new BukkitAABB(new Vector(0.0, 0.0, 0.0), new Vector(1.0, 1.0, 1.0));
-
+public final class BukkitAABB {
     private static Class<?> CraftWorld, CraftEntity, World, AxisAlignedBB, Block, BlockPosition, IBlockData, Entity;
     private static Method getHandle, getEntityHandle, getType, getBlock, getBlockBoundingBox, getBoundingBox;
     private static Field aField, bField, cField, dField, eField, fField;
@@ -41,136 +36,33 @@ public class BukkitAABB implements AABB {
         }
     }
 
-    public BukkitAABB(Block block) {
-        this.min = minInternal(block);
-        this.max = maxInternal(block);
+    private BukkitAABB() {
+
     }
 
-    public BukkitAABB(Entity entity) {
-        this.min = minInternal(entity);
-        this.max = maxInternal(entity);
+    public static AABB getBlockBounds(Block block) {
+        Vector3D min = TypeUtil.adapt(getBlockMin(block));
+        Vector3D max = TypeUtil.adapt(getBlockMax(block));
 
-        if (this.min != null) {
-            this.min = this.min.subtract(entity.getLocation().toVector());
+        return new AABB(min, max);
+    }
+
+    public static AABB getEntityBounds(Entity entity) {
+        Vector3D min = TypeUtil.adapt(getEntityMin(entity));
+        Vector3D max = TypeUtil.adapt(getEntityMax(entity));
+
+        if (min != null) {
+            min = min.subtract(TypeUtil.adapt(entity.getLocation().toVector()));
         }
 
-        if (this.max != null) {
-            this.max = this.max.subtract(entity.getLocation().toVector());
-        }
-    }
-
-    private BukkitAABB(Vector min, Vector max) {
-        this.min = min;
-        this.max = max;
-    }
-
-    public BukkitAABB at(Vector pos) {
-        if (min == null || max == null) return new BukkitAABB(null, null);
-
-        return new BukkitAABB(min.clone().add(pos), max.clone().add(pos));
-    }
-
-    public BukkitAABB at(Location location) {
-        if (min == null || max == null) return new BukkitAABB(null, null);
-
-        return at(location.toVector());
-    }
-
-    @Override
-    public AABB at(Vector3D pos) {
-        return at(TypeUtil.adapt(pos));
-    }
-
-    @Override
-    public AABB at(com.plushnode.atlacore.Location location) {
-        return at(TypeUtil.adapt(location));
-    }
-
-    @Override
-    public boolean contains(Vector3D test) {
-        return contains(TypeUtil.adapt(test));
-    }
-
-    @Override
-    public boolean intersects(AABB other) {
-        return intersects((BukkitAABB)other);
-    }
-
-    @Override
-    public Vector3D max() {
-        if (maxInternal() == null) return null;
-        return TypeUtil.adapt(maxInternal());
-    }
-
-    @Override
-    public Vector3D mid() {
-        if (midInternal() == null) return null;
-        return TypeUtil.adapt(midInternal());
-    }
-
-    @Override
-    public Vector3D min() {
-        if (minInternal() == null) return null;
-        return TypeUtil.adapt(minInternal());
-    }
-
-    private Vector minInternal() {
-        return this.min;
-    }
-
-    private Vector maxInternal() {
-        return this.max;
-    }
-
-    private Vector midInternal() {
-        return this.min.clone().add(this.maxInternal().clone().subtract(this.minInternal()).multiply(0.5));
-    }
-
-    public boolean contains(Vector test) {
-        if (min == null || max == null) return false;
-
-        return (test.getX() >= min.getX() && test.getX() <= max.getX()) &&
-                (test.getY() >= min.getY() && test.getY() <= max.getY()) &&
-                (test.getZ() >= min.getZ() && test.getZ() <= max.getZ());
-    }
-
-    @Override
-    public Optional<Double> intersects(Ray ray) {
-        if (min == null || max == null) return Optional.empty();
-
-        double t1 = (min.getX() - ray.origin.getX()) * ray.directionReciprocal.getX();
-        double t2 = (max.getX() - ray.origin.getX()) * ray.directionReciprocal.getX();
-
-        double t3 = (min.getY() - ray.origin.getY()) * ray.directionReciprocal.getY();
-        double t4 = (max.getY() - ray.origin.getY()) * ray.directionReciprocal.getY();
-
-        double t5 = (min.getZ() - ray.origin.getZ()) * ray.directionReciprocal.getZ();
-        double t6 = (max.getZ() - ray.origin.getZ()) * ray.directionReciprocal.getZ();
-
-        double tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
-        double tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
-
-        if (tmax < 0 || tmin > tmax) {
-            return Optional.empty();
+        if (max != null) {
+            max = max.subtract(TypeUtil.adapt(entity.getLocation().toVector()));
         }
 
-        return Optional.of(tmin);
+        return new AABB(min, max);
     }
 
-    public boolean intersects(BukkitAABB other) {
-        if (min == null || max == null || other.min == null || other.max == null) {
-            return false;
-        }
-
-        return (max.getX() > other.min.getX() &&
-                min.getX() < other.max.getX() &&
-                max.getY() > other.min.getY() &&
-                min.getY() < other.max.getY() &&
-                max.getZ() > other.min.getZ() &&
-                min.getZ() < other.max.getZ());
-    }
-
-    private Vector minInternal(Entity entity) {
+    private static Vector getEntityMin(Entity entity) {
         try {
             Object handle = getEntityHandle.invoke(CraftEntity.cast(entity));
             Object aabb = getBoundingBox.invoke(handle);
@@ -189,7 +81,7 @@ public class BukkitAABB implements AABB {
         return null;
     }
 
-    private Vector maxInternal(Entity entity) {
+    private static Vector getEntityMax(Entity entity) {
         try {
             Object handle = getEntityHandle.invoke(CraftEntity.cast(entity));
             Object aabb = getBoundingBox.invoke(handle);
@@ -208,7 +100,7 @@ public class BukkitAABB implements AABB {
         return null;
     }
 
-    private Vector minInternal(Block block) {
+    private static Vector getBlockMin(Block block) {
         Object aabb = getAABB(block);
         if (aabb == null) return null;
 
@@ -225,7 +117,7 @@ public class BukkitAABB implements AABB {
         return null;
     }
 
-    private Vector maxInternal(Block block) {
+    private static Vector getBlockMax(Block block) {
         Object aabb = getAABB(block);
         if (aabb == null) return null;
 

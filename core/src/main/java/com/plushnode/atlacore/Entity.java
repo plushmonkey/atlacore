@@ -8,7 +8,6 @@ import java.util.UUID;
 public interface Entity {
     boolean addPassenger(Entity passenger);
     boolean eject();
-    int getEntityId();
     float getFallDistance();
     int getFireTicks();
     double getHeight();
@@ -43,4 +42,11 @@ public interface Entity {
     void setVelocity(Vector3D velocity);
     boolean teleport(Entity destination);
     boolean teleport(Location location);
+
+    Vector3D getDirection();
+    void setDirection(Vector3D direction);
+    float getPitch();
+    float getYaw();
+    void setPitch(float pitch);
+    void setYaw(float yaw);
 }

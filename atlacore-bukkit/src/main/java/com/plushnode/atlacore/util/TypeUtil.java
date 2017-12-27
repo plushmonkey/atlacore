@@ -20,10 +20,12 @@ public final class TypeUtil {
     }
 
     public static Vector adapt(Vector3D vec) {
+        if (vec == null) return null;
         return new Vector(vec.getX(), vec.getY(), vec.getZ());
     }
 
     public static Vector3D adapt(Vector vec) {
+        if (vec == null) return null;
         return new Vector3D(vec.getX(), vec.getY(), vec.getZ());
     }
 

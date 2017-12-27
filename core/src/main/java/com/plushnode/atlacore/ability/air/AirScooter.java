@@ -12,6 +12,7 @@ import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.util.MaterialUtil;
+import com.plushnode.atlacore.util.VectorUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Arrays;
@@ -46,6 +47,7 @@ public class AirScooter implements Ability {
             Player player = (Player)user;
 
             if (player.isSneaking()) {
+                System.out.println("Player is sneaking.");
                 return false;
             }
         }
@@ -121,7 +123,7 @@ public class AirScooter implements Ability {
             double y = radius * Math.cos(verticalPosition);
             double z = radius * Math.sin(angle) * Math.sin(verticalPosition);
 
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 2, base.clone().add(x, y, z), 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 2, base.add(x, y, z), 257);
         }
     }
 
@@ -131,10 +133,7 @@ public class AirScooter implements Ability {
     }
 
     private boolean move() {
-        Location location = user.getEyeLocation().clone();
-        location.setPitch(0);
-        Vector3D direction = location.getDirection().normalize();
-
+        Vector3D direction = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
 
         // How far the player is above the ground.
         double height = Game.getCollisionSystem().distanceAboveGround(user, groundMaterials);
@@ -188,15 +187,12 @@ public class AirScooter implements Ability {
         @Override
         public boolean isColliding(User user) {
             // The location in front of the player, where the player will be in one second.
-            Location front = user.getEyeLocation().clone().subtract(0.0, 0.5, 0.0);
-            front.setPitch(0);
+            Location front = user.getEyeLocation().subtract(0.0, 0.5, 0.0);
+            Vector3D direction = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
 
-            Vector3D direction = front.getDirection();
-            direction = new Vector3D(direction.getX(), 0, direction.getZ()).normalize();
+            double playerSpeed = VectorUtil.clearAxis(user.getVelocity(), 1).getNorm();
 
-            double playerSpeed = user.getVelocity().subtract(new Vector3D(0, user.getVelocity().getY(), 0)).getNorm();
-
-            front.add(direction.scalarMultiply(Math.max(speed, playerSpeed)));
+            front = front.add(direction.scalarMultiply(Math.max(speed, playerSpeed)));
 
             return isCollision(front);
         }
@@ -222,22 +218,18 @@ public class AirScooter implements Ability {
 
         public double getPrediction() {
             Location location = user.getLocation().clone();
-            Vector3D currentDirection = location.getDirection();
-            currentDirection = currentDirection.subtract(new Vector3D(0, currentDirection.getY(), 0)).normalize();
+            Vector3D currentDirection = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
 
-            double playerSpeed = user.getVelocity().subtract(new Vector3D(0, user.getVelocity().getY(), 0)).getNorm();
+            double playerSpeed = VectorUtil.clearAxis(user.getVelocity(), 1).getNorm();
 
             double s = Math.max(speed, playerSpeed) * 3;
-            location.add(currentDirection.scalarMultiply(s));
+            location = location.add(currentDirection.scalarMultiply(s));
 
             AABB playerBounds = Game.getCollisionSystem().getAABB(user).at(location);
 
-            Location checkLocation = location.clone();
             // Project the player forward and check all surrounding blocks for collision.
             for (Vector3D direction : DIRECTIONS) {
-                checkLocation.setX(location.getX() + direction.getX());
-                checkLocation.setY(location.getY() + direction.getY());
-                checkLocation.setZ(location.getZ() + direction.getZ());
+                Location checkLocation = location.add(direction);
 
                 Block block = checkLocation.getBlock();
 

@@ -2,20 +2,26 @@ package com.plushnode.atlacore.util;
 
 import com.plushnode.atlacore.Game;
 import com.plushnode.atlacore.block.Block;
+import com.plushnode.atlacore.block.Material;
 import com.plushnode.atlacore.collision.AABB;
 
 import java.util.Arrays;
 import java.util.List;
 
 public final class MaterialUtil {
-    private static final List<Integer> TRANSPARENT_MATERIALS = Arrays.asList(0, 6, 8, 9, 10, 11, 30, 31, 32, 37, 38, 39, 40, 50, 51, 59, 78, 83, 106, 175);
+    private static final List<Material> TRANSPARENT_MATERIALS = Arrays.asList(
+            Material.AIR, Material.SAPLING, Material.WATER, Material.STATIONARY_WATER, Material.LAVA,
+            Material.STATIONARY_LAVA, Material.WEB, Material.LONG_GRASS, Material.DEAD_BUSH, Material.YELLOW_FLOWER,
+            Material.RED_ROSE, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.TORCH, Material.FIRE,
+            Material.CROPS, Material.SNOW, Material.SUGAR_CANE_BLOCK, Material.VINE, Material.DOUBLE_PLANT
+    );
 
     private MaterialUtil() {
 
     }
 
     public static boolean isTransparent(Block block) {
-        return TRANSPARENT_MATERIALS.contains(block.getTypeId());
+        return TRANSPARENT_MATERIALS.contains(block.getType());
     }
 
     public static boolean isSolid(Block block) {

@@ -35,11 +35,9 @@ public class Blaze implements Ability {
             stepSize = 2;
         }
 
-        Location eyeLocation = user.getEyeLocation();
-
         for (double degrees = arcBegin; degrees < arcEnd; degrees += stepSize) {
             double angle = Math.toRadians(degrees);
-            Vector3D direction = eyeLocation.getDirection();
+            Vector3D direction = user.getDirection();
 
             double x, z, vx, vz;
             x = direction.getX();
