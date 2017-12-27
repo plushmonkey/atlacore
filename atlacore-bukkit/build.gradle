@@ -34,25 +34,18 @@ jar {
 		attributes 'Implementation-Title': 'AtlaCore',
 		           'Implementation-Version': project.version
 	}
-	from {
-		(configurations.runtime - configurations.provided).collect { it.isDirectory() ? it : zipTree(it) }
-	}
-}
-
-configurations {
-	provided
-	compile.extendsFrom provided
 }
 
 dependencies {
-	compile project(':core')
-	provided 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
-	provided name: 'worldguard-6.1'
-	provided name: 'Towny-0.90'
-	provided name: 'Factions-2.7.5'
-	provided name: 'MassiveCore-2.7.5'
-	provided name: 'LWC-4.5.0-SNAPSHOT'
-	provided name: 'GriefPrevention-13.9.1'
+	shadow project(':core')
+	compile 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+	compile name: 'worldguard-6.1'
+	compile name: 'Towny-0.90'
+	compile name: 'Factions-2.7.5'
+	compile name: 'MassiveCore-2.7.5'
+	compile name: 'LWC-4.5.0-SNAPSHOT'
+	compile name: 'GriefPrevention-13.9.1'
 }
 
 buildDir = 'bin'
+build.dependsOn shadowJar

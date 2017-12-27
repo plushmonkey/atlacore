@@ -15,6 +15,7 @@ sponge {
 }
 
 dependencies {
-    compile project(':core')
-    provided 'org.spongepowered:spongeapi:6.0.0'
+    shadow project(':core')
+    compile 'org.spongepowered:spongeapi:6.0.0'
 }
+
