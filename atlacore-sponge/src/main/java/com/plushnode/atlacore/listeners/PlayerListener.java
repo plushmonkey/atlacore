@@ -6,6 +6,7 @@ import com.plushnode.atlacore.Game;
 import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.ability.ActivationMethod;
+import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -15,6 +16,29 @@ public class PlayerListener {
     private AtlaPlugin plugin;
     public PlayerListener(AtlaPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    @Listener
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
+        if (!event.isSneaking()) return;
+
+        Player player = event.getPlayer();
+
+        AbilityDescription abilityDesc = plugin.getAtlaGame().getAbilityDescription("Blaze");
+        if (abilityDesc == null) {
+            System.out.println("Blaze not found.");
+            return;
+        }
+
+        Ability ability = abilityDesc.createAbility();
+        BendingPlayer user = new BendingPlayer(player);
+
+        if (ability.create(user, ActivationMethod.Sneak)) {
+            plugin.getAtlaGame().addAbility(user, ability);
+            System.out.println("Blaze created!");
+        } else {
+            System.out.println("Failed to create Blaze.");
+        }
     }
 
     @Listener

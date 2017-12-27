@@ -24,6 +24,7 @@ public class AtlaPlugin implements CorePlugin {
 
     private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();
     private SpongeParticleEffectRenderer particleEffectRenderer = new SpongeParticleEffectRenderer();
+    private SneakEventDispatcher sneakDispatcher;
 
     @Inject
     private Game game;
@@ -34,9 +35,6 @@ public class AtlaPlugin implements CorePlugin {
     public void onServerInit(GameInitializationEvent event) {
         plugin = this;
 
-        atlaGame = new com.plushnode.atlacore.Game(this, new SpongeCollisionSystem());
-        com.plushnode.atlacore.Game.getProtectionSystem().reload();
-
         CommandSpec testCommand = CommandSpec.builder()
                 .description(Text.of("Hello"))
                 .permission("atlacore.command.hello")
@@ -44,10 +42,6 @@ public class AtlaPlugin implements CorePlugin {
                 .build();
 
         Sponge.getCommandManager().register(this, testCommand, "helloworld", "hello", "test");
-
-        Sponge.getEventManager().registerListeners(this, new PlayerListener(this));
-
-        createTaskTimer(atlaGame::update, 1, 1);
     }
 
     public com.plushnode.atlacore.Game getAtlaGame() {
@@ -57,6 +51,14 @@ public class AtlaPlugin implements CorePlugin {
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
         log.info("Test!");
+        atlaGame = new com.plushnode.atlacore.Game(this, new SpongeCollisionSystem());
+        com.plushnode.atlacore.Game.getProtectionSystem().reload();
+        Sponge.getEventManager().registerListeners(this, new PlayerListener(this));
+
+        createTaskTimer(atlaGame::update, 1, 1);
+
+        sneakDispatcher = new SneakEventDispatcher();
+        createTaskTimer(sneakDispatcher::run, 1, 1);
     }
 
     public Logger getLogger() {
