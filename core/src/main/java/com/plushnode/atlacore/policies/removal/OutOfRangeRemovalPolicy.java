@@ -2,7 +2,7 @@ package com.plushnode.atlacore.policies.removal;
 
 import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.User;
-import com.plushnode.atlacore.config.Configuration;
+import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.function.Supplier;
 
@@ -26,8 +26,8 @@ public class OutOfRangeRemovalPolicy implements RemovalPolicy {
     }
 
     @Override
-    public void load(Configuration config) {
-        this.range = config.getDouble("Range");
+    public void load(ConfigurationNode config) {
+        this.range = config.getNode("range").getDouble();
     }
 
     @Override

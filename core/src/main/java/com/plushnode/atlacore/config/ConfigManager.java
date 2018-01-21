@@ -1,11 +1,13 @@
 package com.plushnode.atlacore.config;
 
 
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+
 import java.util.Observable;
 
 public class ConfigManager extends Observable {
     private static ConfigManager instance;
-    private Configuration config;
+    private CommentedConfigurationNode config = null;
 
     private ConfigManager() {
 
@@ -17,11 +19,16 @@ public class ConfigManager extends Observable {
         return instance;
     }
 
-    public Configuration getConfig() {
+    public void setConfig(CommentedConfigurationNode node) {
+        this.config = node;
+    }
+
+    public CommentedConfigurationNode getConfig() {
         return config;
     }
 
     public void onConfigReload() {
+        System.out.println("ConfigManager::onConfigReload");
         setChanged();
         notifyObservers(config);
     }

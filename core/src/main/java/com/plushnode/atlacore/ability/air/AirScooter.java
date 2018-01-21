@@ -7,12 +7,14 @@ import com.plushnode.atlacore.ability.ActivationMethod;
 import com.plushnode.atlacore.block.Block;
 import com.plushnode.atlacore.block.Material;
 import com.plushnode.atlacore.collision.AABB;
+import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.policies.removal.CannotBendRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.VectorUtil;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Arrays;
@@ -21,13 +23,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AirScooter implements Ability {
+    private static Config config = new Config();
+
     private Set<Material> groundMaterials = Stream.of(Material.WATER, Material.STATIONARY_WATER, Material.LAVA, Material.STATIONARY_LAVA).collect(Collectors.toSet());
 
-    private long cooldown = 0;
-    private double targetHeight = 1.25;
-    private double springStiffness = 0.3;
-    private double speed = 0.6;
-    private int heightTolerance = 10;
     private boolean liquidMovement = true;
     private double liquidClimbSpeed = 0.6;
     private long minDuration = 100;
@@ -53,8 +52,8 @@ public class AirScooter implements Ability {
         }
 
         this.user = user;
-        this.heightPredictor = new HeightPredictor(user, targetHeight, speed);
-        this.heightSmoother = new DoubleSmoother(heightTolerance);
+        this.heightPredictor = new HeightPredictor(user, config.targetHeight, config.speed);
+        this.heightSmoother = new DoubleSmoother(config.heightTolerance);
 
         double dist = Game.getCollisionSystem().distanceAboveGround(user, groundMaterials);
         // Only create AirScooter is the player is in the air and near the ground.
@@ -137,11 +136,11 @@ public class AirScooter implements Ability {
 
         // How far the player is above the ground.
         double height = Game.getCollisionSystem().distanceAboveGround(user, groundMaterials);
-        double maxHeight = targetHeight + 2.0;
+        double maxHeight = config.targetHeight + 2.0;
         double smoothedHeight = heightSmoother.add(height);
 
         if (liquidMovement && user.getLocation().getBlock().isLiquid()) {
-            height = targetHeight * (1.0 - liquidClimbSpeed);
+            height = config.targetHeight * (1.0 - liquidClimbSpeed);
         } else {
             // Destroy ability if player gets too far from ground.
             if (smoothedHeight > maxHeight) {
@@ -153,7 +152,7 @@ public class AirScooter implements Ability {
 
         // Calculate the spring force to push the player back to the target height.
         double displacement = height - predictedHeight;
-        double force = -springStiffness * displacement;
+        double force = -config.springStiffness * displacement;
 
         double maxForce = 0.5;
         if (Math.abs(force) > maxForce) {
@@ -161,7 +160,7 @@ public class AirScooter implements Ability {
             force = force / Math.abs(force) * maxForce;
         }
 
-        Vector3D velocity = direction.scalarMultiply(speed);
+        Vector3D velocity = direction.scalarMultiply(config.speed);
         // Set y to force.
         velocity = velocity.add(new Vector3D(0, -velocity.getY() + force, 0.0));
 
@@ -192,7 +191,7 @@ public class AirScooter implements Ability {
 
             double playerSpeed = VectorUtil.clearAxis(user.getVelocity(), 1).getNorm();
 
-            front = front.add(direction.scalarMultiply(Math.max(speed, playerSpeed)));
+            front = front.add(direction.scalarMultiply(Math.max(config.speed, playerSpeed)));
 
             return isCollision(front);
         }
@@ -235,7 +234,7 @@ public class AirScooter implements Ability {
 
                 AABB bounds = Game.getCollisionSystem().getAABB(block).at(block.getLocation());
 
-                if(bounds.intersects(playerBounds)) {
+                if (bounds.intersects(playerBounds)) {
                     // Player will collide with a block soon, so try to raise the player over it.
                     return targetHeight + 1.0;
                 }
@@ -265,6 +264,35 @@ public class AirScooter implements Ability {
 
         public double get() {
             return Arrays.stream(this.values).sum() / this.size;
+        }
+    }
+
+    private static class Config extends Configurable {
+        boolean enabled;
+        double speed;
+        long cooldown;
+        double targetHeight;
+        double springStiffness;
+        int heightTolerance;
+
+        public Config() {
+            super();
+        }
+
+        @Override
+        public void onConfigReload() {
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "air", "airscooter");
+
+            enabled = abilityNode.getNode("enabled").getBoolean(true);
+            speed = abilityNode.getNode("speed").getDouble(0.6);
+            cooldown = abilityNode.getNode("cooldown").getLong(4000);
+            targetHeight = abilityNode.getNode("target-height").getDouble(1.25);
+            springStiffness = abilityNode.getNode("spring-stiffness").getDouble(0.3);
+            heightTolerance = abilityNode.getNode("height-tolerance").getInt(10);
+
+            abilityNode.getNode("target-height").setComment("How far above ground the scooter should try to stabilize at.");
+            abilityNode.getNode("spring-stiffness").setComment("How stiff the spring should be. Higher numbers will cause it to jerk into position.");
+            abilityNode.getNode("height-tolerance").setComment("Larger numbers make the height requirement more lenient.");
         }
     }
 }

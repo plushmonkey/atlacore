@@ -10,3 +10,7 @@ sourceSets {
         }
     }
 }
+
+dependencies {
+    shadow 'ninja.leaping.configurate:configurate-hocon:3.2'
+}

@@ -1,11 +1,10 @@
 package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.block.BlockSetter;
-import com.plushnode.atlacore.config.Configuration;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public interface CorePlugin {
-    void onConfigReload(Configuration config);
-
+    CommentedConfigurationNode getCoreConfig();
     BlockSetter getBlockSetter();
     BlockSetter getBlockSetter(BlockSetter.Flag... flags);
 

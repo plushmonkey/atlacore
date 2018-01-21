@@ -1,5 +1,6 @@
 package com.plushnode.atlacore;
 
+import com.google.common.reflect.ClassPath;
 import com.plushnode.atlacore.ability.*;
 import com.plushnode.atlacore.ability.air.AirScooter;
 import com.plushnode.atlacore.ability.fire.Blaze;
@@ -7,6 +8,7 @@ import com.plushnode.atlacore.collision.CollisionSystem;
 import com.plushnode.atlacore.element.Element;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -87,6 +89,8 @@ public class Game {
         System.out.println("Blaze registered.");
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
+
+        initializeAbilities();
     }
 
     public AbilityDescription getAbilityDescription(String abilityName) {
@@ -119,5 +123,22 @@ public class Game {
 
     public static AbilityInstanceManager getAbilityInstanceManager() {
         return instanceManager;
+    }
+
+    // Forces all abilities to be loaded. This ensures all of them create their static Config objects.
+    private void initializeAbilities() {
+        try {
+            ClassPath cp = ClassPath.from(Game.class.getClassLoader());
+
+            for (ClassPath.ClassInfo info : cp.getTopLevelClassesRecursive("com.plushnode.atlacore.ability")) {
+                try {
+                    Class.forName(info.getName());
+                } catch (ClassNotFoundException e) {
+
+                }
+            }
+        } catch (IOException e) {
+
+        }
     }
 }

@@ -1,8 +1,7 @@
 package com.plushnode.atlacore.ability;
 
-import com.plushnode.atlacore.Entity;
 import com.plushnode.atlacore.User;
-import com.plushnode.atlacore.config.Configuration;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public interface Ability {
     // return true if the ability can be created
@@ -18,7 +17,7 @@ public interface Ability {
         return newAbility == null || !newAbility.isAbility(this);
     }
 
-    default void onConfigReload(Configuration config) {
+    default void onConfigReload(CommentedConfigurationNode config) {
 
     }
 

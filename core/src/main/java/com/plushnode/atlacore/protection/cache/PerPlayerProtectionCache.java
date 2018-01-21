@@ -28,7 +28,6 @@ public class PerPlayerProtectionCache implements ProtectionCache {
         }
 
         runnable = () -> {
-            System.out.println("evicting old cache data");
             for (Map<Block, BlockCacheElement> map : blockCache.values()) {
                 Iterator<Map.Entry<Block, BlockCacheElement>> iter;
 

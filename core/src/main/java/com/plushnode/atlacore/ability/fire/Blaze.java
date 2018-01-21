@@ -7,6 +7,7 @@ import com.plushnode.atlacore.block.Block;
 import com.plushnode.atlacore.block.BlockFace;
 import com.plushnode.atlacore.block.BlockState;
 import com.plushnode.atlacore.block.Material;
+import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.util.TempBlock;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -165,6 +166,15 @@ public class Blaze implements Ability {
             } else {
                 this.blocked = true;
             }
+        }
+    }
+
+    private static class Config extends Configurable {
+        public int range;
+
+        @Override
+        public void onConfigReload() {
+
         }
     }
 }

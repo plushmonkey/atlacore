@@ -1,11 +1,11 @@
 package com.plushnode.atlacore.policies.removal;
 
-import com.plushnode.atlacore.config.Configuration;
+import ninja.leaping.configurate.ConfigurationNode;
 
 public interface RemovalPolicy {
     boolean shouldRemove();
 
-    default void load(Configuration config) { }
+    default void load(ConfigurationNode config) { }
     String getName();
 }
 

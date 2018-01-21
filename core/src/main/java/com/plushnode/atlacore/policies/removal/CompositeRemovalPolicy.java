@@ -1,7 +1,7 @@
 package com.plushnode.atlacore.policies.removal;
 
 import com.plushnode.atlacore.ability.AbilityDescription;
-import com.plushnode.atlacore.config.Configuration;
+import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,18 +35,22 @@ public class CompositeRemovalPolicy implements RemovalPolicy {
         return false;
     }
 
-    public void load(Configuration config, String prefix) {
+    public void load(ConfigurationNode config, String prefix) {
         if (this.policies.isEmpty()) return;
 
         String pathPrefix = prefix + ".RemovalPolicy.";
 
+        String[] tokens = pathPrefix.split("\\.");
+        ConfigurationNode node = config.getNode(tokens);
+
         // Load the configuration section for each policy and pass it to the load method.
         for (Iterator<RemovalPolicy> iterator = policies.iterator(); iterator.hasNext(); ) {
             RemovalPolicy policy = iterator.next();
-            Configuration section = config.getConfigurationSection(pathPrefix + policy.getName());
+
+            ConfigurationNode section = node.getNode(policy.getName().toLowerCase());
 
             if (section != null) {
-                boolean enabled = section.getBoolean("Enabled");
+                boolean enabled = section.getNode("enabled").getBoolean();
 
                 if (!enabled) {
                     iterator.remove();
@@ -59,7 +63,7 @@ public class CompositeRemovalPolicy implements RemovalPolicy {
     }
 
     @Override
-    public void load(Configuration config) {
+    public void load(ConfigurationNode config) {
         if (this.policies.isEmpty()) return;
 
 
