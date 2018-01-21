@@ -3,10 +3,12 @@ package com.plushnode.atlacore;
 import com.google.common.reflect.ClassPath;
 import com.plushnode.atlacore.ability.*;
 import com.plushnode.atlacore.ability.air.AirScooter;
+import com.plushnode.atlacore.ability.earth.Shockwave;
 import com.plushnode.atlacore.ability.fire.Blaze;
 import com.plushnode.atlacore.collision.CollisionSystem;
 import com.plushnode.atlacore.element.Element;
 import com.plushnode.atlacore.protection.ProtectionSystem;
+import com.plushnode.atlacore.util.TempBlockManager;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,6 +22,7 @@ public class Game {
 
     private static AbilityRegistry abilityRegistry;
     private static AbilityInstanceManager instanceManager;
+    private static TempBlockManager tempBlockManager;
 
     public Game(CorePlugin plugin, CollisionSystem collisionSystem) {
         Game.plugin = plugin;
@@ -28,6 +31,7 @@ public class Game {
         instanceManager = new AbilityInstanceManager();
         abilityRegistry = new AbilityRegistry();
         protectionSystem = new ProtectionSystem();
+        tempBlockManager = new TempBlockManager();
 
         Element airElement = new Element() {
             @Override
@@ -83,12 +87,40 @@ public class Game {
             }
         };
 
+        Element earthElement = new Element() {
+            @Override
+            public String getName() {
+                return "Earth";
+            }
+
+            @Override
+            public String getPermission() {
+                return "";
+            }
+
+            @Override
+            public AbilityRegistry getAbilityRegistry() {
+                return new AbilityRegistry();
+            }
+
+            @Override
+            public List<AbilityDescription> getPassives() {
+                return Arrays.asList();
+            }
+
+            @Override
+            public void addPassive(AbilityDescription passive) {
+
+            }
+        };
+
         AbilityDescription blazeDesc = new GenericAbilityDescription<>("Blaze", "Blaze it 420", fireElement, 3000, Arrays.asList(ActivationMethod.Sneak), Blaze.class, false);
         AbilityDescription scooterDesc = new GenericAbilityDescription<>("AirScooter", "scoot scoot", airElement, 3000, Arrays.asList(ActivationMethod.Punch), AirScooter.class, true);
+        AbilityDescription shockwaveDesc = new GenericAbilityDescription<>("Shockwave", "wave wave", earthElement, 6000, Arrays.asList(ActivationMethod.Sneak), Shockwave.class, false);
 
-        System.out.println("Blaze registered.");
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
+        abilityRegistry.registerAbility(shockwaveDesc);
 
         initializeAbilities();
     }
@@ -123,6 +155,10 @@ public class Game {
 
     public static AbilityInstanceManager getAbilityInstanceManager() {
         return instanceManager;
+    }
+
+    public static TempBlockManager getTempBlockManager() {
+        return tempBlockManager;
     }
 
     // Forces all abilities to be loaded. This ensures all of them create their static Config objects.

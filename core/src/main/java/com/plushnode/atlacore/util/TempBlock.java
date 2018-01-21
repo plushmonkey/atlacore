@@ -19,6 +19,8 @@ public class TempBlock {
 
         setter = Game.plugin.getBlockSetter(BlockSetter.Flag.FAST);
         setter.setBlock(block.getLocation(), tempType);
+
+        Game.getTempBlockManager().add(this);
     }
 
     public TempBlock(BlockState blockState, Material tempType) {
@@ -28,6 +30,8 @@ public class TempBlock {
 
         setter = Game.plugin.getBlockSetter(BlockSetter.Flag.FAST);
         setter.setBlock(previousState.getBlock(), tempType);
+
+        Game.getTempBlockManager().add(this);
     }
 
     public TempBlock(Block block, Material tempType, boolean applyPhysics) {
@@ -42,6 +46,8 @@ public class TempBlock {
         } else {
             setter.setBlock(block, tempType);
         }
+
+        Game.getTempBlockManager().add(this);
     }
 
     // Refresh the block to the temporary state
@@ -55,6 +61,8 @@ public class TempBlock {
     }
 
     public void reset() {
+        Game.getTempBlockManager().remove(this);
+
         if (this.applyPhysics) {
             this.previousState.update(true);
         } else {

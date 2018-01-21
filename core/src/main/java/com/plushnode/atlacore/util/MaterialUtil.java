@@ -16,6 +16,12 @@ public final class MaterialUtil {
             Material.CROPS, Material.SNOW, Material.SUGAR_CANE_BLOCK, Material.VINE, Material.DOUBLE_PLANT
     );
 
+    private static final List<Material> EARTH_MATERIALS = Arrays.asList(
+            Material.DIRT, Material.MYCEL, Material.GRASS, Material.STONE, Material.GRAVEL, Material.CLAY,
+            Material.COAL_ORE, Material.IRON_ORE, Material.GOLD_ORE, Material.REDSTONE_ORE, Material.LAPIS_ORE,
+            Material.DIAMOND_ORE, Material.NETHERRACK, Material.QUARTZ_ORE, Material.COBBLESTONE, Material.STEP
+    );
+
     private MaterialUtil() {
 
     }
@@ -31,5 +37,9 @@ public final class MaterialUtil {
         if (blockBounds.min() == null || blockBounds.max() == null) return false;
 
         return blockBounds.min().distanceSq(blockBounds.max()) > 0;
+    }
+
+    public static boolean isEarthbendable(Block block) {
+        return EARTH_MATERIALS.contains(block.getType());
     }
 }

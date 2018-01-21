@@ -142,7 +142,7 @@ public class LocationWrapper implements Location {
     @Override
     public Location setZ(double z) {
         Vector3d p = location.getPosition();
-        Vector3d np = new Vector3d(p.getZ(), p.getY(), z);
+        Vector3d np = new Vector3d(p.getX(), p.getY(), z);
         return new LocationWrapper(location.setPosition(np));
     }
 

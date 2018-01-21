@@ -4,6 +4,7 @@ import com.plushnode.atlacore.Entity;
 import com.plushnode.atlacore.LivingEntity;
 import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.block.Block;
+import com.plushnode.atlacore.entity.EntityFactory;
 import org.bukkit.World;
 
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class WorldWrapper implements com.plushnode.atlacore.World {
 
     @Override
     public List<Entity> getEntities() {
-        return this.world.getEntities().stream().map(EntityWrapper::new).collect(Collectors.toList());
+        return this.world.getEntities().stream().map(EntityFactory::createEntity).collect(Collectors.toList());
     }
 
     @Override
@@ -98,7 +99,7 @@ public class WorldWrapper implements com.plushnode.atlacore.World {
         LocationWrapper lw = (LocationWrapper)location;
 
         return world.getNearbyEntities(lw.getBukkitLocation(), x, y, z).stream()
-                .map(EntityWrapper::new)
+                .map(EntityFactory::createEntity)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

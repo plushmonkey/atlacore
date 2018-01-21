@@ -5,6 +5,7 @@ import com.plushnode.atlacore.LivingEntity;
 import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.World;
 import com.plushnode.atlacore.block.Block;
+import com.plushnode.atlacore.entity.EntityFactory;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.key.Keys;
@@ -54,7 +55,7 @@ public class WorldWrapper implements World {
 
     @Override
     public List<Entity> getEntities() {
-        return this.world.getEntities().stream().map(EntityWrapper::new).collect(Collectors.toList());
+        return this.world.getEntities().stream().map(EntityFactory::createEntity).collect(Collectors.toList());
     }
 
     @Override
@@ -115,7 +116,7 @@ public class WorldWrapper implements World {
         double radius = Math.max(x, Math.max(y, z));
 
         return world.getEntities(e -> SpongeTypeUtil.adapt(e.getLocation()).distanceSquared(location) <= radius).stream()
-                .map(EntityWrapper::new)
+                .map(EntityFactory::createEntity)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

@@ -5,5 +5,6 @@ public enum ActivationMethod {
     Punch,
     Use,
     Sneak,
-    SneakRelease
+    SneakRelease,
+    Fall
 }

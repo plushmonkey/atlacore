@@ -7,6 +7,7 @@ import com.plushnode.atlacore.Game;
 import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.ability.ActivationMethod;
+import com.plushnode.atlacore.ability.earth.Shockwave;
 import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.collision.Ray;
 import com.plushnode.atlacore.util.TypeUtil;
@@ -16,6 +17,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
@@ -30,14 +32,56 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
+    public void onFallDamage(EntityDamageEvent event) {
+        if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
+        if (!(event.getEntity() instanceof Player)) return;
+
+        Player player = (Player)event.getEntity();
+        if (player.isSneaking()) return;
+
+        int slot = player.getInventory().getHeldItemSlot();
+        if (slot != 1) return;
+
+        BendingUser user = new BendingPlayer(player);
+
+        if (!Shockwave.canFallActivate(user)) return;
+
+        String abilityName = "Shockwave";
+
+        AbilityDescription abilityDesc = plugin.getGame().getAbilityDescription(abilityName);
+        if (abilityDesc == null) {
+            System.out.println(abilityName + " not found.");
+            return;
+        }
+
+        Ability ability = abilityDesc.createAbility();
+
+        if (ability.create(user, ActivationMethod.Fall)) {
+            plugin.getGame().addAbility(user, ability);
+            System.out.println(abilityName + " created!");
+
+            Shockwave shockwave = (Shockwave)ability;
+            shockwave.skipCharging();
+        } else {
+            System.out.println("Failed to create "  + abilityName);
+        }
+    }
+
+    @EventHandler
     public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
         if (!event.isSneaking()) return;
 
         Player player = event.getPlayer();
 
-        AbilityDescription abilityDesc = plugin.getGame().getAbilityDescription("Blaze");
+        int slot = player.getInventory().getHeldItemSlot();
+        String abilityName = "Blaze";
+        if (slot == 1) {
+            abilityName = "Shockwave";
+        }
+
+        AbilityDescription abilityDesc = plugin.getGame().getAbilityDescription(abilityName);
         if (abilityDesc == null) {
-            System.out.println("Blaze not found.");
+            System.out.println(abilityName + " not found.");
             return;
         }
 
@@ -46,9 +90,9 @@ public class PlayerListener implements Listener {
 
         if (ability.create(user, ActivationMethod.Sneak)) {
             plugin.getGame().addAbility(user, ability);
-            System.out.println("Blaze created!");
+            System.out.println(abilityName + " created!");
         } else {
-            System.out.println("Failed to create blaze.");
+            System.out.println("Failed to create "  + abilityName);
         }
     }
 
@@ -56,30 +100,48 @@ public class PlayerListener implements Listener {
     public void onPlayerSwing(PlayerAnimationEvent event) {
         Player player = event.getPlayer();
 
-        AbilityDescription abilityDesc = plugin.getGame().getAbilityDescription("AirScooter");
+        String abilityName = "AirScooter";
+
+        int slot = player.getInventory().getHeldItemSlot();
+        if (slot == 1) {
+            abilityName = "Shockwave";
+        }
+
+        AbilityDescription abilityDesc = plugin.getGame().getAbilityDescription(abilityName);
         if (abilityDesc == null) {
-            System.out.println("AirScooter not found.");
+            System.out.println(abilityName + " not found.");
             return;
         }
 
         Ability ability = abilityDesc.createAbility();
         BendingUser user = new BendingPlayer(player);
 
-        // todo: test code, formalize later
-        for (Ability abil : Game.getAbilityInstanceManager().getPlayerInstances(user)) {
-            if (abil.getClass() == ability.getClass()) {
-                Game.getAbilityInstanceManager().destroyInstance(user, abil);
-                return;
+        if (abilityName.equals("AirScooter")) {
+            // todo: test code, formalize later
+            for (Ability abil : Game.getAbilityInstanceManager().getPlayerInstances(user)) {
+                if (abil.getClass() == ability.getClass()) {
+                    Game.getAbilityInstanceManager().destroyInstance(user, abil);
+                    return;
+                }
+            }
+
+            if (ability.create(user, ActivationMethod.Punch)) {
+                plugin.getGame().addAbility(user, ability);
+                System.out.println(abilityName + " created!");
+            } else {
+                System.out.println("Failed to create " + abilityName);
+            }
+        } else if (abilityName.equals("Shockwave")) {
+            for (Ability abil : Game.getAbilityInstanceManager().getPlayerInstances(user)) {
+                if (abil.getClass() == Shockwave.class) {
+                    Shockwave shockwave = (Shockwave)abil;
+                    if (!shockwave.isReleased()) {
+                        shockwave.activateConal();
+                        break;
+                    }
+                }
             }
         }
-
-        if (ability.create(user, ActivationMethod.Punch)) {
-            plugin.getGame().addAbility(user, ability);
-            System.out.println("AirScooter created!");
-        } else {
-            System.out.println("Failed to create AirScooter.");
-        }
-
 
         /*Player player = event.getPlayer();
         LivingEntity target = getTargetEntity(player, 30);
