@@ -3,7 +3,7 @@ package com.plushnode.atlacore.protection.methods;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
-import com.plushnode.atlacore.BendingPlayer;
+import com.plushnode.atlacore.BukkitBendingPlayer;
 import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.User;
 import com.plushnode.atlacore.ability.AbilityDescription;
@@ -24,8 +24,8 @@ public class LWCProtectMethod implements ProtectMethod {
 
     @Override
     public boolean canBuild(User user, AbilityDescription abilityDescription, Location location) {
-        if (!(user instanceof BendingPlayer)) return true;
-        Player player = ((BendingPlayer)user).getBukkitPlayer();
+        if (!(user instanceof BukkitBendingPlayer)) return true;
+        Player player = ((BukkitBendingPlayer)user).getBukkitPlayer();
         org.bukkit.Location bukkitLocation = ((LocationWrapper)location).getBukkitLocation();
 
         LWC lwc = lwcPlugin.getLWC();

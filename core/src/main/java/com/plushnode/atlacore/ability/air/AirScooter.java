@@ -41,7 +41,7 @@ public class AirScooter implements Ability {
     private CompositeRemovalPolicy removalPolicy;
 
     @Override
-    public boolean create(User user, ActivationMethod method) {
+    public boolean activate(User user, ActivationMethod method) {
         if (user instanceof Player) {
             Player player = (Player)user;
 
@@ -51,12 +51,16 @@ public class AirScooter implements Ability {
             }
         }
 
+        if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
+            return false;
+        }
+
         this.user = user;
         this.heightPredictor = new HeightPredictor(user, config.targetHeight, config.speed);
         this.heightSmoother = new DoubleSmoother(config.heightTolerance);
 
         double dist = Game.getCollisionSystem().distanceAboveGround(user, groundMaterials);
-        // Only create AirScooter is the player is in the air and near the ground.
+        // Only activate AirScooter if the player is in the air and near the ground.
         if ((dist < 0.5 || dist > 5.0) && !user.getLocation().getBlock().isLiquid()) {
             return false;
         }
@@ -104,7 +108,7 @@ public class AirScooter implements Ability {
 
     @Override
     public void destroy() {
-
+        user.setCooldown(getDescription());
     }
 
     public void render() {

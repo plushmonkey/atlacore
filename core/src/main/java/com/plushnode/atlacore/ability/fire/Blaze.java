@@ -20,7 +20,7 @@ public class Blaze implements Ability {
     private List<FireStream> fireStreams;
 
     @Override
-    public boolean create(User user, ActivationMethod method) {
+    public boolean activate(User user, ActivationMethod method) {
         System.out.println("Creating blaze for caster " + user);
         this.location = user.getLocation();
         this.fireStreams = new ArrayList<>();
@@ -51,6 +51,8 @@ public class Blaze implements Ability {
             int range = 10;
             fireStreams.add(new FireStream(direction, range));
         }
+
+        user.setCooldown(getDescription());
         return true;
     }
 

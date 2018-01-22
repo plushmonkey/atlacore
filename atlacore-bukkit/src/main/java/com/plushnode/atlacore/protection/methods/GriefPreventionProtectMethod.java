@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.protection.methods;
 
-import com.plushnode.atlacore.BendingPlayer;
+import com.plushnode.atlacore.BukkitBendingPlayer;
 import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.User;
 import com.plushnode.atlacore.ability.AbilityDescription;
@@ -21,8 +21,8 @@ public class GriefPreventionProtectMethod implements ProtectMethod {
 
     @Override
     public boolean canBuild(User user, AbilityDescription abilityDescription, Location location) {
-        if (!(user instanceof BendingPlayer)) return true;
-        Player player = ((BendingPlayer)user).getBukkitPlayer();
+        if (!(user instanceof BukkitBendingPlayer)) return true;
+        Player player = ((BukkitBendingPlayer)user).getBukkitPlayer();
         org.bukkit.Location bukkitLocation = ((LocationWrapper)location).getBukkitLocation();
 
         String reason = GriefPrevention.instance.allowBuild(player, bukkitLocation);

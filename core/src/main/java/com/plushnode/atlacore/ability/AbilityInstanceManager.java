@@ -29,7 +29,7 @@ public class AbilityInstanceManager {
             if (passives != null) {
                 for (AbilityDescription passive : passives) {
                     Ability ability = passive.createAbility();
-                    if (ability.create(user, ActivationMethod.Passive)) {
+                    if (ability.activate(user, ActivationMethod.Passive)) {
                         this.addAbility(user, ability);
                     }
                 }
@@ -60,6 +60,31 @@ public class AbilityInstanceManager {
 
         abilities.remove(ability);
         ability.destroy();
+    }
+
+    public boolean destroyInstanceType(User user, AbilityDescription abilityDesc) {
+        if (abilityDesc == null) return false;
+
+        Ability destroyAbility = abilityDesc.createAbility();
+        return destroyInstanceType(user, destroyAbility.getClass());
+    }
+
+    public boolean destroyInstanceType(User user, Class<? extends Ability> clazz) {
+        List<Ability> abilities = globalInstances.get(user);
+        if (abilities == null) return false;
+
+        boolean destroyed = false;
+        for (Iterator<Ability> iterator = abilities.iterator(); iterator.hasNext();) {
+            Ability ability = iterator.next();
+
+            if (ability.getClass() == clazz) {
+                iterator.remove();
+                ability.destroy();
+                destroyed = true;
+            }
+        }
+
+        return destroyed;
     }
 
     // Get the number of active abilities.

@@ -114,9 +114,12 @@ public class Game {
             }
         };
 
-        AbilityDescription blazeDesc = new GenericAbilityDescription<>("Blaze", "Blaze it 420", fireElement, 3000, Arrays.asList(ActivationMethod.Sneak), Blaze.class, false);
-        AbilityDescription scooterDesc = new GenericAbilityDescription<>("AirScooter", "scoot scoot", airElement, 3000, Arrays.asList(ActivationMethod.Punch), AirScooter.class, true);
-        AbilityDescription shockwaveDesc = new GenericAbilityDescription<>("Shockwave", "wave wave", earthElement, 6000, Arrays.asList(ActivationMethod.Sneak), Shockwave.class, false);
+        AbilityDescription blazeDesc = new GenericAbilityDescription<>("Blaze", "Blaze it 420", fireElement, 3000,
+                Arrays.asList(ActivationMethod.Sneak), Blaze.class, false);
+        AbilityDescription scooterDesc = new GenericAbilityDescription<>("AirScooter", "scoot scoot", airElement, 3000,
+                Arrays.asList(ActivationMethod.Punch), AirScooter.class, true);
+        AbilityDescription shockwaveDesc = new GenericAbilityDescription<>("Shockwave", "wave wave", earthElement, 6000,
+                Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak, ActivationMethod.Fall), Shockwave.class, false);
 
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);

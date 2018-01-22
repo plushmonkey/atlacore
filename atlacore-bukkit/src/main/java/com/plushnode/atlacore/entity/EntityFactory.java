@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.entity;
 
-import com.plushnode.atlacore.BendingPlayer;
+import com.plushnode.atlacore.BukkitBendingPlayer;
 import com.plushnode.atlacore.wrappers.EntityWrapper;
 import com.plushnode.atlacore.wrappers.LivingEntityWrapper;
 import org.bukkit.entity.Entity;
@@ -14,7 +14,7 @@ public final class EntityFactory {
 
     public static EntityWrapper createEntity(Entity entity) {
         if (entity instanceof Player)
-            return new BendingPlayer((Player)entity);
+            return new BukkitBendingPlayer((Player)entity);
         if (entity instanceof LivingEntity)
             return new LivingEntityWrapper((LivingEntity)entity);
         return new EntityWrapper(entity);

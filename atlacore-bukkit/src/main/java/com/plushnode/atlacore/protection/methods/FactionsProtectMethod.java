@@ -3,7 +3,7 @@ package com.plushnode.atlacore.protection.methods;
 import com.massivecraft.factions.Factions;
 import com.massivecraft.factions.engine.EngineMain;
 import com.massivecraft.massivecore.ps.PS;
-import com.plushnode.atlacore.BendingPlayer;
+import com.plushnode.atlacore.BukkitBendingPlayer;
 import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.User;
 import com.plushnode.atlacore.ability.AbilityDescription;
@@ -24,8 +24,8 @@ public class FactionsProtectMethod implements ProtectMethod {
 
     @Override
     public boolean canBuild(User user, AbilityDescription abilityDescription, Location location) {
-        if (!(user instanceof BendingPlayer)) return true;
-        Player player = ((BendingPlayer)user).getBukkitPlayer();
+        if (!(user instanceof BukkitBendingPlayer)) return true;
+        Player player = ((BukkitBendingPlayer)user).getBukkitPlayer();
         Block block = ((BlockWrapper)location.getBlock()).getBukkitBlock();
 
         return EngineMain.canPlayerBuildAt(player, PS.valueOf(block), false);

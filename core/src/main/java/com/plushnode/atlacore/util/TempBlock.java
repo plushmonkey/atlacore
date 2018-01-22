@@ -13,25 +13,11 @@ public class TempBlock {
     private BlockSetter setter;
 
     public TempBlock(Block block, Material tempType) {
-        this.previousState = block.getState();
-        this.tempType = tempType;
-        this.applyPhysics = false;
-
-        setter = Game.plugin.getBlockSetter(BlockSetter.Flag.FAST);
-        setter.setBlock(block.getLocation(), tempType);
-
-        Game.getTempBlockManager().add(this);
+        this(block, tempType, false);
     }
 
     public TempBlock(BlockState blockState, Material tempType) {
-        this.previousState = blockState;
-        this.tempType = tempType;
-        this.applyPhysics = false;
-
-        setter = Game.plugin.getBlockSetter(BlockSetter.Flag.FAST);
-        setter.setBlock(previousState.getBlock(), tempType);
-
-        Game.getTempBlockManager().add(this);
+        this(blockState, tempType, false);
     }
 
     public TempBlock(Block block, Material tempType, boolean applyPhysics) {
@@ -39,13 +25,29 @@ public class TempBlock {
         this.tempType = tempType;
         this.applyPhysics = applyPhysics;
 
-        setter = Game.plugin.getBlockSetter(BlockSetter.Flag.FAST);
-
-        if (this.applyPhysics) {
-            block.setType(tempType);
-        } else {
-            setter.setBlock(block, tempType);
+        BlockSetter.Flag flag = BlockSetter.Flag.FAST;
+        if (applyPhysics) {
+            flag = BlockSetter.Flag.LIGHTING;
         }
+
+        setter = Game.plugin.getBlockSetter(flag);
+        setter.setBlock(block, tempType);
+
+        Game.getTempBlockManager().add(this);
+    }
+
+    public TempBlock(BlockState blockState, Material tempType, boolean applyPhysics) {
+        this.previousState = blockState;
+        this.tempType = tempType;
+        this.applyPhysics = false;
+
+        BlockSetter.Flag flag = BlockSetter.Flag.FAST;
+        if (applyPhysics) {
+            flag = BlockSetter.Flag.LIGHTING;
+        }
+
+        setter = Game.plugin.getBlockSetter(flag);
+        setter.setBlock(previousState.getBlock(), tempType);
 
         Game.getTempBlockManager().add(this);
     }

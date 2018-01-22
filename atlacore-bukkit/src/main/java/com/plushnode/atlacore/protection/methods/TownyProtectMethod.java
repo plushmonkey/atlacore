@@ -5,7 +5,7 @@ import com.palmergames.bukkit.towny.object.*;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import com.palmergames.bukkit.towny.war.flagwar.TownyWar;
 import com.palmergames.bukkit.towny.war.flagwar.TownyWarConfig;
-import com.plushnode.atlacore.BendingPlayer;
+import com.plushnode.atlacore.BukkitBendingPlayer;
 import com.plushnode.atlacore.Location;
 import com.plushnode.atlacore.User;
 import com.plushnode.atlacore.ability.AbilityDescription;
@@ -28,8 +28,8 @@ public class TownyProtectMethod implements ProtectMethod {
 
     @Override
     public boolean canBuild(User user, AbilityDescription abilityDescription, Location location) {
-        if (!(user instanceof BendingPlayer)) return true;
-        Player player = ((BendingPlayer)user).getBukkitPlayer();
+        if (!(user instanceof BukkitBendingPlayer)) return true;
+        Player player = ((BukkitBendingPlayer)user).getBukkitPlayer();
         org.bukkit.Location bukkitLocation = ((LocationWrapper)location).getBukkitLocation();
 
         boolean canBuild = true;

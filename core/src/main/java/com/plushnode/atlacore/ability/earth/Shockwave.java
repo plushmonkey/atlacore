@@ -39,8 +39,29 @@ public class Shockwave implements Ability {
     private long startTime;
 
     @Override
-    public boolean create(User user, ActivationMethod method) {
+    public boolean activate(User user, ActivationMethod method) {
         this.startTime = System.currentTimeMillis();
+
+        if (method == ActivationMethod.Fall) {
+            // Don't activate fall method when user is sneaking.
+            if (user instanceof Player && ((Player) user).isSneaking()) {
+                return false;
+            }
+
+            // Make sure the user fall distance is high enough.
+            if (!canFallActivate(user)) {
+                return false;
+            }
+        } else if (method == ActivationMethod.Punch) {
+            for (Shockwave instance : instances) {
+                if (instance.user == user && !instance.isReleased()) {
+                    instance.activateConal();
+                    break;
+                }
+            }
+
+            return false;
+        }
 
         this.user = user;
         this.charged = false;
@@ -55,6 +76,11 @@ public class Shockwave implements Ability {
         this.lastUpdate = 0;
 
         instances.add(this);
+
+        if (method == ActivationMethod.Fall) {
+            skipCharging();
+        }
+
         return true;
     }
 
@@ -79,7 +105,7 @@ public class Shockwave implements Ability {
                 this.released = true;
                 this.origin = user.getLocation().clone();
 
-                // add cooldown
+                user.setCooldown(getDescription());
 
                 buildOffsets();
 

@@ -1,7 +1,9 @@
 package com.plushnode.atlacore;
 
-public class BendingPlayer extends BendingUser implements Player {
-    public BendingPlayer(org.bukkit.entity.Player player) {
+import com.plushnode.atlacore.ability.AbilityDescription;
+
+public class BukkitBendingPlayer extends BukkitBendingUser implements Player {
+    public BukkitBendingPlayer(org.bukkit.entity.Player player) {
         super(player);
     }
 
@@ -11,8 +13,8 @@ public class BendingPlayer extends BendingUser implements Player {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BendingPlayer) {
-            return getBukkitPlayer().equals(((BendingPlayer)obj).getBukkitPlayer());
+        if (obj instanceof BukkitBendingPlayer) {
+            return getBukkitPlayer().equals(((BukkitBendingPlayer)obj).getBukkitPlayer());
         }
         return getBukkitPlayer().equals(obj);
     }
@@ -30,5 +32,11 @@ public class BendingPlayer extends BendingUser implements Player {
     @Override
     public boolean isSneaking() {
         return getBukkitPlayer().isSneaking();
+    }
+
+    @Override
+    public AbilityDescription getSelectedAbility() {
+        int slot = getBukkitPlayer().getInventory().getHeldItemSlot() + 1;
+        return getSlotAbility(slot);
     }
 }

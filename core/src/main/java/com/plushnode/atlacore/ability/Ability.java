@@ -1,11 +1,12 @@
 package com.plushnode.atlacore.ability;
 
+import com.plushnode.atlacore.Game;
 import com.plushnode.atlacore.User;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public interface Ability {
-    // return true if the ability can be created
-    boolean create(User user, ActivationMethod method);
+    // return true if the ability was activated
+    boolean activate(User user, ActivationMethod method);
     // Return true to destroy instance
     boolean update();
 
@@ -22,4 +23,7 @@ public interface Ability {
     }
 
     String getName();
+    default AbilityDescription getDescription() {
+        return Game.getAbilityRegistry().getAbilityDescription(this);
+    }
 }
