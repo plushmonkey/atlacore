@@ -54,6 +54,11 @@ public class WorldWrapper implements World {
     }
 
     @Override
+    public Location getLocation(double x, double y, double z) {
+        return new LocationWrapper(new org.spongepowered.api.world.Location<>(world, x, y, z));
+    }
+
+    @Override
     public List<Entity> getEntities() {
         return this.world.getEntities().stream().map(EntityFactory::createEntity).collect(Collectors.toList());
     }

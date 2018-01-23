@@ -263,7 +263,7 @@ public class AirSwipe implements Ability {
 
             abilityNode.getNode("speed").setComment("How many meters the streams advance with each tick.");
             abilityNode.getNode("arc").setComment("How large the entire arc is in degrees.");
-            abilityNode.getNode("arcStep").setComment("How many degrees apart each stream is in the arc.");
+            abilityNode.getNode("arc-step").setComment("How many degrees apart each stream is in the arc.");
             abilityNode.getNode("charge").getNode("max-time").setComment("How many milliseconds it takes to fully charge.");
             abilityNode.getNode("charge").getNode("factor").setComment("How much the damage and knockback are multiplied by at full charge.");
         }

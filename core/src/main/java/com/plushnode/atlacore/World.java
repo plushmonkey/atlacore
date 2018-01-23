@@ -1,6 +1,7 @@
 package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.block.Block;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,6 +10,11 @@ import java.util.UUID;
 public interface World {
     Block getBlockAt(int x, int y, int z);
     Block getBlockAt(Location location);
+
+    Location getLocation(double x, double y, double z);
+    default Location getLocation(Vector3D position) {
+        return getLocation(position.getX(), position.getY(), position.getZ());
+    }
 
     List<Entity> getEntities();
     long getFullTime();

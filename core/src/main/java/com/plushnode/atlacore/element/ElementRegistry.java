@@ -18,6 +18,8 @@ public class ElementRegistry extends Configurable {
 
     @Override
     public void onConfigReload() {
+        if (elements == null) return;
+
         for (Element element : elements.values()) {
             AbilityRegistry registry = element.getAbilityRegistry();
 
@@ -26,7 +28,6 @@ public class ElementRegistry extends Configurable {
             }
 
             for (AbilityDescription abilityDesc : registry.getAbilities()) {
-                String section = element.getName() + "." + abilityDesc.getName() + ".";
                 CommentedConfigurationNode node = config.getNode("abilities",
                         element.getName(), abilityDesc.getName().toLowerCase());
 

@@ -74,6 +74,11 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
         return elements;
     }
 
+    @Override
+    public boolean hasElement(Element element) {
+        return elements.contains(element);
+    }
+
     public boolean canBind(AbilityDescription abilityDesc) {
         return elements.contains(abilityDesc.getElement());
     }

@@ -38,6 +38,10 @@ public class PlayerListener implements Listener {
         if (user == null) {
             user = new BukkitBendingPlayer(player);
 
+            user.addElement(Game.getElementRegistry().getElementByName("Air"));
+            user.addElement(Game.getElementRegistry().getElementByName("Fire"));
+            user.addElement(Game.getElementRegistry().getElementByName("Earth"));
+
             users.put(player, user);
 
             System.out.println("Creating and binding user");
@@ -46,11 +50,13 @@ public class PlayerListener implements Listener {
             AbilityDescription airScooter = Game.getAbilityRegistry().getAbilityByName("AirScooter");
             AbilityDescription shockwave = Game.getAbilityRegistry().getAbilityByName("Shockwave");
             AbilityDescription airSwipe = Game.getAbilityRegistry().getAbilityByName("AirSwipe");
+            AbilityDescription airBlast = Game.getAbilityRegistry().getAbilityByName("AirBlast");
 
             user.setSlotAbility(1, blaze);
             user.setSlotAbility(2, airScooter);
             user.setSlotAbility(3, shockwave);
             user.setSlotAbility(4, airSwipe);
+            user.setSlotAbility(5, airBlast);
         }
 
         return user;
@@ -63,6 +69,7 @@ public class PlayerListener implements Listener {
         if (!abilityDescription.isActivatedBy(method)) return false;
         if (user.isOnCooldown(abilityDescription)) return false;
         if (!abilityDescription.isEnabled()) return false;
+        if (!user.hasElement(abilityDescription.getElement())) return false;
 
         String abilityName = abilityDescription.getName();
         Ability ability = abilityDescription.createAbility();
@@ -87,6 +94,10 @@ public class PlayerListener implements Listener {
         User user = getBendingUser(player);
 
         activateAbility(user, ActivationMethod.Fall);
+
+        if (user.hasElement(Game.getElementRegistry().getElementByName("Air"))) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler

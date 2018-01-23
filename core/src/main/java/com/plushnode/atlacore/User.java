@@ -10,6 +10,7 @@ public interface User extends LivingEntity {
     void addElement(Element element);
     void removeElement(Element element);
     List<Element> getElements();
+    boolean hasElement(Element element);
 
     boolean canBind(AbilityDescription abilityDesc);
     void setSlotAbility(int slot, AbilityDescription abilityDesc);

@@ -2,18 +2,19 @@ package com.plushnode.atlacore;
 
 import com.google.common.reflect.ClassPath;
 import com.plushnode.atlacore.ability.*;
+import com.plushnode.atlacore.ability.air.AirBlast;
 import com.plushnode.atlacore.ability.air.AirScooter;
 import com.plushnode.atlacore.ability.air.AirSwipe;
 import com.plushnode.atlacore.ability.earth.Shockwave;
 import com.plushnode.atlacore.ability.fire.Blaze;
 import com.plushnode.atlacore.collision.CollisionSystem;
-import com.plushnode.atlacore.element.Element;
+import com.plushnode.atlacore.element.BasicElement;
+import com.plushnode.atlacore.element.ElementRegistry;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.util.TempBlockManager;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 public class Game {
     public static CorePlugin plugin;
@@ -22,6 +23,7 @@ public class Game {
     private static CollisionSystem collisionSystem;
 
     private static AbilityRegistry abilityRegistry;
+    private static ElementRegistry elementRegistry;
     private static AbilityInstanceManager instanceManager;
     private static TempBlockManager tempBlockManager;
 
@@ -33,101 +35,38 @@ public class Game {
         abilityRegistry = new AbilityRegistry();
         protectionSystem = new ProtectionSystem();
         tempBlockManager = new TempBlockManager();
+        elementRegistry = new ElementRegistry();
 
-        Element airElement = new Element() {
-            @Override
-            public String getName() {
-                return "Air";
-            }
+        elementRegistry.registerElement(new BasicElement("Air"));
+        elementRegistry.registerElement(new BasicElement("Earth"));
+        elementRegistry.registerElement(new BasicElement("Fire"));
+        elementRegistry.registerElement(new BasicElement("Water"));
 
-            @Override
-            public String getPermission() {
-                return "";
-            }
-
-            @Override
-            public AbilityRegistry getAbilityRegistry() {
-                return new AbilityRegistry();
-            }
-
-            @Override
-            public List<AbilityDescription> getPassives() {
-                return Arrays.asList();
-            }
-
-            @Override
-            public void addPassive(AbilityDescription passive) {
-
-            }
-        };
-
-        Element fireElement = new Element() {
-            @Override
-            public String getName() {
-                return "Fire";
-            }
-
-            @Override
-            public String getPermission() {
-                return "";
-            }
-
-            @Override
-            public AbilityRegistry getAbilityRegistry() {
-                return new AbilityRegistry();
-            }
-
-            @Override
-            public List<AbilityDescription> getPassives() {
-                return Arrays.asList();
-            }
-
-            @Override
-            public void addPassive(AbilityDescription passive) {
-
-            }
-        };
-
-        Element earthElement = new Element() {
-            @Override
-            public String getName() {
-                return "Earth";
-            }
-
-            @Override
-            public String getPermission() {
-                return "";
-            }
-
-            @Override
-            public AbilityRegistry getAbilityRegistry() {
-                return new AbilityRegistry();
-            }
-
-            @Override
-            public List<AbilityDescription> getPassives() {
-                return Arrays.asList();
-            }
-
-            @Override
-            public void addPassive(AbilityDescription passive) {
-
-            }
-        };
-
-        AbilityDescription blazeDesc = new GenericAbilityDescription<>("Blaze", "Blaze it 420", fireElement, 3000,
+        AbilityDescription blazeDesc = new GenericAbilityDescription<>("Blaze", "Blaze it 420",
+                elementRegistry.getElementByName("Fire"), 3000,
                 Arrays.asList(ActivationMethod.Sneak), Blaze.class, false);
-        AbilityDescription scooterDesc = new GenericAbilityDescription<>("AirScooter", "scoot scoot", airElement, 3000,
+
+        AbilityDescription scooterDesc = new GenericAbilityDescription<>("AirScooter", "scoot scoot",
+                elementRegistry.getElementByName("Air"), 3000,
                 Arrays.asList(ActivationMethod.Punch), AirScooter.class, true);
-        AbilityDescription shockwaveDesc = new GenericAbilityDescription<>("Shockwave", "wave wave", earthElement, 6000,
+
+        AbilityDescription shockwaveDesc = new GenericAbilityDescription<>("Shockwave", "wave wave",
+                elementRegistry.getElementByName("Earth"), 6000,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak, ActivationMethod.Fall), Shockwave.class, false);
-        AbilityDescription airSwipeDesc = new GenericAbilityDescription<>("AirSwipe", "swipe swipe", airElement, 1500,
+
+        AbilityDescription airSwipeDesc = new GenericAbilityDescription<>("AirSwipe", "swipe swipe",
+                elementRegistry.getElementByName("Air"), 1500,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), AirSwipe.class, false);
+
+        AbilityDescription airBlastDesc = new GenericAbilityDescription<>("AirBlast", "blast blast",
+                elementRegistry.getElementByName("Air"), 500,
+                Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), AirBlast.class, false);
 
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
         abilityRegistry.registerAbility(shockwaveDesc);
         abilityRegistry.registerAbility(airSwipeDesc);
+        abilityRegistry.registerAbility(airBlastDesc);
 
         initializeAbilities();
     }
@@ -158,6 +97,10 @@ public class Game {
 
     public static AbilityRegistry getAbilityRegistry() {
         return abilityRegistry;
+    }
+
+    public static ElementRegistry getElementRegistry() {
+        return elementRegistry;
     }
 
     public static AbilityInstanceManager getAbilityInstanceManager() {
