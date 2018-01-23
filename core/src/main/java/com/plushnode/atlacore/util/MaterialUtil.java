@@ -42,4 +42,9 @@ public final class MaterialUtil {
     public static boolean isEarthbendable(Block block) {
         return EARTH_MATERIALS.contains(block.getType());
     }
+
+    public static boolean isLava(Block block) {
+        Material type = block.getType();
+        return type == Material.LAVA || type == Material.STATIONARY_LAVA;
+    }
 }

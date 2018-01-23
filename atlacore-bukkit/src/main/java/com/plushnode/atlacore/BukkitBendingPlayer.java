@@ -35,6 +35,11 @@ public class BukkitBendingPlayer extends BukkitBendingUser implements Player {
     }
 
     @Override
+    public GameMode getGameMode() {
+        return GameMode.values()[getBukkitPlayer().getGameMode().ordinal()];
+    }
+
+    @Override
     public AbilityDescription getSelectedAbility() {
         int slot = getBukkitPlayer().getInventory().getHeldItemSlot() + 1;
         return getSlotAbility(slot);

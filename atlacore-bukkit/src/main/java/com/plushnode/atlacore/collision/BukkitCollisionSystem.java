@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BukkitCollisionSystem implements CollisionSystem {
+public class BukkitCollisionSystem extends BaseCollisionSystem {
     @Override
     public boolean isOnGround(Entity entity) {
         final double epsilon = 0.01;

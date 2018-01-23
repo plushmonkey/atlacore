@@ -1,12 +1,23 @@
 package com.plushnode.atlacore.wrappers;
 
 import com.plushnode.atlacore.*;
+import com.plushnode.atlacore.Entity;
+import com.plushnode.atlacore.PotionEffect;
+import com.plushnode.atlacore.PotionEffectType;
 import com.plushnode.atlacore.block.Block;
 import com.plushnode.atlacore.block.Material;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
+import org.spongepowered.api.data.type.PickupRules;
+import org.spongepowered.api.effect.potion.*;
+import org.spongepowered.api.entity.*;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
     public LivingEntityWrapper(org.spongepowered.api.entity.Entity entity) {
@@ -15,27 +26,37 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public boolean addPotionEffect(PotionEffect effect) {
-        return false;
+        return effect.apply((LivingEntity)entity);
     }
 
     @Override
     public boolean addPotionEffect(PotionEffect effect, boolean force) {
-        return false;
+        return addPotionEffect(effect);
     }
 
     @Override
     public boolean addPotionEffects(Collection<PotionEffect> effects) {
-        return false;
+        for (PotionEffect effect : effects) {
+            addPotionEffect(effect);
+        }
+        return true;
     }
 
     @Override
     public Collection<PotionEffect> getActivePotionEffects() {
-        return null;
+        List<PotionEffect> result = new ArrayList<>();
+        PotionEffectData effects = entity.getOrCreate(PotionEffectData.class).get();
+
+        for (org.spongepowered.api.effect.potion.PotionEffect effect : effects.asList()) {
+            result.add(new PotionEffectWrapper(effect));
+        }
+
+        return result;
     }
 
     @Override
     public boolean getCanPickupItems() {
-        return false;
+        return entity.get(Keys.PICKUP_RULE).orElse(PickupRules.ALLOWED) == PickupRules.ALLOWED;
     }
 
     @Override
@@ -56,7 +77,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public double getLastDamage() {
-        return 0;
+        return entity.get(Keys.LAST_DAMAGE).orElse(Optional.of(0.0)).get();
     }
 
     @Override
@@ -66,27 +87,38 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public int getMaximumAir() {
-        return 0;
+        return entity.get(Keys.MAX_AIR).orElse(0);
     }
 
     @Override
     public int getMaximumNoDamageTicks() {
-        return 0;
+        return 20;
     }
 
     @Override
     public int getNoDamageTicks() {
-        return 0;
+        return entity.get(Keys.INVULNERABILITY_TICKS).orElse(0);
     }
 
     @Override
     public PotionEffect getPotionEffect(PotionEffectType type) {
-        return null;
+        PotionEffectData effects = entity.getOrCreate(PotionEffectData.class).get();
+
+        org.spongepowered.api.effect.potion.PotionEffectType spongeType = ((PotionEffectTypeWrapper)type).getSpongeType();
+        org.spongepowered.api.effect.potion.PotionEffect effect = effects.asList().stream()
+                .filter((pe) -> pe.getType().equals(spongeType))
+                .findAny().orElse(null);
+
+        if (effect == null) {
+            return null;
+        }
+
+        return new PotionEffectWrapper(effect);
     }
 
     @Override
     public int getRemainingAir() {
-        return 0;
+        return entity.get(Keys.REMAINING_AIR).orElse(0);
     }
 
     @Override
@@ -96,7 +128,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public boolean hasAI() {
-        return false;
+        return entity.get(Keys.AI_ENABLED).orElse(false);
     }
 
     @Override
@@ -106,7 +138,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public boolean hasPotionEffect(PotionEffectType type) {
-        return false;
+        return getPotionEffect(type) != null;
     }
 
     @Override
@@ -121,22 +153,32 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public void removePotionEffect(PotionEffectType type) {
+        PotionEffectData effects = entity.getOrCreate(PotionEffectData.class).get();
 
+        org.spongepowered.api.effect.potion.PotionEffectType spongeType = ((PotionEffectTypeWrapper) type).getSpongeType();
+
+        effects.removeAll((pe) -> pe.getType().equals(spongeType));
+
+        entity.offer(effects);
     }
 
     @Override
     public void setAI(boolean ai) {
-
+        entity.offer(Keys.AI_ENABLED, ai);
     }
 
     @Override
     public void setCanPickupItems(boolean p) {
-
+        if (p) {
+            entity.offer(Keys.PICKUP_RULE, PickupRules.ALLOWED);
+        } else {
+            entity.offer(Keys.PICKUP_RULE, PickupRules.DISALLOWED);
+        }
     }
 
     @Override
     public void setCollidable(boolean c) {
-
+        entity.offer(Keys.VANISH_IGNORES_COLLISION, c);
     }
 
     @Override
@@ -146,61 +188,61 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public void setLastDamage(double damage) {
-
+        entity.offer(Keys.LAST_DAMAGE, Optional.of(damage));
     }
 
     @Override
     public void setMaximumAir(int ticks) {
-
+        entity.offer(Keys.MAX_AIR, ticks);
     }
 
     @Override
     public void setMaximumNoDamageTicks(int ticks) {
-
+        entity.offer(Keys.INVULNERABILITY_TICKS, ticks);
     }
 
     @Override
     public void setNoDamageTicks(int ticks) {
-
+        entity.offer(Keys.INVULNERABILITY_TICKS, ticks);
     }
 
     @Override
     public void setRemainingAir(int ticks) {
-
+        entity.offer(Keys.REMAINING_AIR, ticks);
     }
 
     @Override
     public void damage(double amount) {
-
+        entity.damage(amount, DamageSources.GENERIC);
     }
 
     @Override
     public void damage(double amount, Entity source) {
-
+        entity.damage(amount, DamageSources.GENERIC, Cause.of(NamedCause.hitTarget(source)));
     }
 
     @Override
     public double getHealth() {
-        return 0;
+        return entity.get(Keys.HEALTH).orElse(0.0);
     }
 
     @Override
     public double getMaxHealth() {
-        return 0;
+        return entity.get(Keys.MAX_HEALTH).orElse(0.0);
     }
 
     @Override
     public void resetMaxHealth() {
-
+        entity.offer(Keys.MAX_HEALTH, 20.0);
     }
 
     @Override
     public void setHealth(double health) {
-
+        entity.offer(Keys.HEALTH, health);
     }
 
     @Override
     public void setMaxHealth(double health) {
-
+        entity.offer(Keys.MAX_HEALTH, health);
     }
 }

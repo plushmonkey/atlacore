@@ -3,6 +3,7 @@ package com.plushnode.atlacore;
 import com.google.common.reflect.ClassPath;
 import com.plushnode.atlacore.ability.*;
 import com.plushnode.atlacore.ability.air.AirScooter;
+import com.plushnode.atlacore.ability.air.AirSwipe;
 import com.plushnode.atlacore.ability.earth.Shockwave;
 import com.plushnode.atlacore.ability.fire.Blaze;
 import com.plushnode.atlacore.collision.CollisionSystem;
@@ -120,10 +121,13 @@ public class Game {
                 Arrays.asList(ActivationMethod.Punch), AirScooter.class, true);
         AbilityDescription shockwaveDesc = new GenericAbilityDescription<>("Shockwave", "wave wave", earthElement, 6000,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak, ActivationMethod.Fall), Shockwave.class, false);
+        AbilityDescription airSwipeDesc = new GenericAbilityDescription<>("AirSwipe", "swipe swipe", airElement, 1500,
+                Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), AirSwipe.class, false);
 
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
         abilityRegistry.registerAbility(shockwaveDesc);
+        abilityRegistry.registerAbility(airSwipeDesc);
 
         initializeAbilities();
     }

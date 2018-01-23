@@ -2,6 +2,7 @@ package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.ability.AbilityDescription;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
 
 import java.util.Optional;
@@ -32,6 +33,21 @@ public class SpongeBendingPlayer extends SpongeBendingUser implements Player {
         }
 
         return false;
+    }
+
+    @Override
+    public GameMode getGameMode() {
+        org.spongepowered.api.entity.living.player.gamemode.GameMode gm = getSpongePlayer().gameMode().get();
+
+        if (gm == GameModes.ADVENTURE) {
+            return GameMode.ADVENTURE;
+        } else if (gm == GameModes.CREATIVE) {
+            return GameMode.CREATIVE;
+        } else if (gm == GameModes.SPECTATOR) {
+            return GameMode.SPECTATOR;
+        }
+
+        return GameMode.SURVIVAL;
     }
 
     @Override

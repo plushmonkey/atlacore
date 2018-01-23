@@ -4,6 +4,7 @@ import com.plushnode.atlacore.User;
 import com.plushnode.atlacore.element.Element;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AbilityInstanceManager {
     private Map<User, List<Ability>> globalInstances = new HashMap<>();
@@ -100,6 +101,14 @@ public class AbilityInstanceManager {
         List<Ability> abilities = globalInstances.get(user);
         if (abilities == null) return new ArrayList<>();
         return abilities;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Ability> List<T> getPlayerInstances(User user, Class<T> type) {
+        List<Ability> abilities = globalInstances.get(user);
+        if (abilities == null) return new ArrayList<>();
+
+        return abilities.stream().filter(a -> a.getClass() == type).map(a -> (T)a).collect(Collectors.toList());
     }
 
     public List<Ability> getInstances() {

@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 // todo: merge common stuff with bukkit collision system
-public class SpongeCollisionSystem implements CollisionSystem {
+public class SpongeCollisionSystem extends BaseCollisionSystem {
     @Override
     public boolean isOnGround(Entity entity) {
         final double epsilon = 0.01;

@@ -1,5 +1,6 @@
 package com.plushnode.atlacore;
 
+import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.element.Element;
 
@@ -18,4 +19,10 @@ public interface User extends LivingEntity {
 
     void setCooldown(AbilityDescription abilityDesc);
     boolean isOnCooldown(AbilityDescription abilityDesc);
+
+    default void setCooldown(Ability ability) {
+        if (ability != null) {
+            setCooldown(ability.getDescription());
+        }
+    }
 }

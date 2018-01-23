@@ -5,7 +5,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Optional;
 
-public class AABB {
+public class AABB implements Collider {
     public static final AABB PLAYER_BOUNDS = new AABB(new Vector3D(-0.3, 0.0, -0.3), new Vector3D(0.3, 1.8, 0.3));
     public static final AABB BLOCK_BOUNDS = new AABB(new Vector3D(0.0, 0.0, 0.0), new Vector3D(1.0, 1.0, 1.0));
 
@@ -82,6 +82,22 @@ public class AABB {
                 min.getY() < other.max.getY() &&
                 max.getZ() > other.min.getZ() &&
                 min.getZ() < other.max.getZ());
+    }
+
+    @Override
+    public boolean intersects(Sphere sphere) {
+        return sphere.intersects(this);
+    }
+
+    @Override
+    public Vector3D getPosition() {
+        return mid();
+    }
+
+    @Override
+    public Vector3D getHalfExtents() {
+        Vector3D half = max.subtract(min).scalarMultiply(0.5);
+        return new Vector3D(Math.abs(half.getX()), Math.abs(half.getY()), Math.abs(half.getZ()));
     }
 
     @Override

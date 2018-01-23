@@ -45,10 +45,12 @@ public class PlayerListener implements Listener {
             AbilityDescription blaze = Game.getAbilityRegistry().getAbilityByName("Blaze");
             AbilityDescription airScooter = Game.getAbilityRegistry().getAbilityByName("AirScooter");
             AbilityDescription shockwave = Game.getAbilityRegistry().getAbilityByName("Shockwave");
+            AbilityDescription airSwipe = Game.getAbilityRegistry().getAbilityByName("AirSwipe");
 
             user.setSlotAbility(1, blaze);
             user.setSlotAbility(2, airScooter);
             user.setSlotAbility(3, shockwave);
+            user.setSlotAbility(4, airSwipe);
         }
 
         return user;
@@ -96,7 +98,6 @@ public class PlayerListener implements Listener {
 
         activateAbility(user, ActivationMethod.Sneak);
 
-        // todo: find better way to do this?
         Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
     }
 
@@ -104,6 +105,12 @@ public class PlayerListener implements Listener {
     public void onPlayerSwing(PlayerAnimationEvent event) {
         Player player = event.getPlayer();
         User user = getBendingUser(player);
+
+        if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
+            if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
+                return;
+            }
+        }
 
         activateAbility(user, ActivationMethod.Punch);
 
