@@ -7,7 +7,7 @@ import com.palmergames.bukkit.towny.war.flagwar.TownyWar;
 import com.palmergames.bukkit.towny.war.flagwar.TownyWarConfig;
 import com.plushnode.atlacore.BukkitBendingPlayer;
 import com.plushnode.atlacore.Location;
-import com.plushnode.atlacore.User;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.protection.PluginNotFoundException;
 import com.plushnode.atlacore.protection.ProtectMethod;

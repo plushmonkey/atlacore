@@ -3,7 +3,10 @@ package com.plushnode.atlacore;
 import com.plushnode.atlacore.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
 import com.plushnode.atlacore.collision.BukkitCollisionSystem;
+import com.plushnode.atlacore.command.BindCommand;
+import com.plushnode.atlacore.commands.CoreExecutor;
 import com.plushnode.atlacore.config.ConfigManager;
+import com.plushnode.atlacore.entity.user.*;
 import com.plushnode.atlacore.listeners.PlayerListener;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.protection.methods.*;
@@ -11,12 +14,15 @@ import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.UUID;
 
 public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     public static AtlaCorePlugin plugin;
@@ -33,7 +39,25 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         loadConfig();
 
-        this.game = new Game(this, new BukkitCollisionSystem());
+        PlayerRepository playerRepository = new MemoryPlayerRepository(new PlayerFactory() {
+            @Override
+            public Player createPlayer(String name) {
+                if (Bukkit.getPlayer(name) == null)
+                    return null;
+                return new BukkitBendingPlayer(Bukkit.getPlayer(name));
+            }
+
+            @Override
+            public Player createPlayer(UUID uuid) {
+                if (Bukkit.getPlayer(uuid) == null)
+                    return null;
+                return new BukkitBendingPlayer(Bukkit.getPlayer(uuid));
+            }
+        });
+
+        PlayerService playerService = new PlayerService(playerRepository);
+
+        this.game = new Game(this, new BukkitCollisionSystem(), playerService);
         this.blockSetterFactory = new BlockSetterFactory();
 
         ProtectionSystem protection = Game.getProtectionSystem();
@@ -50,6 +74,14 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         getLogger().info("Enabling AltaCore-Bukkit");
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+
+        CoreExecutor executor = new CoreExecutor();
+
+        executor.registerCommand(new BindCommand());
+
+        this.getCommand("b").setExecutor(executor);
+        this.getCommand("atla").setExecutor(executor);
+        this.getCommand("bending").setExecutor(executor);
 
         // Save the config after loading everything so the defaults are saved.
         try {

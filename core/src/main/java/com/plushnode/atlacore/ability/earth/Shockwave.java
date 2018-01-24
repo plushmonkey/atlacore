@@ -8,6 +8,8 @@ import com.plushnode.atlacore.block.Block;
 import com.plushnode.atlacore.block.BlockFace;
 import com.plushnode.atlacore.block.Material;
 import com.plushnode.atlacore.config.Configurable;
+import com.plushnode.atlacore.entity.user.Player;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.TempBlock;

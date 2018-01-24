@@ -1,5 +1,6 @@
-package com.plushnode.atlacore;
+package com.plushnode.atlacore.entity.user;
 
+import com.plushnode.atlacore.LivingEntity;
 import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.element.Element;

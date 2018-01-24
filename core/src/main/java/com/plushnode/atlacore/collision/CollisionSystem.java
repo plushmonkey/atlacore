@@ -2,7 +2,7 @@ package com.plushnode.atlacore.collision;
 
 import com.plushnode.atlacore.Entity;
 import com.plushnode.atlacore.Location;
-import com.plushnode.atlacore.User;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.World;
 import com.plushnode.atlacore.block.Block;
 import com.plushnode.atlacore.block.Material;

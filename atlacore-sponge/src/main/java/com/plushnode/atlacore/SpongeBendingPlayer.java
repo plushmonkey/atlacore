@@ -1,9 +1,11 @@
 package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.ability.AbilityDescription;
+import com.plushnode.atlacore.entity.user.Player;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
+import org.spongepowered.api.text.Text;
 
 import java.util.Optional;
 
@@ -51,9 +53,25 @@ public class SpongeBendingPlayer extends SpongeBendingUser implements Player {
     }
 
     @Override
+    public int getHeldItemSlot() {
+        Hotbar hotbar = getSpongePlayer().getInventory().query(Hotbar.class);
+        return hotbar.getSelectedSlotIndex();
+    }
+
+    @Override
     public AbilityDescription getSelectedAbility() {
         Hotbar hotbar = getSpongePlayer().getInventory().query(Hotbar.class);
         int slot = hotbar.getSelectedSlotIndex() + 1;
         return getSlotAbility(slot);
+    }
+
+    @Override
+    public void sendMessage(String message) {
+        getSpongePlayer().sendMessage(Text.of(message));
+    }
+
+    @Override
+    public String getName() {
+        return getSpongePlayer().getName();
     }
 }

@@ -7,6 +7,7 @@ import com.plushnode.atlacore.ability.ActivationMethod;
 import com.plushnode.atlacore.ability.air.AirScooter;
 import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.collision.Ray;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.util.TypeUtil;
 import com.plushnode.atlacore.wrappers.EntityWrapper;
 import org.bukkit.entity.Entity;
@@ -15,8 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,42 +25,10 @@ import java.util.Optional;
 
 // NOTE: test code.
 public class PlayerListener implements Listener {
-    // todo: refactor this out into its own repository
-    private Map<Player, User> users = new HashMap<>();
     private AtlaCorePlugin plugin;
 
     public PlayerListener(AtlaCorePlugin plugin) {
         this.plugin = plugin;
-    }
-
-    private User getBendingUser(Player player) {
-        User user = users.get(player);
-
-        if (user == null) {
-            user = new BukkitBendingPlayer(player);
-
-            user.addElement(Game.getElementRegistry().getElementByName("Air"));
-            user.addElement(Game.getElementRegistry().getElementByName("Fire"));
-            user.addElement(Game.getElementRegistry().getElementByName("Earth"));
-
-            users.put(player, user);
-
-            System.out.println("Creating and binding user");
-            // bind the abilities to slots
-            AbilityDescription blaze = Game.getAbilityRegistry().getAbilityByName("Blaze");
-            AbilityDescription airScooter = Game.getAbilityRegistry().getAbilityByName("AirScooter");
-            AbilityDescription shockwave = Game.getAbilityRegistry().getAbilityByName("Shockwave");
-            AbilityDescription airSwipe = Game.getAbilityRegistry().getAbilityByName("AirSwipe");
-            AbilityDescription airBlast = Game.getAbilityRegistry().getAbilityByName("AirBlast");
-
-            user.setSlotAbility(1, blaze);
-            user.setSlotAbility(2, airScooter);
-            user.setSlotAbility(3, shockwave);
-            user.setSlotAbility(4, airSwipe);
-            user.setSlotAbility(5, airBlast);
-        }
-
-        return user;
     }
 
     private boolean activateAbility(User user, ActivationMethod method) {
@@ -86,12 +55,40 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+
+        // Create the player on the next tick so createPlayer can find the Bukkit player.
+        plugin.createTask(() -> {
+            Game.getPlayerService().createPlayer(player.getUniqueId(), player.getName(), (p) -> {
+                if (p == null) {
+                    // This can happen if the player logs off before the player is created.
+                    return;
+                }
+
+                p.addElement(Game.getElementRegistry().getElementByName("Air"));
+                p.addElement(Game.getElementRegistry().getElementByName("Fire"));
+                p.addElement(Game.getElementRegistry().getElementByName("Earth"));
+            });
+        }, 1);
+    }
+
+    @EventHandler
+    public void onPlayerLogout(PlayerQuitEvent event) {
+        com.plushnode.atlacore.entity.user.Player player =
+                Game.getPlayerService().getPlayerByName(event.getPlayer().getName());
+
+        Game.getPlayerService().invalidatePlayer(player);
+    }
+
+    @EventHandler
     public void onFallDamage(EntityDamageEvent event) {
         if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
         if (!(event.getEntity() instanceof Player)) return;
 
         Player player = (Player)event.getEntity();
-        User user = getBendingUser(player);
+
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
 
         activateAbility(user, ActivationMethod.Fall);
 
@@ -105,7 +102,7 @@ public class PlayerListener implements Listener {
         if (!event.isSneaking()) return;
 
         Player player = event.getPlayer();
-        User user = getBendingUser(player);
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
 
         activateAbility(user, ActivationMethod.Sneak);
 
@@ -115,7 +112,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerSwing(PlayerAnimationEvent event) {
         Player player = event.getPlayer();
-        User user = getBendingUser(player);
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
 
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
             if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
@@ -124,27 +121,6 @@ public class PlayerListener implements Listener {
         }
 
         activateAbility(user, ActivationMethod.Punch);
-
-        /*Player player = event.getPlayer();
-        LivingEntity target = getTargetEntity(player, 30);
-
-        if (target == null) return;
-
-        AbilityDescription abilityDesc = plugin.getGame().getAbilityDescription("Blaze");
-        if (abilityDesc == null) {
-            System.out.println("Blaze not found.");
-            return;
-        }
-
-        Ability ability = abilityDesc.createAbility();
-        BukkitBendingUser user = new BukkitBendingUser(target);
-
-        if (ability.activate(user, ActivationMethod.Sneak)) {
-            plugin.getGame().addAbility(user, ability);
-            System.out.println("Blaze created for target!");
-        } else {
-            System.out.println("Failed to activate blaze for target.");
-        }*/
     }
 
     private LivingEntity getTargetEntity(Player player, int range) {

@@ -10,6 +10,8 @@ import com.plushnode.atlacore.ability.fire.Blaze;
 import com.plushnode.atlacore.collision.CollisionSystem;
 import com.plushnode.atlacore.element.BasicElement;
 import com.plushnode.atlacore.element.ElementRegistry;
+import com.plushnode.atlacore.entity.user.PlayerService;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.util.TempBlockManager;
 
@@ -19,6 +21,7 @@ import java.util.Arrays;
 public class Game {
     public static CorePlugin plugin;
 
+    private static PlayerService playerService;
     private static ProtectionSystem protectionSystem;
     private static CollisionSystem collisionSystem;
 
@@ -27,9 +30,10 @@ public class Game {
     private static AbilityInstanceManager instanceManager;
     private static TempBlockManager tempBlockManager;
 
-    public Game(CorePlugin plugin, CollisionSystem collisionSystem) {
+    public Game(CorePlugin plugin, CollisionSystem collisionSystem, PlayerService playerService) {
         Game.plugin = plugin;
         Game.collisionSystem = collisionSystem;
+        Game.playerService = playerService;
 
         instanceManager = new AbilityInstanceManager();
         abilityRegistry = new AbilityRegistry();
@@ -81,6 +85,10 @@ public class Game {
 
     public void update() {
         instanceManager.update();
+    }
+
+    public static PlayerService getPlayerService() {
+        return playerService;
     }
 
     public static ProtectionSystem getProtectionSystem() {

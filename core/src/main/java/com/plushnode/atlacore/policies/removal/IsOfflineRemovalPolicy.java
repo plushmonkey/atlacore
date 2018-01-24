@@ -1,7 +1,7 @@
 package com.plushnode.atlacore.policies.removal;
 
-import com.plushnode.atlacore.Player;
-import com.plushnode.atlacore.User;
+import com.plushnode.atlacore.entity.user.Player;
+import com.plushnode.atlacore.entity.user.User;
 
 public class IsOfflineRemovalPolicy implements RemovalPolicy {
     private User user;

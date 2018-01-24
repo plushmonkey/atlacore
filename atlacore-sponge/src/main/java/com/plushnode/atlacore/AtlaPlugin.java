@@ -4,10 +4,12 @@ import com.google.inject.Inject;
 import com.plushnode.atlacore.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
 import com.plushnode.atlacore.collision.SpongeCollisionSystem;
-import com.plushnode.atlacore.commands.HelloWorldCommand;
+import com.plushnode.atlacore.command.BindCommand;
+import com.plushnode.atlacore.commands.BendingCommand;
 import com.plushnode.atlacore.config.ConfigManager;
+import com.plushnode.atlacore.entity.user.*;
+import com.plushnode.atlacore.entity.user.Player;
 import com.plushnode.atlacore.listeners.PlayerListener;
-import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -25,6 +27,8 @@ import org.spongepowered.api.text.Text;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
+import java.util.UUID;
 
 @Plugin(id = "atlacore")
 public class AtlaPlugin implements CorePlugin {
@@ -52,7 +56,31 @@ public class AtlaPlugin implements CorePlugin {
 
         loadConfig();
 
-        atlaGame = new com.plushnode.atlacore.Game(this, new SpongeCollisionSystem());
+        PlayerRepository playerRepository = new MemoryPlayerRepository(new PlayerFactory() {
+            @Override
+            public Player createPlayer(String name) {
+                Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(name);
+                if (!result.isPresent()) {
+                    return null;
+                }
+
+                return new SpongeBendingPlayer(result.get());
+            }
+
+            @Override
+            public Player createPlayer(UUID uuid) {
+                Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(uuid);
+                if (!result.isPresent()) {
+                    return null;
+                }
+
+                return new SpongeBendingPlayer(result.get());
+            }
+        });
+
+        PlayerService playerService = new PlayerService(playerRepository);
+
+        atlaGame = new com.plushnode.atlacore.Game(this, new SpongeCollisionSystem(), playerService);
 
         createTaskTimer(atlaGame::update, 1, 1);
 
@@ -76,13 +104,11 @@ public class AtlaPlugin implements CorePlugin {
 
     @Listener
     public void onGameStartingServer(GameStartingServerEvent event) {
-        CommandSpec testCommand = CommandSpec.builder()
-                .description(Text.of("Hello"))
-                .permission("atlacore.command.hello")
-                .executor(new HelloWorldCommand())
-                .build();
+        BendingCommand cmd = new BendingCommand();
 
-        Sponge.getCommandManager().register(this, testCommand, "helloworld", "hello", "test");
+        cmd.registerCommand(new BindCommand());
+
+        Sponge.getCommandManager().register(this, cmd, "bending", "b", "atla");
 
         com.plushnode.atlacore.Game.getProtectionSystem().reload();
     }

@@ -6,6 +6,7 @@ import com.plushnode.atlacore.ability.ActivationMethod;
 import com.plushnode.atlacore.collision.Ray;
 import com.plushnode.atlacore.collision.Sphere;
 import com.plushnode.atlacore.config.Configurable;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.OutOfRangeRemovalPolicy;
@@ -107,7 +108,7 @@ public class AirBlast implements Ability {
                 return true;
             }
 
-            Sphere collider = new Sphere(location.toVector(), 2.0);
+            Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
 
             // Handle user separately from the general entity collision.
             if (this.selectedOrigin) {

@@ -3,6 +3,8 @@ package com.plushnode.atlacore.protection.cache;
 import com.plushnode.atlacore.*;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.block.Block;
+import com.plushnode.atlacore.entity.user.Player;
+import com.plushnode.atlacore.entity.user.User;
 
 import java.util.HashMap;
 

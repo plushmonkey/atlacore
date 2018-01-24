@@ -1,7 +1,7 @@
 package com.plushnode.atlacore.ability;
 
 import com.plushnode.atlacore.Game;
-import com.plushnode.atlacore.User;
+import com.plushnode.atlacore.entity.user.User;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public interface Ability {

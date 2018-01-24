@@ -8,6 +8,8 @@ import com.plushnode.atlacore.block.Block;
 import com.plushnode.atlacore.block.Material;
 import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.config.Configurable;
+import com.plushnode.atlacore.entity.user.Player;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.policies.removal.CannotBendRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;

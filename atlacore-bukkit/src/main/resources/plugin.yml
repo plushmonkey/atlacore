@@ -5,4 +5,5 @@ main: com.plushnode.atlacore.AtlaCorePlugin
 softdepend: [Factions, GriefPrevention, LWC, Towny, WorldGuard]
 commands:
   atla:
+    aliases: [b, bending]
     usage: /<command>

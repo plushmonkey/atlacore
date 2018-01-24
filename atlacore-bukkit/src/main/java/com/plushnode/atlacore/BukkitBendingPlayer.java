@@ -1,6 +1,7 @@
 package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.ability.AbilityDescription;
+import com.plushnode.atlacore.entity.user.Player;
 
 public class BukkitBendingPlayer extends BukkitBendingUser implements Player {
     public BukkitBendingPlayer(org.bukkit.entity.Player player) {
@@ -40,8 +41,23 @@ public class BukkitBendingPlayer extends BukkitBendingUser implements Player {
     }
 
     @Override
+    public int getHeldItemSlot() {
+        return getBukkitPlayer().getInventory().getHeldItemSlot();
+    }
+
+    @Override
     public AbilityDescription getSelectedAbility() {
         int slot = getBukkitPlayer().getInventory().getHeldItemSlot() + 1;
         return getSlotAbility(slot);
+    }
+
+    @Override
+    public void sendMessage(String message) {
+        getBukkitPlayer().sendMessage(message);
+    }
+
+    @Override
+    public String getName() {
+        return getBukkitPlayer().getName();
     }
 }

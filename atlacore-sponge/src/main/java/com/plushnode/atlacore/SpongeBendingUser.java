@@ -3,6 +3,7 @@ package com.plushnode.atlacore;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.ability.AbilityRegistry;
 import com.plushnode.atlacore.element.Element;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.wrappers.LivingEntityWrapper;
 
 import java.util.*;

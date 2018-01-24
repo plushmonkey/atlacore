@@ -1,5 +1,6 @@
 package com.plushnode.atlacore;
 
+import com.plushnode.atlacore.entity.user.Player;
 import com.plushnode.atlacore.util.ReflectionUtil;
 import com.plushnode.atlacore.wrappers.LocationWrapper;
 import org.bukkit.Bukkit;

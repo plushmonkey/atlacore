@@ -10,6 +10,8 @@ import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Sphere;
 import com.plushnode.atlacore.config.Configurable;
+import com.plushnode.atlacore.entity.user.Player;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;

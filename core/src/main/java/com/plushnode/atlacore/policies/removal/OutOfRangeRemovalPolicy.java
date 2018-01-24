@@ -1,7 +1,7 @@
 package com.plushnode.atlacore.policies.removal;
 
 import com.plushnode.atlacore.Location;
-import com.plushnode.atlacore.User;
+import com.plushnode.atlacore.entity.user.User;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.function.Supplier;

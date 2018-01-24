@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.ability;
 
-import com.plushnode.atlacore.User;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.element.Element;
 
 import java.util.*;

@@ -8,6 +8,7 @@ import com.plushnode.atlacore.block.BlockFace;
 import com.plushnode.atlacore.block.BlockState;
 import com.plushnode.atlacore.block.Material;
 import com.plushnode.atlacore.config.Configurable;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.util.TempBlock;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 

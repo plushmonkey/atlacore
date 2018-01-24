@@ -3,13 +3,13 @@ package com.plushnode.atlacore.listeners;
 import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.SpongeBendingPlayer;
 import com.plushnode.atlacore.Game;
-import com.plushnode.atlacore.User;
+import com.plushnode.atlacore.entity.user.User;
 import com.plushnode.atlacore.ability.Ability;
 import com.plushnode.atlacore.ability.AbilityDescription;
 import com.plushnode.atlacore.ability.ActivationMethod;
 import com.plushnode.atlacore.ability.air.AirScooter;
-import com.plushnode.atlacore.ability.earth.Shockwave;
 import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
+import com.sun.media.jfxmedia.events.PlayerEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -18,48 +18,16 @@ import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.AnimateHandEvent;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.item.inventory.entity.Hotbar;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerListener {
-    // todo: refactor this out into its own repository
-    private Map<Player, User> users = new HashMap<>();
     private AtlaPlugin plugin;
 
     public PlayerListener(AtlaPlugin plugin) {
         this.plugin = plugin;
-    }
-
-    private User getBendingUser(Player player) {
-        User user = users.get(player);
-
-        if (user == null) {
-            user = new SpongeBendingPlayer(player);
-
-            user.addElement(Game.getElementRegistry().getElementByName("Air"));
-            user.addElement(Game.getElementRegistry().getElementByName("Fire"));
-            user.addElement(Game.getElementRegistry().getElementByName("Earth"));
-
-            users.put(player, user);
-
-            System.out.println("Creating and binding user");
-            // bind the abilities to slots
-            AbilityDescription blaze = Game.getAbilityRegistry().getAbilityByName("Blaze");
-            AbilityDescription airScooter = Game.getAbilityRegistry().getAbilityByName("AirScooter");
-            AbilityDescription shockwave = Game.getAbilityRegistry().getAbilityByName("Shockwave");
-            AbilityDescription airSwipe = Game.getAbilityRegistry().getAbilityByName("AirSwipe");
-            AbilityDescription airBlast = Game.getAbilityRegistry().getAbilityByName("AirBlast");
-
-            user.setSlotAbility(1, blaze);
-            user.setSlotAbility(2, airScooter);
-            user.setSlotAbility(3, shockwave);
-            user.setSlotAbility(4, airSwipe);
-            user.setSlotAbility(5, airBlast);
-        }
-
-        return user;
     }
 
     private boolean activateAbility(User user, ActivationMethod method) {
@@ -85,6 +53,35 @@ public class PlayerListener {
     }
 
     @Listener
+    public void onPlayerJoin(ClientConnectionEvent.Join event) {
+        Player player = event.getTargetEntity();
+
+        // Create the player on the next tick so createPlayer can find the Sponge player.
+        plugin.createTask(() -> {
+            Game.getPlayerService().createPlayer(player.getUniqueId(), player.getName(), (p) -> {
+                if (p == null) {
+                    // This can happen if the player logs off before the player is created.
+                    return;
+                }
+
+                p.addElement(Game.getElementRegistry().getElementByName("Air"));
+                p.addElement(Game.getElementRegistry().getElementByName("Fire"));
+                p.addElement(Game.getElementRegistry().getElementByName("Earth"));
+            });
+        }, 1);
+    }
+
+    @Listener
+    public void onPlayerQuit(ClientConnectionEvent.Disconnect event) {
+        Player spongePlayer = event.getTargetEntity();
+
+        com.plushnode.atlacore.entity.user.Player player
+                = Game.getPlayerService().getPlayerByName(spongePlayer.getName());
+
+        Game.getPlayerService().invalidatePlayer(player);
+    }
+
+    @Listener
     public void onFallDamage(DamageEntityEvent event, @Root DamageSource source) {
         if (source.getType() != DamageTypes.FALL) return;
 
@@ -92,7 +89,7 @@ public class PlayerListener {
         if (!(entity instanceof Player)) return;
 
         Player player = (Player) entity;
-        User user = getBendingUser(player);
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
 
         activateAbility(user, ActivationMethod.Fall);
 
@@ -106,7 +103,7 @@ public class PlayerListener {
         if (!event.isSneaking()) return;
 
         Player player = event.getPlayer();
-        User user = getBendingUser(player);
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
 
         activateAbility(user, ActivationMethod.Sneak);
 
@@ -120,7 +117,7 @@ public class PlayerListener {
         if (!(entity instanceof Player)) return;
 
         Player player = (Player) entity;
-        User user = getBendingUser(player);
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
 
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
             if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
