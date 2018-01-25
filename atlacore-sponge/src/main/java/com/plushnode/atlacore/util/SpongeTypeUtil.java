@@ -1,8 +1,8 @@
 package com.plushnode.atlacore.util;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.plushnode.atlacore.block.BlockFace;
-import com.plushnode.atlacore.wrappers.LocationWrapper;
+import com.plushnode.atlacore.platform.block.BlockFace;
+import com.plushnode.atlacore.platform.LocationWrapper;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
@@ -31,15 +31,15 @@ public final class SpongeTypeUtil {
         return new Vector3D(vec.getX(), vec.getY(), vec.getZ());
     }
 
-    public static com.plushnode.atlacore.Location adapt(Location<World> loc) {
+    public static com.plushnode.atlacore.platform.Location adapt(Location<World> loc) {
         return new LocationWrapper(loc);
     }
 
-    public static Location<World> adapt(com.plushnode.atlacore.Location loc) {
+    public static Location<World> adapt(com.plushnode.atlacore.platform.Location loc) {
         return ((LocationWrapper)loc).getSpongeLocation();
     }
 
-    public static Vector3d toVector(com.plushnode.atlacore.Location location) {
+    public static Vector3d toVector(com.plushnode.atlacore.platform.Location location) {
         return new Vector3d(location.getX(), location.getY(), location.getZ());
     }
 

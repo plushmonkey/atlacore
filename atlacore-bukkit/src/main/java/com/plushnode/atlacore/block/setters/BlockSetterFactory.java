@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.block.setters;
 
-import com.plushnode.atlacore.block.BlockSetter;
+import com.plushnode.atlacore.platform.block.BlockSetter;
 
 public class BlockSetterFactory {
     private BlockSetter normalBlockSetter;

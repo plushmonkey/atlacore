@@ -1,10 +1,9 @@
 package com.plushnode.atlacore.collision;
 
-import com.plushnode.atlacore.*;
-import com.plushnode.atlacore.ability.common.WorldUtil;
-import com.plushnode.atlacore.block.Block;
-import com.plushnode.atlacore.entity.user.Player;
-import com.plushnode.atlacore.entity.user.User;
+import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.common.WorldUtil;
+import com.plushnode.atlacore.platform.*;
+import com.plushnode.atlacore.platform.block.Block;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Arrays;

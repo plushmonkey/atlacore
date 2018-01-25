@@ -1,7 +1,7 @@
 package com.plushnode.atlacore.policies.removal;
 
-import com.plushnode.atlacore.entity.user.Player;
-import com.plushnode.atlacore.entity.user.User;
+import com.plushnode.atlacore.platform.Player;
+import com.plushnode.atlacore.platform.User;
 
 public class IsDeadRemovalPolicy implements RemovalPolicy {
     private User user;

@@ -1,10 +1,12 @@
 package com.plushnode.atlacore.protection.cache;
 
-import com.plushnode.atlacore.*;
-import com.plushnode.atlacore.ability.AbilityDescription;
-import com.plushnode.atlacore.block.Block;
-import com.plushnode.atlacore.entity.user.Player;
-import com.plushnode.atlacore.entity.user.User;
+import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
+import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.Player;
+import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.Location;
+import com.plushnode.atlacore.util.Task;
 
 import java.util.HashMap;
 

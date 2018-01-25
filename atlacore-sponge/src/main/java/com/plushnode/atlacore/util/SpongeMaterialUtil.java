@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.util;
 
-import com.plushnode.atlacore.block.Material;
+import com.plushnode.atlacore.platform.block.Material;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 

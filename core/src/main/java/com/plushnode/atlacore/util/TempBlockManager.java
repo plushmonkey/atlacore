@@ -1,7 +1,7 @@
 package com.plushnode.atlacore.util;
 
-import com.plushnode.atlacore.Location;
-import com.plushnode.atlacore.block.Block;
+import com.plushnode.atlacore.platform.Location;
+import com.plushnode.atlacore.platform.block.Block;
 
 import java.util.HashMap;
 import java.util.Map;

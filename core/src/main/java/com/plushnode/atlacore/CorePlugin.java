@@ -1,6 +1,8 @@
 package com.plushnode.atlacore;
 
-import com.plushnode.atlacore.block.BlockSetter;
+import com.plushnode.atlacore.platform.block.BlockSetter;
+import com.plushnode.atlacore.platform.ParticleEffectRenderer;
+import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public interface CorePlugin {

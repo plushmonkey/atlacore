@@ -1,15 +1,14 @@
 package com.plushnode.atlacore.collision;
 
-import com.plushnode.atlacore.Entity;
-import com.plushnode.atlacore.block.Block;
-import com.plushnode.atlacore.block.Material;
+import com.plushnode.atlacore.platform.Entity;
+import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.TypeUtil;
-import com.plushnode.atlacore.wrappers.BlockWrapper;
-import com.plushnode.atlacore.wrappers.EntityWrapper;
-import com.plushnode.atlacore.wrappers.LocationWrapper;
+import com.plushnode.atlacore.platform.BlockWrapper;
+import com.plushnode.atlacore.platform.EntityWrapper;
+import com.plushnode.atlacore.platform.LocationWrapper;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.Location;
-import org.bukkit.util.Vector;
 
 import java.util.Collections;
 import java.util.Optional;

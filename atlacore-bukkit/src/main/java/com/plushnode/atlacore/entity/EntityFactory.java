@@ -1,8 +1,8 @@
 package com.plushnode.atlacore.entity;
 
-import com.plushnode.atlacore.BukkitBendingPlayer;
-import com.plushnode.atlacore.wrappers.EntityWrapper;
-import com.plushnode.atlacore.wrappers.LivingEntityWrapper;
+import com.plushnode.atlacore.platform.BukkitBendingPlayer;
+import com.plushnode.atlacore.platform.EntityWrapper;
+import com.plushnode.atlacore.platform.LivingEntityWrapper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;

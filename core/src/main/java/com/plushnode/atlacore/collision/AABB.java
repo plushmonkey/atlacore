@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.collision;
 
-import com.plushnode.atlacore.Location;
+import com.plushnode.atlacore.platform.Location;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Optional;

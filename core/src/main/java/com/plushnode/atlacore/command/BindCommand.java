@@ -1,10 +1,10 @@
 package com.plushnode.atlacore.command;
 
-import com.plushnode.atlacore.Game;
-import com.plushnode.atlacore.entity.user.Player;
-import com.plushnode.atlacore.entity.user.User;
-import com.plushnode.atlacore.ability.AbilityDescription;
-import com.plushnode.atlacore.element.Element;
+import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.platform.Player;
+import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
+import com.plushnode.atlacore.game.element.Element;
 
 public class BindCommand implements CoreCommand {
     private String[] aliases = { "bind", "b" };

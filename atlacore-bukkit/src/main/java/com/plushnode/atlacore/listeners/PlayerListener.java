@@ -1,15 +1,16 @@
 package com.plushnode.atlacore.listeners;
 
 import com.plushnode.atlacore.*;
-import com.plushnode.atlacore.ability.Ability;
-import com.plushnode.atlacore.ability.AbilityDescription;
-import com.plushnode.atlacore.ability.ActivationMethod;
-import com.plushnode.atlacore.ability.air.AirScooter;
+import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.Ability;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
+import com.plushnode.atlacore.game.ability.ActivationMethod;
+import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.collision.Ray;
-import com.plushnode.atlacore.entity.user.User;
+import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.TypeUtil;
-import com.plushnode.atlacore.wrappers.EntityWrapper;
+import com.plushnode.atlacore.platform.EntityWrapper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -17,10 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 // NOTE: test code.
@@ -75,7 +73,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerLogout(PlayerQuitEvent event) {
-        com.plushnode.atlacore.entity.user.Player player =
+        com.plushnode.atlacore.platform.Player player =
                 Game.getPlayerService().getPlayerByName(event.getPlayer().getName());
 
         Game.getPlayerService().invalidatePlayer(player);

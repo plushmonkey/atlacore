@@ -1,11 +1,12 @@
 package com.plushnode.atlacore.collision;
 
-import com.plushnode.atlacore.Entity;
-import com.plushnode.atlacore.block.Block;
-import com.plushnode.atlacore.block.Material;
+import com.plushnode.atlacore.platform.Entity;
+import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
-import com.plushnode.atlacore.wrappers.EntityWrapper;
+import com.plushnode.atlacore.platform.EntityWrapper;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Collections;
@@ -43,11 +44,11 @@ public class SpongeCollisionSystem extends BaseCollisionSystem {
 
     @Override
     public double distanceAboveGround(Entity entity, Set<Material> groundMaterials) {
-        com.plushnode.atlacore.Location location = entity.getLocation();
+        Location location = entity.getLocation();
         Ray ray = new Ray(location, new Vector3D(0, -1, 0));
 
         for (double y = location.getY(); y >= 0; --y) {
-            com.plushnode.atlacore.Location checkLocation = location.setY(y);
+            Location checkLocation = location.setY(y);
             Block block = checkLocation.getBlock();
 
             AABB checkBounds = AABB.BLOCK_BOUNDS;

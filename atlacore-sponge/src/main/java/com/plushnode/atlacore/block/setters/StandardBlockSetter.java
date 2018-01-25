@@ -1,9 +1,9 @@
 package com.plushnode.atlacore.block.setters;
 
-import com.plushnode.atlacore.Location;
-import com.plushnode.atlacore.block.Block;
-import com.plushnode.atlacore.block.BlockSetter;
-import com.plushnode.atlacore.block.Material;
+import com.plushnode.atlacore.platform.Location;
+import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.BlockSetter;
+import com.plushnode.atlacore.platform.block.Material;
 
 public class StandardBlockSetter implements BlockSetter {
     @Override

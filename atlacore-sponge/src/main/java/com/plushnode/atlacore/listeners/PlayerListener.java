@@ -1,15 +1,13 @@
 package com.plushnode.atlacore.listeners;
 
 import com.plushnode.atlacore.AtlaPlugin;
-import com.plushnode.atlacore.SpongeBendingPlayer;
-import com.plushnode.atlacore.Game;
-import com.plushnode.atlacore.entity.user.User;
-import com.plushnode.atlacore.ability.Ability;
-import com.plushnode.atlacore.ability.AbilityDescription;
-import com.plushnode.atlacore.ability.ActivationMethod;
-import com.plushnode.atlacore.ability.air.AirScooter;
+import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.game.ability.Ability;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
+import com.plushnode.atlacore.game.ability.ActivationMethod;
+import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
-import com.sun.media.jfxmedia.events.PlayerEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -19,9 +17,6 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.AnimateHandEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class PlayerListener {
     private AtlaPlugin plugin;
@@ -75,7 +70,7 @@ public class PlayerListener {
     public void onPlayerQuit(ClientConnectionEvent.Disconnect event) {
         Player spongePlayer = event.getTargetEntity();
 
-        com.plushnode.atlacore.entity.user.Player player
+        com.plushnode.atlacore.platform.Player player
                 = Game.getPlayerService().getPlayerByName(spongePlayer.getName());
 
         Game.getPlayerService().invalidatePlayer(player);

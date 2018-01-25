@@ -1,15 +1,23 @@
 package com.plushnode.atlacore;
 
 import com.google.inject.Inject;
-import com.plushnode.atlacore.block.BlockSetter;
+import com.plushnode.atlacore.events.SneakEventDispatcher;
+import com.plushnode.atlacore.platform.SpongeBendingPlayer;
+import com.plushnode.atlacore.platform.SpongeParticleEffectRenderer;
+import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
 import com.plushnode.atlacore.collision.SpongeCollisionSystem;
 import com.plushnode.atlacore.command.BindCommand;
 import com.plushnode.atlacore.commands.BendingCommand;
 import com.plushnode.atlacore.config.ConfigManager;
-import com.plushnode.atlacore.entity.user.*;
-import com.plushnode.atlacore.entity.user.Player;
+import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.listeners.PlayerListener;
+import com.plushnode.atlacore.platform.ParticleEffectRenderer;
+import com.plushnode.atlacore.player.MemoryPlayerRepository;
+import com.plushnode.atlacore.player.PlayerFactory;
+import com.plushnode.atlacore.player.PlayerRepository;
+import com.plushnode.atlacore.player.PlayerService;
+import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -17,23 +25,21 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.text.Text;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 
-@Plugin(id = "atlacore")
+@Plugin(id = "atlacore-sponge")
 public class AtlaPlugin implements CorePlugin {
     public static AtlaPlugin plugin;
-    public static com.plushnode.atlacore.Game atlaGame;
+    public static com.plushnode.atlacore.game.Game atlaGame;
 
     private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();
     private SpongeParticleEffectRenderer particleEffectRenderer = new SpongeParticleEffectRenderer();
@@ -80,7 +86,7 @@ public class AtlaPlugin implements CorePlugin {
 
         PlayerService playerService = new PlayerService(playerRepository);
 
-        atlaGame = new com.plushnode.atlacore.Game(this, new SpongeCollisionSystem(), playerService);
+        atlaGame = new com.plushnode.atlacore.game.Game(this, new SpongeCollisionSystem(), playerService);
 
         createTaskTimer(atlaGame::update, 1, 1);
 
@@ -98,7 +104,7 @@ public class AtlaPlugin implements CorePlugin {
         }
     }
 
-    public com.plushnode.atlacore.Game getAtlaGame() {
+    public com.plushnode.atlacore.game.Game getAtlaGame() {
         return atlaGame;
     }
 
@@ -110,7 +116,7 @@ public class AtlaPlugin implements CorePlugin {
 
         Sponge.getCommandManager().register(this, cmd, "bending", "b", "atla");
 
-        com.plushnode.atlacore.Game.getProtectionSystem().reload();
+        com.plushnode.atlacore.game.Game.getProtectionSystem().reload();
     }
 
     private void loadConfig() {

@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.policies.removal;
 
-import com.plushnode.atlacore.ability.AbilityDescription;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class CompositeRemovalPolicy implements RemovalPolicy {
         String pathPrefix = prefix + ".RemovalPolicy.";
 
         String[] tokens = pathPrefix.split("\\.");
-        ConfigurationNode node = config.getNode(tokens);
+        ConfigurationNode node = config.getNode((Object)tokens);
 
         // Load the configuration section for each policy and pass it to the load method.
         for (Iterator<RemovalPolicy> iterator = policies.iterator(); iterator.hasNext(); ) {

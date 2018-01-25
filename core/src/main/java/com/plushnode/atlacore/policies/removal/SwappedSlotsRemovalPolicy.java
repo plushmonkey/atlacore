@@ -1,9 +1,9 @@
 package com.plushnode.atlacore.policies.removal;
 
-import com.plushnode.atlacore.entity.user.Player;
-import com.plushnode.atlacore.entity.user.User;
-import com.plushnode.atlacore.ability.Ability;
-import com.plushnode.atlacore.ability.AbilityDescription;
+import com.plushnode.atlacore.platform.Player;
+import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.game.ability.Ability;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
 
 public class SwappedSlotsRemovalPolicy<T extends Ability> implements RemovalPolicy {
     private User user;

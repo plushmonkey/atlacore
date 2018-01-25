@@ -1,21 +1,29 @@
 package com.plushnode.atlacore;
 
-import com.plushnode.atlacore.block.BlockSetter;
+import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.platform.BukkitBendingPlayer;
+import com.plushnode.atlacore.platform.BukkitParticleEffectRenderer;
+import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
 import com.plushnode.atlacore.collision.BukkitCollisionSystem;
 import com.plushnode.atlacore.command.BindCommand;
 import com.plushnode.atlacore.commands.CoreExecutor;
 import com.plushnode.atlacore.config.ConfigManager;
-import com.plushnode.atlacore.entity.user.*;
 import com.plushnode.atlacore.listeners.PlayerListener;
+import com.plushnode.atlacore.platform.ParticleEffectRenderer;
+import com.plushnode.atlacore.platform.Player;
+import com.plushnode.atlacore.player.MemoryPlayerRepository;
+import com.plushnode.atlacore.player.PlayerFactory;
+import com.plushnode.atlacore.player.PlayerRepository;
+import com.plushnode.atlacore.player.PlayerService;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.protection.methods.*;
+import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 

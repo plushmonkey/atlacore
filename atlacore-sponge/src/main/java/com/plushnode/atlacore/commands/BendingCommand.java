@@ -1,15 +1,12 @@
 package com.plushnode.atlacore.commands;
 
-import com.plushnode.atlacore.Game;
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.command.CommandRegistry;
-import com.plushnode.atlacore.command.CommandSender;
 import com.plushnode.atlacore.command.CoreCommand;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -48,7 +45,7 @@ public class BendingCommand extends CommandRegistry implements CommandCallable {
         }
 
         if (source instanceof Player) {
-            com.plushnode.atlacore.entity.user.Player player = Game.getPlayerService().getPlayerByName(source.getName());
+            com.plushnode.atlacore.platform.Player player = Game.getPlayerService().getPlayerByName(source.getName());
             bendingCommand.execute(player, args);
         } else {
             // todo: handle console

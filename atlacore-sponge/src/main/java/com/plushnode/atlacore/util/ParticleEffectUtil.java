@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.util;
 
-import com.plushnode.atlacore.ParticleEffect;
+import com.plushnode.atlacore.platform.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 

@@ -1,8 +1,8 @@
 package com.plushnode.atlacore.entity;
 
-import com.plushnode.atlacore.SpongeBendingPlayer;
-import com.plushnode.atlacore.wrappers.EntityWrapper;
-import com.plushnode.atlacore.wrappers.LivingEntityWrapper;
+import com.plushnode.atlacore.platform.SpongeBendingPlayer;
+import com.plushnode.atlacore.platform.EntityWrapper;
+import com.plushnode.atlacore.platform.LivingEntityWrapper;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;

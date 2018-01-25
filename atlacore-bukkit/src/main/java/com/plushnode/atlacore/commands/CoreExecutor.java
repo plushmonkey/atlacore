@@ -1,7 +1,6 @@
 package com.plushnode.atlacore.commands;
 
-import com.plushnode.atlacore.BukkitBendingPlayer;
-import com.plushnode.atlacore.Game;
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.command.CommandRegistry;
 import com.plushnode.atlacore.command.CoreCommand;
 import org.bukkit.ChatColor;
@@ -39,7 +38,7 @@ public class CoreExecutor extends CommandRegistry implements CommandExecutor {
         }
 
         if (sender instanceof Player) {
-            com.plushnode.atlacore.entity.user.Player player = Game.getPlayerService().getPlayerByName(sender.getName());
+            com.plushnode.atlacore.platform.Player player = Game.getPlayerService().getPlayerByName(sender.getName());
             bendingCommand.execute(player, args);
         } else {
             // todo: handle console

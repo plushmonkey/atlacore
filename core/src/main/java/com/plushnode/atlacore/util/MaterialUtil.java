@@ -1,8 +1,8 @@
 package com.plushnode.atlacore.util;
 
-import com.plushnode.atlacore.Game;
-import com.plushnode.atlacore.block.Block;
-import com.plushnode.atlacore.block.Material;
+import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.collision.AABB;
 
 import java.util.Arrays;
