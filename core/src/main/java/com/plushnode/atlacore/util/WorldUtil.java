@@ -1,6 +1,12 @@
 package com.plushnode.atlacore.util;
 
+import com.plushnode.atlacore.collision.AABB;
+import com.plushnode.atlacore.collision.Ray;
+import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.platform.Entity;
+import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
+import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -41,6 +47,36 @@ public final class WorldUtil {
         }
 
         return blocks;
+    }
+
+    public static LivingEntity getTargetEntity(User user, int range) {
+        Ray ray = new Ray(user.getEyeLocation(), user.getDirection());
+
+        LivingEntity closest = null;
+        double closestDist = Double.MAX_VALUE;
+
+        for (Entity entity : user.getWorld().getNearbyEntities(user.getLocation(), range, range, range)) {
+            if (entity.equals(user)) continue;
+            if (!(entity instanceof LivingEntity)) continue;
+
+            AABB entityBounds = Game.getCollisionSystem().getAABB(entity).at(entity.getLocation());
+
+            Optional<Double> result = entityBounds.intersects(ray);
+            if (result.isPresent()) {
+                double dist = result.get();
+
+                if (dist < closestDist) {
+                    closest = (LivingEntity)entity;
+                    closestDist = dist;
+                }
+            }
+        }
+
+        if (closestDist > range) {
+            return null;
+        }
+
+        return closest;
     }
 
 }

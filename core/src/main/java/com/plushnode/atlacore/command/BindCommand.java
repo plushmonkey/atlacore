@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.command;
 
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
@@ -25,6 +26,11 @@ public class BindCommand implements CoreCommand {
         AbilityDescription abilityDesc = Game.getAbilityRegistry().getAbilityByName(abilityName);
         if (abilityDesc == null) {
             sender.sendMessage("Could not find ability named " + abilityName + ".");
+            return true;
+        }
+
+        if (abilityDesc.isActivatedBy(ActivationMethod.Sequence)) {
+            sender.sendMessage("Cannot bind sequence abilities.");
             return true;
         }
 

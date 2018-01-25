@@ -13,6 +13,7 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     private final Class<T> type;
     private boolean enabled;
     private boolean harmless;
+    private boolean hidden;
 
     public GenericAbilityDescription(String name, String desc, Element element, int cooldown, List<ActivationMethod> activation, Class<T> type, boolean harmless) {
         super();
@@ -24,6 +25,7 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
         this.type = type;
         this.harmless = harmless;
         this.enabled = true;
+        this.hidden = false;
     }
 
     @Override
@@ -44,6 +46,16 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    @Override
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    @Override
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 
     @Override

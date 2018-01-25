@@ -10,6 +10,11 @@ import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.Blaze;
 import com.plushnode.atlacore.collision.CollisionSystem;
 import com.plushnode.atlacore.game.ability.fire.FireBlast;
+import com.plushnode.atlacore.game.ability.fire.sequences.FireKick;
+import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
+import com.plushnode.atlacore.game.ability.sequence.Action;
+import com.plushnode.atlacore.game.ability.sequence.Sequence;
+import com.plushnode.atlacore.game.ability.sequence.SequenceService;
 import com.plushnode.atlacore.game.element.BasicElement;
 import com.plushnode.atlacore.game.element.ElementRegistry;
 import com.plushnode.atlacore.player.PlayerService;
@@ -31,6 +36,7 @@ public class Game {
     private static ElementRegistry elementRegistry;
     private static AbilityInstanceManager instanceManager;
     private static TempBlockManager tempBlockManager;
+    private static SequenceService sequenceService;
 
     public Game(CorePlugin plugin, CollisionSystem collisionSystem, PlayerService playerService) {
         Game.plugin = plugin;
@@ -42,6 +48,9 @@ public class Game {
         protectionSystem = new ProtectionSystem();
         tempBlockManager = new TempBlockManager();
         elementRegistry = new ElementRegistry();
+        sequenceService = new SequenceService();
+
+        sequenceService.start();
 
         elementRegistry.registerElement(new BasicElement("Air"));
         elementRegistry.registerElement(new BasicElement("Earth"));
@@ -72,12 +81,24 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 1500,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireBlast.class, false);
 
+        AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
+                elementRegistry.getElementByName("Fire"), 1500,
+                Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
+
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
         abilityRegistry.registerAbility(shockwaveDesc);
         abilityRegistry.registerAbility(airSwipeDesc);
         abilityRegistry.registerAbility(airBlastDesc);
         abilityRegistry.registerAbility(fireBlastDesc);
+        abilityRegistry.registerAbility(fireKickDesc);
+
+        sequenceService.registerSequence(fireKickDesc, new Sequence(true,
+                new AbilityAction(fireBlastDesc, Action.Punch),
+                new AbilityAction(fireBlastDesc, Action.Punch),
+                new AbilityAction(fireBlastDesc, Action.Sneak),
+                new AbilityAction(fireBlastDesc, Action.Punch)
+        ));
 
         initializeAbilities();
     }
@@ -92,6 +113,10 @@ public class Game {
 
     public void update() {
         instanceManager.update();
+    }
+
+    public static SequenceService getSequenceService() {
+        return sequenceService;
     }
 
     public static PlayerService getPlayerService() {

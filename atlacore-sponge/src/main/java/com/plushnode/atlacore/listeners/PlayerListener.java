@@ -2,21 +2,30 @@ package com.plushnode.atlacore.listeners;
 
 import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
+import com.plushnode.atlacore.util.WorldUtil;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.action.InteractEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.AnimateHandEvent;
 import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+
+import java.util.Optional;
 
 public class PlayerListener {
     private AtlaPlugin plugin;
@@ -77,6 +86,35 @@ public class PlayerListener {
     }
 
     @Listener
+    public void onInteractEntity(InteractEntityEvent event) {
+        Optional<Player> result = event.getCause().last(Player.class);
+        if (!result.isPresent()) {
+            return;
+        }
+
+        Player player = result.get();
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
+        Game.getSequenceService().registerAction(user, Action.InteractEntity);
+    }
+
+    @Listener
+    public void onInteractBlock(InteractBlockEvent.Secondary.MainHand event) {
+        Optional<Player> result = event.getCause().last(Player.class);
+        if (!result.isPresent()) {
+            return;
+        }
+
+        Player player = result.get();
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
+
+        if (event.getTargetBlock().getState().getType() == BlockTypes.AIR) {
+            Game.getSequenceService().registerAction(user, Action.Interact);
+        } else {
+            Game.getSequenceService().registerAction(user, Action.InteractBlock);
+        }
+    }
+
+    @Listener
     public void onFallDamage(DamageEntityEvent event, @Root DamageSource source) {
         if (source.getType() != DamageTypes.FALL) return;
 
@@ -100,6 +138,8 @@ public class PlayerListener {
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
+        Game.getSequenceService().registerAction(user, event.isSneaking() ? Action.Sneak : Action.SneakRelease);
+
         activateAbility(user, ActivationMethod.Sneak);
 
         Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
@@ -113,6 +153,12 @@ public class PlayerListener {
 
         Player player = (Player) entity;
         User user = Game.getPlayerService().getPlayerByName(player.getName());
+
+        if (WorldUtil.getTargetEntity(user, 4) != null) {
+            Game.getSequenceService().registerAction(user, Action.PunchEntity);
+        } else {
+            Game.getSequenceService().registerAction(user, Action.Punch);
+        }
 
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
             if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {

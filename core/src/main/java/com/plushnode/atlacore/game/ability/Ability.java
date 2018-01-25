@@ -7,7 +7,7 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 public interface Ability {
     // return true if the ability was activated
     boolean activate(User user, ActivationMethod method);
-    // Return failure if the ability should be removed.
+    // Return UpdateResult.Remove if the ability should be removed.
     UpdateResult update();
 
     void destroy();

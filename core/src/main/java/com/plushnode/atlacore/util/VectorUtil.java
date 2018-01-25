@@ -46,4 +46,12 @@ public final class VectorUtil {
     public static double getMaxComponent(Vector3D vector) {
         return Math.max(vector.getX(), Math.max(vector.getY(), vector.getZ()));
     }
+
+    public static Vector3D rotate(Vector3D vector, Vector3D axis, double rads) {
+        Vector3D a = vector.scalarMultiply(Math.cos(rads));
+        Vector3D b = axis.crossProduct(vector).scalarMultiply(Math.sin(rads));
+        Vector3D c = axis.scalarMultiply(axis.dotProduct(vector)).scalarMultiply(1 - Math.cos(rads));
+
+        return a.add(b).add(c);
+    }
 }

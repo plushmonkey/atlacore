@@ -4,6 +4,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
@@ -135,18 +136,10 @@ public class AirSwipe implements Ability {
             double rads = Math.toRadians(deg);
 
             Vector3D direction = user.getDirection();
-            direction = rotate(direction, rotateAxis, rads);
+            direction = VectorUtil.rotate(direction, rotateAxis, rads);
 
             streams.add(new AirStream(origin, direction));
         }
-    }
-
-    private Vector3D rotate(Vector3D vector, Vector3D axis, double rads) {
-        Vector3D a = vector.scalarMultiply(Math.cos(rads));
-        Vector3D b = axis.crossProduct(vector).scalarMultiply(Math.sin(rads));
-        Vector3D c = axis.scalarMultiply(axis.dotProduct(vector)).scalarMultiply(1 - Math.cos(rads));
-
-        return a.add(b).add(c);
     }
 
     @Override

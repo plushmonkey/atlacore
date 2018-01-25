@@ -6,5 +6,6 @@ public enum ActivationMethod {
     Use,
     Sneak,
     SneakRelease,
-    Fall
+    Fall,
+    Sequence
 }

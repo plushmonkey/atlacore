@@ -11,6 +11,9 @@ public interface AbilityDescription {
 
     boolean isEnabled();
     void setEnabled(boolean enabled);
+    
+    boolean isHidden();
+    void setHidden(boolean hidden);
 
     boolean isHarmless();
 

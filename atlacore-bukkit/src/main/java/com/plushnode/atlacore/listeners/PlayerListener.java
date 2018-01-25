@@ -8,9 +8,11 @@ import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.collision.Ray;
+import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.TypeUtil;
 import com.plushnode.atlacore.platform.EntityWrapper;
+import com.plushnode.atlacore.util.WorldUtil;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -79,7 +81,7 @@ public class PlayerListener implements Listener {
         Game.getPlayerService().invalidatePlayer(player);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onFallDamage(EntityDamageEvent event) {
         if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
         if (!(event.getEntity() instanceof Player)) return;
@@ -95,22 +97,50 @@ public class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
-        if (!event.isSneaking()) return;
-
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
+
+        if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR) {
+            Game.getSequenceService().registerAction(user, Action.Interact);
+        } else if(event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
+            Game.getSequenceService().registerAction(user, Action.InteractBlock);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
+
+        Game.getSequenceService().registerAction(user, Action.InteractEntity);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
+        Player player = event.getPlayer();
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
+
+        Game.getSequenceService().registerAction(user, event.isSneaking() ? Action.Sneak : Action.SneakRelease);
+
+        if (!event.isSneaking()) return;
 
         activateAbility(user, ActivationMethod.Sneak);
 
         Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerSwing(PlayerAnimationEvent event) {
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
+
+        if (WorldUtil.getTargetEntity(user, 4) != null) {
+            Game.getSequenceService().registerAction(user, Action.PunchEntity);
+        } else {
+            Game.getSequenceService().registerAction(user, Action.Punch);
+        }
 
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
             if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
@@ -119,36 +149,5 @@ public class PlayerListener implements Listener {
         }
 
         activateAbility(user, ActivationMethod.Punch);
-    }
-
-    private LivingEntity getTargetEntity(Player player, int range) {
-        Ray ray = new Ray(TypeUtil.adapt(player.getEyeLocation()), TypeUtil.adapt(player.getEyeLocation().getDirection()));
-
-        LivingEntity closest = null;
-        double closestDist = Double.MAX_VALUE;
-
-        for (Entity entity : player.getWorld().getNearbyEntities(player.getLocation(), range, range, range)) {
-            if (entity == player) continue;
-            if (!(entity instanceof LivingEntity)) continue;
-
-            EntityWrapper ew = new EntityWrapper(entity);
-            AABB entityBounds = Game.getCollisionSystem().getAABB(ew).at(ew.getLocation());
-
-            Optional<Double> result = entityBounds.intersects(ray);
-            if (result.isPresent()) {
-                double dist = result.get();
-
-                if (dist < closestDist) {
-                    closest = (LivingEntity)entity;
-                    closestDist = dist;
-                }
-            }
-        }
-
-        if (closestDist > range) {
-            return null;
-        }
-
-        return closest;
     }
 }
