@@ -155,23 +155,7 @@ public class AbilityInstanceManager {
         }
     }
 
-    public void onAbilityChange(User user, AbilityDescription oldAbility, AbilityDescription newAbility) {
-        List<Ability> instances = getPlayerInstances(user);
-
-        if (instances == null) return;
-        Iterator<Ability> iterator = instances.iterator();
-        while (iterator.hasNext()) {
-            Ability ability = iterator.next();
-
-            if (ability.onAbilityChange(user, oldAbility, newAbility)) {
-                ability.destroy();
-                iterator.remove();
-                System.out.println("Active instances: " + getInstanceCount());
-            }
-        }
-    }
-
-    // Updates each ability every tick. Destroys the ability if ability.update() returns true.
+    // Updates each ability every tick. Destroys the ability if ability.update() returns UpdateResult.Remove.
     public void update() {
         Iterator<Map.Entry<User, List<Ability>>> playerIterator = globalInstances.entrySet().iterator();
 
@@ -183,7 +167,15 @@ public class AbilityInstanceManager {
             while (iterator.hasNext()) {
                 Ability ability = iterator.next();
 
-                if (ability.update()) {
+                UpdateResult result = UpdateResult.Remove;
+
+                try {
+                    result = ability.update();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (result == UpdateResult.Remove) {
                     ability.destroy();
                     iterator.remove();
                     System.out.println("Active instances: " + getInstanceCount());

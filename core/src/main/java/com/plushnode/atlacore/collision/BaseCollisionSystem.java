@@ -1,22 +1,16 @@
 package com.plushnode.atlacore.collision;
 
 import com.plushnode.atlacore.game.Game;
-import com.plushnode.atlacore.game.ability.common.WorldUtil;
+import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.util.VectorUtil;
+import com.plushnode.atlacore.util.WorldUtil;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class BaseCollisionSystem implements CollisionSystem {
-    private static final List<Vector3D> DIRECTIONS = Arrays.asList(
-            Vector3D.ZERO, Vector3D.MINUS_I, Vector3D.MINUS_J, Vector3D.MINUS_K,
-            Vector3D.PLUS_I, Vector3D.PLUS_J, Vector3D.PLUS_K
-    );
-
     @Override
     public boolean handleEntityCollisions(User user, Collider collider, CollisionCallback callback, boolean livingOnly) {
         return handleEntityCollisions(user, collider, callback, livingOnly, false);
@@ -62,13 +56,18 @@ public abstract class BaseCollisionSystem implements CollisionSystem {
     }
 
     @Override
-    public Location castRay(World world, Ray ray, double maxRange) {
+    public Location castRay(World world, Ray ray, double maxRange, boolean liquidCollision) {
         Collection<Block> blocks = WorldUtil.getNearbyBlocks(world.getLocation(ray.origin), maxRange + 1);
 
         double closestDistance = Double.MAX_VALUE;
 
         for (Block block : blocks) {
-            AABB blockBounds = Game.getCollisionSystem().getAABB(block).at(block.getLocation());
+            AABB localBounds = Game.getCollisionSystem().getAABB(block);
+            if (liquidCollision && block.isLiquid()) {
+                localBounds = AABB.BLOCK_BOUNDS;
+            }
+
+            AABB blockBounds = localBounds.at(block.getLocation());
 
             Optional<Double> result = blockBounds.intersects(ray);
             if (result.isPresent()) {
@@ -82,5 +81,37 @@ public abstract class BaseCollisionSystem implements CollisionSystem {
         closestDistance = Math.min(closestDistance, maxRange);
 
         return world.getLocation(ray.origin).add(ray.direction.scalarMultiply(closestDistance));
+    }
+
+    @Override
+    public boolean collidesWithBlocks(World world, Collider collider, Location begin, Location end, boolean liquids) {
+        double maxExtent = VectorUtil.getMaxComponent(collider.getHalfExtents());
+        double distance = begin.distance(end);
+
+        Vector3D toEnd = end.subtract(begin).toVector().normalize();
+        Ray ray = new Ray(begin.toVector(), toEnd);
+
+        Location mid = begin.add(toEnd.scalarMultiply(distance / 2.0));
+        double lookupRadius = (distance / 2.0) + maxExtent + 1.0;
+
+        for (Block block : WorldUtil.getNearbyBlocks(mid, lookupRadius, Collections.singletonList(Material.AIR))) {
+            AABB localBounds = Game.getCollisionSystem().getAABB(block);
+
+            if (liquids && block.isLiquid()) {
+                localBounds = AABB.BLOCK_BOUNDS;
+            }
+
+            AABB blockBounds = localBounds.at(block.getLocation());
+
+            Optional<Double> result = blockBounds.intersects(ray);
+            if (result.isPresent()) {
+                double d = result.get();
+                if (d < distance) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

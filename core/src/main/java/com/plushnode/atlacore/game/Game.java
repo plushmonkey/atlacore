@@ -9,6 +9,7 @@ import com.plushnode.atlacore.game.ability.air.AirSwipe;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.Blaze;
 import com.plushnode.atlacore.collision.CollisionSystem;
+import com.plushnode.atlacore.game.ability.fire.FireBlast;
 import com.plushnode.atlacore.game.element.BasicElement;
 import com.plushnode.atlacore.game.element.ElementRegistry;
 import com.plushnode.atlacore.player.PlayerService;
@@ -67,11 +68,16 @@ public class Game {
                 elementRegistry.getElementByName("Air"), 500,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), AirBlast.class, false);
 
+        AbilityDescription fireBlastDesc = new GenericAbilityDescription<>("FireBlast", "fire blast blast",
+                elementRegistry.getElementByName("Fire"), 1500,
+                Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireBlast.class, false);
+
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
         abilityRegistry.registerAbility(shockwaveDesc);
         abilityRegistry.registerAbility(airSwipeDesc);
         abilityRegistry.registerAbility(airBlastDesc);
+        abilityRegistry.registerAbility(fireBlastDesc);
 
         initializeAbilities();
     }

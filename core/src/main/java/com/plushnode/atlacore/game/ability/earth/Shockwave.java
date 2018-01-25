@@ -3,6 +3,7 @@ package com.plushnode.atlacore.game.ability.earth;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
+import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.Grid;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
@@ -91,23 +92,19 @@ public class Shockwave implements Ability {
     }
 
     @Override
-    public boolean update() {
+    public UpdateResult update() {
         long time = System.currentTimeMillis();
 
         if (!this.charged) {
             this.charged = time >= startTime + config.chargeTime;
         }
 
-        if (user instanceof Player && isCharging() && !((Player) user).isSneaking()) {
-            return true;
-        }
-
         if (isCharging()) {
-            return false;
+            return user.isSneaking() ? UpdateResult.Continue : UpdateResult.Remove;
         }
 
         if (!this.released) {
-            if ((user instanceof Player && !((Player) user).isSneaking()) || this.conal) {
+            if (!user.isSneaking() || this.conal) {
                 this.released = true;
                 this.origin = user.getLocation().clone();
 
@@ -119,7 +116,7 @@ public class Shockwave implements Ability {
 
                 ProtectionSystem ps = Game.getProtectionSystem();
                 if (!ps.canBuild(user, originBlock.getLocation()) || !ps.canBuild(user, originBlock.getRelative(BlockFace.DOWN).getLocation())) {
-                    return true;
+                    return UpdateResult.Remove;
                 }
             } else {
                 Vector3D direction = user.getDirection();
@@ -133,14 +130,14 @@ public class Shockwave implements Ability {
         } else {
             if (time > this.lastUpdate) {
                 if (updateReleased()) {
-                    return true;
+                    return UpdateResult.Remove;
                 }
 
                 this.lastUpdate = time;
             }
         }
 
-        return false;
+        return UpdateResult.Continue;
     }
 
     @Override

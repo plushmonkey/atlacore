@@ -28,7 +28,9 @@ public class IgnitableBlocks {
             Material.SPONGE, Material.IRON_ORE, Material.GOLD_ORE, Material.COAL_BLOCK, Material.WORKBENCH,
             Material.HAY_BLOCK, Material.REDSTONE_LAMP_OFF, Material.REDSTONE_LAMP_ON, Material.EMERALD_ORE,
             Material.EMERALD_BLOCK, Material.REDSTONE_BLOCK, Material.QUARTZ_BLOCK, Material.QUARTZ_ORE,
-            Material.STAINED_CLAY, Material.HARD_CLAY );
+            Material.STAINED_CLAY, Material.HARD_CLAY,
+            Material.GRASS_PATH
+    );
 
     public static boolean isIgnitable(Block block) {
         if (overwritable.contains(block.getType())) {

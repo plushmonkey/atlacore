@@ -1,7 +1,8 @@
-package com.plushnode.atlacore.game.ability.common;
+package com.plushnode.atlacore.util;
 
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.Material;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.*;
@@ -12,6 +13,10 @@ public final class WorldUtil {
     }
 
     public static Collection<Block> getNearbyBlocks(Location location, double radius) {
+        return getNearbyBlocks(location, radius, Collections.emptyList());
+    }
+
+    public static Collection<Block> getNearbyBlocks(Location location, double radius, List<Material> ignoreMaterials) {
         int r = (int)radius + 1;
 
         int originX = (int)Math.floor(location.getX());
@@ -25,7 +30,11 @@ public final class WorldUtil {
             for (int y = originY - r; y < originY + r; ++y) {
                 for (int z = originZ - r; z < originZ + r; ++z) {
                     if (pos.distanceSq(new Vector3D(x, y, z)) <= radius * radius) {
-                        blocks.add(location.getWorld().getBlockAt(x, y, z));
+                        Block block = location.getWorld().getBlockAt(x, y, z);
+
+                        if (!ignoreMaterials.contains(block.getType())) {
+                            blocks.add(block);
+                        }
                     }
                 }
             }
@@ -33,4 +42,5 @@ public final class WorldUtil {
 
         return blocks;
     }
+
 }

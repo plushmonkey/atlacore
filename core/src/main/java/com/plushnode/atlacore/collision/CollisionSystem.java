@@ -22,5 +22,7 @@ public interface CollisionSystem {
 
     // Returns a location of intersection for a ray casted from the origin.
     // Returns a location at the maxRange if no intersections were found.
-    Location castRay(World world, Ray ray, double maxRange);
+    Location castRay(World world, Ray ray, double maxRange, boolean liquidCollision);
+
+    boolean collidesWithBlocks(World world, Collider collider, Location from, Location to, boolean liquids);
 }

@@ -26,4 +26,10 @@ public interface User extends LivingEntity {
             setCooldown(ability.getDescription());
         }
     }
+
+    default boolean isSneaking() {
+        // Non-players are always considered sneaking so they can charge abilities.
+        // Scripted entities can call a method on the ability to manually launch things.
+        return true;
+    }
 }

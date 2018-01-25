@@ -42,4 +42,8 @@ public final class VectorUtil {
     public static Vector3D getBlockVector(Vector3D vector) {
         return new Vector3D(Math.floor(vector.getX()), Math.floor(vector.getY()), Math.floor(vector.getZ()));
     }
+
+    public static double getMaxComponent(Vector3D vector) {
+        return Math.max(vector.getX(), Math.max(vector.getY(), vector.getZ()));
+    }
 }

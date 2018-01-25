@@ -3,14 +3,13 @@ package com.plushnode.atlacore.game.ability.air;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
-import com.plushnode.atlacore.game.ability.common.WorldUtil;
+import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.util.WorldUtil;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
-import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Sphere;
 import com.plushnode.atlacore.config.Configurable;
-import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.LivingEntity;
@@ -71,9 +70,9 @@ public class AirSwipe implements Ability {
     }
 
     @Override
-    public boolean update() {
+    public UpdateResult update() {
         if (removalPolicy.shouldRemove()) {
-            return true;
+            return UpdateResult.Remove;
         }
 
         long time = System.currentTimeMillis();
@@ -81,20 +80,12 @@ public class AirSwipe implements Ability {
         affectedEntities.clear();
 
         if (charging) {
-            // Only allow players to charge at the moment. Non-player benders can't sneak.
-            if (!(user instanceof Player)) {
-                launch();
-                return false;
-            }
-
-            Player player = (Player) user;
-
             // Make sure the user keeps this ability selected while charging.
             if (user.getSelectedAbility() != getDescription()) {
-                return true;
+                return UpdateResult.Remove;
             }
 
-            if (player.isSneaking() && time >= startTime + config.maxChargeTime) {
+            if (user.isSneaking() && time >= startTime + config.maxChargeTime) {
                 Vector3D direction = user.getDirection();
                 Location location = user.getEyeLocation().add(direction);
 
@@ -103,7 +94,7 @@ public class AirSwipe implements Ability {
 
                 // Display air particles to the right of the player.
                 Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
-            } else if (!player.isSneaking()) {
+            } else if (!user.isSneaking()) {
                 factor = Math.max(1.0, Math.min(1.0, (time - startTime) / (double)config.maxChargeTime) * config.chargeFactor);
 
                 launch();
@@ -118,7 +109,7 @@ public class AirSwipe implements Ability {
             }
         }
 
-        return !charging && streams.isEmpty();
+        return (charging || !streams.isEmpty()) ? UpdateResult.Continue : UpdateResult.Remove;
     }
 
     @Override
@@ -174,6 +165,7 @@ public class AirSwipe implements Ability {
 
         // Return false to destroy this stream
         boolean update() {
+            Location previous = location;
             location = location.add(direction.scalarMultiply(config.speed));
 
             if (!Game.getProtectionSystem().canBuild(user, location)) {
@@ -187,8 +179,9 @@ public class AirSwipe implements Ability {
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
 
             Collider collider = new Sphere(location.toVector(), config.entityCollisionRadius);
-
-            Block block = location.getBlock();
+            if (collide(collider)) {
+                return false;
+            }
 
             for (Block handleBlock : WorldUtil.getNearbyBlocks(location, 2.0)) {
                 if (!handleBlockInteractions(handleBlock)) {
@@ -196,8 +189,8 @@ public class AirSwipe implements Ability {
                 }
             }
 
-            AABB blockBounds = Game.getCollisionSystem().getAABB(block).at(block.getLocation());
-            return !collider.intersects(blockBounds) && !collide(collider);
+            return !Game.getCollisionSystem().collidesWithBlocks(user.getWorld(),
+                    new Sphere(location.toVector(), 0.5), previous, location, true);
         }
 
         private boolean handleBlockInteractions(Block block) {

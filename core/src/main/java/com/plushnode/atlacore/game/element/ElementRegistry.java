@@ -1,6 +1,5 @@
 package com.plushnode.atlacore.game.element;
 
-import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.AbilityRegistry;
 import com.plushnode.atlacore.config.Configurable;
@@ -36,10 +35,6 @@ public class ElementRegistry extends Configurable {
 
                 abilityDesc.setCooldown(cooldownMS);
                 abilityDesc.setEnabled(enabled);
-
-                // Create a fake ability to update static config for it
-                Ability ability = abilityDesc.createAbility();
-                ability.onConfigReload(config);
             }
         }
     }

@@ -4,6 +4,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
+import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.collision.AABB;
@@ -81,13 +82,13 @@ public class AirScooter implements Ability {
     }
 
     @Override
-    public boolean update() {
+    public UpdateResult update() {
         if (this.removalPolicy.shouldRemove()) {
-            return true;
+            return UpdateResult.Remove;
         }
 
         if (collisionDetector.isColliding(user)) {
-            return true;
+            return UpdateResult.Remove;
         }
 
         double minSpeed = 0.1;
@@ -99,15 +100,15 @@ public class AirScooter implements Ability {
         }
 
         if (stuckCount > 10) {
-            return true;
+            return UpdateResult.Remove;
         }
 
         if (!move()) {
-            return true;
+            return UpdateResult.Remove;
         }
 
         render();
-        return false;
+        return UpdateResult.Continue;
     }
 
     @Override

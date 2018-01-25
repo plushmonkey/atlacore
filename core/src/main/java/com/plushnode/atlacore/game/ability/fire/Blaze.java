@@ -3,6 +3,7 @@ package com.plushnode.atlacore.game.ability.fire;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
+import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
@@ -59,7 +60,7 @@ public class Blaze implements Ability {
     }
 
     @Override
-    public boolean update() {
+    public UpdateResult update() {
         Iterator<FireStream> iterator = fireStreams.iterator();
 
         while (iterator.hasNext()) {
@@ -70,7 +71,7 @@ public class Blaze implements Ability {
             }
         }
 
-        return fireStreams.isEmpty();
+        return fireStreams.isEmpty() ? UpdateResult.Remove : UpdateResult.Continue;
     }
 
     @Override

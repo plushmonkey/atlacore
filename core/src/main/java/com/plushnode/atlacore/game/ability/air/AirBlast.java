@@ -6,6 +6,7 @@ import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.collision.Ray;
 import com.plushnode.atlacore.collision.Sphere;
 import com.plushnode.atlacore.config.Configurable;
+import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.LivingEntity;
@@ -19,6 +20,8 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 public class AirBlast implements Ability {
+    private static final double BLOCK_COLLISION_RADIUS = 0.5;
+
     public static Config config = new Config();
     private User user;
     private Location origin;
@@ -70,7 +73,9 @@ public class AirBlast implements Ability {
     private void selectOrigin() {
         Ray ray = new Ray(user.getEyeLocation(), user.getDirection());
 
-        this.origin = Game.getCollisionSystem().castRay(user.getWorld(), ray, config.selectRange);
+        this.origin = Game.getCollisionSystem().castRay(user.getWorld(), ray, config.selectRange, true);
+        // Move origin back slightly so it doesn't collide with ground.
+        this.origin = this.origin.subtract(user.getDirection().scalarMultiply(BLOCK_COLLISION_RADIUS));
 
         this.selectedOrigin = true;
     }
@@ -88,9 +93,9 @@ public class AirBlast implements Ability {
     }
 
     @Override
-    public boolean update() {
+    public UpdateResult update() {
         if (removalPolicy.shouldRemove()) {
-            return true;
+            return UpdateResult.Remove;
         }
 
         if (!launched) {
@@ -98,6 +103,8 @@ public class AirBlast implements Ability {
                     (float)Math.random(), (float)Math.random(), (float)Math.random(), (float)Math.random(),
                     config.selectParticles, origin, 257);
         } else {
+            Location previous = location;
+
             location = location.add(direction.scalarMultiply(config.speed));
 
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
@@ -105,11 +112,11 @@ public class AirBlast implements Ability {
                     config.particles, location, 257);
 
             if (location.distanceSquared(origin) >= config.range * config.range) {
-                return true;
+                return UpdateResult.Remove;
             }
 
             if (!Game.getProtectionSystem().canBuild(user, location)) {
-                return true;
+                return UpdateResult.Remove;
             }
 
             Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
@@ -118,18 +125,33 @@ public class AirBlast implements Ability {
             if (this.selectedOrigin) {
                 if (Game.getCollisionSystem().getAABB(user).at(user.getLocation()).intersects(collider)) {
                     affect(user);
-                    return true;
+                    return UpdateResult.Remove;
                 }
             }
 
             boolean hit = Game.getCollisionSystem().handleEntityCollisions(user, collider, this::affect, false, false);
 
             if (hit) {
-                return true;
+                return UpdateResult.Remove;
+            }
+
+
+            boolean collision = Game.getCollisionSystem().collidesWithBlocks(user.getWorld(),
+                    new Sphere(location.toVector(), BLOCK_COLLISION_RADIUS), previous, location, true);
+
+            if (collision && doBlockCollision(previous)) {
+                return UpdateResult.Remove;
             }
         }
 
-        return false;
+        return UpdateResult.Continue;
+    }
+
+    // Don't do block collision on initial launch of selected area.
+    private boolean doBlockCollision(Location previous) {
+        if (!this.selectedOrigin) return true;
+
+        return previous.distanceSquared(origin) > BLOCK_COLLISION_RADIUS * BLOCK_COLLISION_RADIUS;
     }
 
     private boolean affect(Entity entity) {
