@@ -1,6 +1,8 @@
 package com.plushnode.atlacore;
 
 import com.google.inject.Inject;
+import com.plushnode.atlacore.command.AddCommand;
+import com.plushnode.atlacore.command.ChooseCommand;
 import com.plushnode.atlacore.events.SneakEventDispatcher;
 import com.plushnode.atlacore.platform.SpongeBendingPlayer;
 import com.plushnode.atlacore.platform.SpongeParticleEffectRenderer;
@@ -113,6 +115,8 @@ public class AtlaPlugin implements CorePlugin {
         BendingCommand cmd = new BendingCommand();
 
         cmd.registerCommand(new BindCommand());
+        cmd.registerCommand(new ChooseCommand());
+        cmd.registerCommand(new AddCommand());
 
         Sponge.getCommandManager().register(this, cmd, "bending", "b", "atla");
 

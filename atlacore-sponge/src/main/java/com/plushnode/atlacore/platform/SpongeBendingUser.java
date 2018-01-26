@@ -54,6 +54,8 @@ public class SpongeBendingUser extends LivingEntityWrapper implements User {
     @Override
     public void removeElement(Element element) {
         elements.remove(element);
+
+        validateSlots();
     }
 
     @Override

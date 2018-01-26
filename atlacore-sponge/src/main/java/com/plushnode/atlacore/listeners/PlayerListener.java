@@ -69,10 +69,6 @@ public class PlayerListener {
                     // This can happen if the player logs off before the player is created.
                     return;
                 }
-
-                p.addElement(Game.getElementRegistry().getElementByName("Air"));
-                p.addElement(Game.getElementRegistry().getElementByName("Fire"));
-                p.addElement(Game.getElementRegistry().getElementByName("Earth"));
             });
         }, 1);
     }

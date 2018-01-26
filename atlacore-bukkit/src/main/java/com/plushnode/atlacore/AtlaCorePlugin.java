@@ -1,5 +1,7 @@
 package com.plushnode.atlacore;
 
+import com.plushnode.atlacore.command.AddCommand;
+import com.plushnode.atlacore.command.ChooseCommand;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.BukkitBendingPlayer;
 import com.plushnode.atlacore.platform.BukkitParticleEffectRenderer;
@@ -86,6 +88,8 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         CoreExecutor executor = new CoreExecutor();
 
         executor.registerCommand(new BindCommand());
+        executor.registerCommand(new ChooseCommand());
+        executor.registerCommand(new AddCommand());
 
         this.getCommand("b").setExecutor(executor);
         this.getCommand("atla").setExecutor(executor);

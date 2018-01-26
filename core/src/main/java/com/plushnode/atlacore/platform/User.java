@@ -48,4 +48,15 @@ public interface User extends LivingEntity {
     default void setFlying(boolean flying) {
 
     }
+
+    default void validateSlots() {
+        for (int i = 1; i <= 9; ++i) {
+            AbilityDescription desc = getSlotAbility(i);
+            if (desc == null) continue;
+
+            if (!hasElement(desc.getElement())) {
+                setSlotAbility(i, null);
+            }
+        }
+    }
 }
