@@ -10,6 +10,7 @@ import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.Blaze;
 import com.plushnode.atlacore.collision.CollisionSystem;
 import com.plushnode.atlacore.game.ability.fire.FireBlast;
+import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.fire.sequences.FireKick;
 import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
@@ -20,6 +21,7 @@ import com.plushnode.atlacore.game.element.ElementRegistry;
 import com.plushnode.atlacore.player.PlayerService;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
+import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.TempBlockManager;
 
 import java.io.IOException;
@@ -81,6 +83,10 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 1500,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireBlast.class, false);
 
+        AbilityDescription fireJetDesc = new GenericAbilityDescription<>("FireJet", "jet jet",
+                elementRegistry.getElementByName("Fire"), 7000,
+                Arrays.asList(ActivationMethod.Punch), FireJet.class, false);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 elementRegistry.getElementByName("Fire"), 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -91,6 +97,8 @@ public class Game {
         abilityRegistry.registerAbility(airSwipeDesc);
         abilityRegistry.registerAbility(airBlastDesc);
         abilityRegistry.registerAbility(fireBlastDesc);
+        abilityRegistry.registerAbility(fireJetDesc);
+
         abilityRegistry.registerAbility(fireKickDesc);
 
         sequenceService.registerSequence(fireKickDesc, new Sequence(true,
@@ -101,6 +109,8 @@ public class Game {
         ));
 
         initializeAbilities();
+
+        plugin.createTaskTimer(Flight::updateAll, 1, 1);
     }
 
     public AbilityDescription getAbilityDescription(String abilityName) {

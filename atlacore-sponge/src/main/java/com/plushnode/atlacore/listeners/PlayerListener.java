@@ -2,6 +2,7 @@ package com.plushnode.atlacore.listeners;
 
 import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -9,6 +10,7 @@ import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
+import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.WorldUtil;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.Entity;
@@ -129,6 +131,10 @@ public class PlayerListener {
         if (user.hasElement(Game.getElementRegistry().getElementByName("Air"))) {
             event.setCancelled(true);
         }
+
+        if (Flight.hasFlight(user)) {
+            event.setCancelled(true);
+        }
     }
 
     @Listener
@@ -162,6 +168,12 @@ public class PlayerListener {
 
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
             if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
+                return;
+            }
+        }
+
+        if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("FireJet")) {
+            if (Game.getAbilityInstanceManager().destroyInstanceType(user, FireJet.class)) {
                 return;
             }
         }

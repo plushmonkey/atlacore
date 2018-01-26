@@ -8,8 +8,10 @@ import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.collision.AABB;
 import com.plushnode.atlacore.collision.Ray;
+import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.TypeUtil;
 import com.plushnode.atlacore.platform.EntityWrapper;
 import com.plushnode.atlacore.util.WorldUtil;
@@ -95,6 +97,10 @@ public class PlayerListener implements Listener {
         if (user.hasElement(Game.getElementRegistry().getElementByName("Air"))) {
             event.setCancelled(true);
         }
+
+        if (Flight.hasFlight(user)) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -144,6 +150,12 @@ public class PlayerListener implements Listener {
 
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
             if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
+                return;
+            }
+        }
+
+        if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("FireJet")) {
+            if (Game.getAbilityInstanceManager().destroyInstanceType(user, FireJet.class)) {
                 return;
             }
         }

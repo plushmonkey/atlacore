@@ -16,6 +16,7 @@ import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.OutOfRangeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
+import com.plushnode.atlacore.util.Flight;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -164,6 +165,11 @@ public class AirBlast implements Ability {
         factor *= 1.0 - (location.distance(origin) / (2 * config.range));
 
         entity.setVelocity(direction.scalarMultiply(factor));
+
+        if (entity instanceof User) {
+            // Give the target Flight so they don't take fall damage.
+            new Flight.GroundRemovalTask((User)entity, 1, 20000);
+        }
 
         return entity instanceof LivingEntity;
     }

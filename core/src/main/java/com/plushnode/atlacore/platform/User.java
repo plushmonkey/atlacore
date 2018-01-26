@@ -32,4 +32,20 @@ public interface User extends LivingEntity {
         // Scripted entities can call a method on the ability to manually launch things.
         return true;
     }
+
+    default boolean getAllowFlight() {
+        return true;
+    }
+
+    default boolean isFlying() {
+        return false;
+    }
+
+    default void setAllowFlight(boolean allow) {
+
+    }
+
+    default void setFlying(boolean flying) {
+
+    }
 }

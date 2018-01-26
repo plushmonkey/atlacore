@@ -59,4 +59,24 @@ public class BukkitBendingPlayer extends BukkitBendingUser implements Player {
     public String getName() {
         return getBukkitPlayer().getName();
     }
+
+    @Override
+    public boolean getAllowFlight() {
+        return getBukkitPlayer().getAllowFlight();
+    }
+
+    @Override
+    public boolean isFlying() {
+        return getBukkitPlayer().isFlying();
+    }
+
+    @Override
+    public void setAllowFlight(boolean allow) {
+        getBukkitPlayer().setAllowFlight(allow);
+    }
+
+    @Override
+    public void setFlying(boolean flying) {
+        getBukkitPlayer().setFlying(flying);
+    }
 }
