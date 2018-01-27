@@ -15,33 +15,6 @@ public class SpongeBendingUser extends LivingEntityWrapper implements User {
 
     public SpongeBendingUser(org.spongepowered.api.entity.living.Living entity) {
         super(entity);
-
-        elements.add(new Element() {
-            @Override
-            public String getName() {
-                return "Fire";
-            }
-
-            @Override
-            public String getPermission() {
-                return "";
-            }
-
-            @Override
-            public AbilityRegistry getAbilityRegistry() {
-                return new AbilityRegistry();
-            }
-
-            @Override
-            public List<AbilityDescription> getPassives() {
-                return new ArrayList<>();
-            }
-
-            @Override
-            public void addPassive(AbilityDescription passive) {
-
-            }
-        });
     }
 
     @Override

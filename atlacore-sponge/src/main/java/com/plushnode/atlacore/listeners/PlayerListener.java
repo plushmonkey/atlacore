@@ -16,7 +16,6 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
@@ -24,7 +23,6 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.AnimateHandEvent;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import java.util.Optional;
@@ -48,7 +46,7 @@ public class PlayerListener {
         Ability ability = abilityDescription.createAbility();
 
         if (ability.activate(user, method)) {
-            plugin.getAtlaGame().addAbility(user, ability);
+            plugin.getGame().addAbility(user, ability);
             System.out.println(abilityName + " created!");
         } else {
             System.out.println("Failed to activate "  + abilityName);
@@ -79,6 +77,10 @@ public class PlayerListener {
 
         com.plushnode.atlacore.platform.Player player
                 = Game.getPlayerService().getPlayerByName(spongePlayer.getName());
+
+        Game.getPlayerService().savePlayer(player, (p) -> {
+            System.out.println(p.getName() + " saved to database.");
+        });
 
         Game.getPlayerService().invalidatePlayer(player);
     }

@@ -7,6 +7,7 @@ description = 'Avatar bending plugin'
 sponge {
     plugin {
         meta {
+            id = "atlacore"
             name = 'AtlaCore'
             version = project.version
             description = project.description

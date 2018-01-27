@@ -2,6 +2,7 @@ package com.plushnode.atlacore.command;
 
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 
 public class ChooseCommand implements CoreCommand {
@@ -32,6 +33,11 @@ public class ChooseCommand implements CoreCommand {
         user.getElements().clear();
         user.addElement(element);
         user.validateSlots();
+
+        if (user instanceof Player) {
+            Game.getPlayerService().saveElements((Player)user);
+            Game.getPlayerService().saveSlots((Player)user);
+        }
 
         sender.sendMessage("Element set to " + element.getName() + ".");
 

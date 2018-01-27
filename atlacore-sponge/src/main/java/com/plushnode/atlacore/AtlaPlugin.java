@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.plushnode.atlacore.command.AddCommand;
 import com.plushnode.atlacore.command.ChooseCommand;
 import com.plushnode.atlacore.events.SneakEventDispatcher;
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.SpongeBendingPlayer;
 import com.plushnode.atlacore.platform.SpongeParticleEffectRenderer;
 import com.plushnode.atlacore.platform.block.BlockSetter;
@@ -18,15 +19,14 @@ import com.plushnode.atlacore.platform.ParticleEffectRenderer;
 import com.plushnode.atlacore.player.MemoryPlayerRepository;
 import com.plushnode.atlacore.player.PlayerFactory;
 import com.plushnode.atlacore.player.PlayerRepository;
-import com.plushnode.atlacore.player.PlayerService;
 import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -38,22 +38,24 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 
-@Plugin(id = "atlacore-sponge")
+@Plugin(id = "atlacore")
 public class AtlaPlugin implements CorePlugin {
     public static AtlaPlugin plugin;
-    public static com.plushnode.atlacore.game.Game atlaGame;
+    public static Game game;
 
     private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();
     private SpongeParticleEffectRenderer particleEffectRenderer = new SpongeParticleEffectRenderer();
     private SneakEventDispatcher sneakDispatcher;
 
     @Inject
-    private Game game;
-    @Inject
     private Logger log;
     @Inject
     @DefaultConfig(sharedRoot=false)
     private Path configPath;
+    @Inject
+    @ConfigDir(sharedRoot=false)
+    Path configDir;
+
     private CommentedConfigurationNode configRoot;
     private ConfigurationLoader<CommentedConfigurationNode> loader;
 
@@ -64,7 +66,27 @@ public class AtlaPlugin implements CorePlugin {
 
         loadConfig();
 
-        PlayerRepository playerRepository = new MemoryPlayerRepository(new PlayerFactory() {
+        game = new com.plushnode.atlacore.game.Game(this, new SpongeCollisionSystem());
+        createPlayerRepository();
+
+        sneakDispatcher = new SneakEventDispatcher();
+        createTaskTimer(sneakDispatcher::run, 1, 1);
+
+        Sponge.getEventManager().registerListeners(this, sneakDispatcher);
+        Sponge.getEventManager().registerListeners(this, new PlayerListener(this));
+
+        // Save the config after loading everything so the defaults are saved.
+        try {
+            loader.save(configRoot);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        createTaskTimer(game::update, 1, 1);
+    }
+
+    private void createPlayerRepository() {
+        PlayerFactory factory = new PlayerFactory() {
             @Override
             public Player createPlayer(String name) {
                 Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(name);
@@ -84,30 +106,18 @@ public class AtlaPlugin implements CorePlugin {
 
                 return new SpongeBendingPlayer(result.get());
             }
-        });
+        };
 
-        PlayerService playerService = new PlayerService(playerRepository);
 
-        atlaGame = new com.plushnode.atlacore.game.Game(this, new SpongeCollisionSystem(), playerService);
+        PlayerRepository repository = game.loadPlayerService(factory, configDir.toString());
 
-        createTaskTimer(atlaGame::update, 1, 1);
-
-        sneakDispatcher = new SneakEventDispatcher();
-        createTaskTimer(sneakDispatcher::run, 1, 1);
-
-        Sponge.getEventManager().registerListeners(this, sneakDispatcher);
-        Sponge.getEventManager().registerListeners(this, new PlayerListener(this));
-
-        // Save the config after loading everything so the defaults are saved.
-        try {
-            loader.save(configRoot);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (repository instanceof MemoryPlayerRepository) {
+            getLogger().warn("Failed to load storage engine. Defaulting to in-memory engine.");
         }
     }
 
-    public com.plushnode.atlacore.game.Game getAtlaGame() {
-        return atlaGame;
+    public Game getGame() {
+        return game;
     }
 
     @Listener

@@ -14,12 +14,10 @@ import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.listeners.PlayerListener;
 import com.plushnode.atlacore.platform.ParticleEffectRenderer;
 import com.plushnode.atlacore.platform.Player;
-import com.plushnode.atlacore.player.MemoryPlayerRepository;
-import com.plushnode.atlacore.player.PlayerFactory;
-import com.plushnode.atlacore.player.PlayerRepository;
-import com.plushnode.atlacore.player.PlayerService;
+import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.protection.methods.*;
+import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -29,6 +27,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,7 +37,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     public static AtlaCorePlugin plugin;
 
     private CommentedConfigurationNode configRoot;
-    private BlockSetterFactory blockSetterFactory;
+    private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();;
     private BukkitParticleEffectRenderer particleRenderer = new BukkitParticleEffectRenderer();
     private Game game;
     private ConfigurationLoader<CommentedConfigurationNode> loader;
@@ -49,26 +48,8 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         loadConfig();
 
-        PlayerRepository playerRepository = new MemoryPlayerRepository(new PlayerFactory() {
-            @Override
-            public Player createPlayer(String name) {
-                if (Bukkit.getPlayer(name) == null)
-                    return null;
-                return new BukkitBendingPlayer(Bukkit.getPlayer(name));
-            }
-
-            @Override
-            public Player createPlayer(UUID uuid) {
-                if (Bukkit.getPlayer(uuid) == null)
-                    return null;
-                return new BukkitBendingPlayer(Bukkit.getPlayer(uuid));
-            }
-        });
-
-        PlayerService playerService = new PlayerService(playerRepository);
-
-        this.game = new Game(this, new BukkitCollisionSystem(), playerService);
-        this.blockSetterFactory = new BlockSetterFactory();
+        this.game = new Game(this, new BukkitCollisionSystem());
+        createPlayerRepository();
 
         ProtectionSystem protection = Game.getProtectionSystem();
 
@@ -102,12 +83,31 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
             e.printStackTrace();
         }
 
-        new BukkitRunnable() {
+        createTaskTimer(game::update, 1, 1);
+    }
+
+    private void createPlayerRepository() {
+        PlayerFactory factory = new PlayerFactory() {
             @Override
-            public void run() {
-                game.update();
+            public Player createPlayer(String name) {
+                if (Bukkit.getPlayer(name) == null)
+                    return null;
+                return new BukkitBendingPlayer(Bukkit.getPlayer(name));
             }
-        }.runTaskTimer(this, 1, 1);
+
+            @Override
+            public Player createPlayer(UUID uuid) {
+                if (Bukkit.getPlayer(uuid) == null)
+                    return null;
+                return new BukkitBendingPlayer(Bukkit.getPlayer(uuid));
+            }
+        };
+
+        PlayerRepository repository = this.game.loadPlayerService(factory, getDataFolder().toString());
+
+        if (repository instanceof MemoryPlayerRepository) {
+            getLogger().warning("Failed to load storage engine. Defaulting to in-memory engine.");
+        }
     }
 
     private void loadConfig() {
@@ -119,7 +119,6 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
                 getLogger().warning("Failed to create data folder.");
             }
         }
-
 
         File configFile = new File(dataFolder.getPath() + "/atlacore.conf");
         Path path = configFile.toPath();

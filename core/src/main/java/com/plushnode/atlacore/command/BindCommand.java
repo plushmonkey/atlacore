@@ -60,6 +60,7 @@ public class BindCommand implements CoreCommand {
         }
 
         player.setSlotAbility(slot, abilityDesc);
+        Game.getPlayerService().saveSlot(player, slot);
 
         sender.sendMessage(abilityDesc.getName() + " was bound to slot " + slot);
         return true;

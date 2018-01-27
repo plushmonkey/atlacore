@@ -27,7 +27,7 @@ public class PlayerService {
         if (player == null) {
             player = repository.getPlayerByUUID(uuid);
             if (player != null) {
-                playerCache.put(player.getName(), player);
+                playerCache.put(player.getName().toLowerCase(), player);
             }
         }
 
@@ -35,11 +35,11 @@ public class PlayerService {
     }
 
     public Player getPlayerByName(String name) {
-        Player player = playerCache.get(name);
+        Player player = playerCache.get(name.toLowerCase());
 
         if (player == null) {
             player = repository.getPlayerByName(name);
-            playerCache.put(name, player);
+            playerCache.put(name.toLowerCase(), player);
         }
 
         return player;
@@ -59,6 +59,7 @@ public class PlayerService {
     public void createPlayer(UUID uuid, String name, Consumer<Player> callback) {
         executor.execute(() -> {
             Player player = repository.createPlayer(uuid, name);
+            playerCache.put(name.toLowerCase(), player);
             Game.plugin.createTask(() -> callback.accept(player), 0);
         });
     }
@@ -68,5 +69,17 @@ public class PlayerService {
             repository.savePlayer(player);
             Game.plugin.createTask(() -> callback.accept(player), 0);
         });
+    }
+
+    public void saveSlot(Player player, int slotIndex) {
+        executor.execute(() -> repository.saveSlot(player, slotIndex));
+    }
+
+    public void saveSlots(Player player) {
+        executor.execute(() -> repository.saveSlots(player));
+    }
+
+    public void saveElements(Player player) {
+        executor.execute(() -> repository.saveElements(player));
     }
 }

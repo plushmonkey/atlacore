@@ -46,4 +46,19 @@ public class MemoryPlayerRepository implements PlayerRepository {
     public void savePlayer(Player player) {
         // In memory store does nothing.
     }
+
+    @Override
+    public void saveSlot(Player player, int slotIndex) {
+        // In memory store does nothing.
+    }
+
+    @Override
+    public void saveSlots(Player player) {
+        // In memory store does nothing.
+    }
+
+    @Override
+    public void saveElements(Player player) {
+
+    }
 }

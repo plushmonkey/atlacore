@@ -5,11 +5,10 @@ import com.plushnode.atlacore.game.ability.AbilityRegistry;
 import com.plushnode.atlacore.config.Configurable;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ElementRegistry extends Configurable {
-    private Map<Element, Element> elements = new HashMap<>();
+    private Set<Element> elements = new HashSet<>();
 
     public ElementRegistry() {
         super();
@@ -19,7 +18,7 @@ public class ElementRegistry extends Configurable {
     public void onConfigReload() {
         if (elements == null) return;
 
-        for (Element element : elements.values()) {
+        for (Element element : elements) {
             AbilityRegistry registry = element.getAbilityRegistry();
 
             if (registry == null || registry.getAbilities() == null) {
@@ -40,12 +39,12 @@ public class ElementRegistry extends Configurable {
     }
 
     public boolean registerElement(Element element) {
-        this.elements.put(element, element);
+        this.elements.add(element);
         return true;
     }
 
     public Element getElementByName(String name) {
-        for (Element element : elements.values()) {
+        for (Element element : elements) {
             if (element.getName().equalsIgnoreCase(name)) {
                 return element;
             }
@@ -54,7 +53,7 @@ public class ElementRegistry extends Configurable {
     }
 
     public AbilityDescription getAbilityByName(String name) {
-        for (Element element : elements.values()) {
+        for (Element element : elements) {
             AbilityRegistry registry = element.getAbilityRegistry();
 
             if (registry != null) {
@@ -65,6 +64,10 @@ public class ElementRegistry extends Configurable {
             }
         }
         return null;
+    }
+
+    public List<Element> getElements() {
+        return new ArrayList<>(elements);
     }
 }
 

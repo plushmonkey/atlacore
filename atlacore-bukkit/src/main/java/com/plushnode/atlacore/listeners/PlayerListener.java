@@ -76,6 +76,10 @@ public class PlayerListener implements Listener {
         com.plushnode.atlacore.platform.Player player =
                 Game.getPlayerService().getPlayerByName(event.getPlayer().getName());
 
+        Game.getPlayerService().savePlayer(player, (p) -> {
+            System.out.println(p.getName() + " saved to database.");
+        });
+
         Game.getPlayerService().invalidatePlayer(player);
     }
 

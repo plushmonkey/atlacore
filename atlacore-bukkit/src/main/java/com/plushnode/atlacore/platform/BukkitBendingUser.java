@@ -14,33 +14,6 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
 
     public BukkitBendingUser(LivingEntity entity) {
         super(entity);
-
-        elements.add(new Element() {
-            @Override
-            public String getName() {
-                return "Fire";
-            }
-
-            @Override
-            public String getPermission() {
-                return "";
-            }
-
-            @Override
-            public AbilityRegistry getAbilityRegistry() {
-                return new AbilityRegistry();
-            }
-
-            @Override
-            public List<AbilityDescription> getPassives() {
-                return new ArrayList<>();
-            }
-
-            @Override
-            public void addPassive(AbilityDescription passive) {
-
-            }
-        });
     }
 
     @Override

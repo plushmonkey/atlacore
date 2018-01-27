@@ -2,6 +2,7 @@ package com.plushnode.atlacore.game;
 
 import com.google.common.reflect.ClassPath;
 import com.plushnode.atlacore.CorePlugin;
+import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.game.ability.*;
 import com.plushnode.atlacore.game.ability.air.AirBlast;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
@@ -18,12 +19,15 @@ import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
 import com.plushnode.atlacore.game.element.BasicElement;
 import com.plushnode.atlacore.game.element.ElementRegistry;
-import com.plushnode.atlacore.player.PlayerService;
+import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
+import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.TempBlockManager;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -40,10 +44,9 @@ public class Game {
     private static TempBlockManager tempBlockManager;
     private static SequenceService sequenceService;
 
-    public Game(CorePlugin plugin, CollisionSystem collisionSystem, PlayerService playerService) {
+    public Game(CorePlugin plugin, CollisionSystem collisionSystem) {
         Game.plugin = plugin;
         Game.collisionSystem = collisionSystem;
-        Game.playerService = playerService;
 
         instanceManager = new AbilityInstanceManager();
         abilityRegistry = new AbilityRegistry();
@@ -111,6 +114,62 @@ public class Game {
         initializeAbilities();
 
         plugin.createTaskTimer(Flight::updateAll, 1, 1);
+    }
+
+    public PlayerRepository loadPlayerService(PlayerFactory playerFactory, String dataFolder) {
+        CommentedConfigurationNode configRoot = ConfigManager.getInstance().getConfig();
+
+        String engine = configRoot.getNode("storage").getNode("engine").getString("sqlite");
+
+        DatabaseManager databaseManager;
+
+        CommentedConfigurationNode mysqlNode = configRoot.getNode("storage").getNode("mysql");
+
+        // Initialize config with mysql values.
+        String host = mysqlNode.getNode("host").getString("localhost");
+        int port = mysqlNode.getNode("port").getInt(3306);
+        String username = mysqlNode.getNode("username").getString("bending");
+        String password = mysqlNode.getNode("password").getString("password");
+        String database = mysqlNode.getNode("database").getString("bending");
+
+        if ("sqlite".equalsIgnoreCase(engine)) {
+            String databasePath = dataFolder + "/atlacore.db";
+
+            try {
+                databaseManager = new DatabaseManager("jdbc:sqlite:" + databasePath, "", "", "", "org.sqlite.JDBC");
+                databaseManager.initDatabase("sqlite.sql");
+
+                SqlPlayerRepository repository = new SqlPlayerRepository(databaseManager, playerFactory);
+                Game.playerService = new PlayerService(repository);
+                repository.createElements(Game.getElementRegistry().getElements());
+                return repository;
+            } catch (PropertyVetoException e) {
+                e.printStackTrace();
+            }
+        } else if ("mysql".equalsIgnoreCase(engine)) {
+            try {
+                databaseManager = new DatabaseManager(
+                        "jdbc:mysql://" + host + ":" + port + "/",
+                        database,
+                        username,
+                        password,
+                        "com.mysql.jdbc.Driver"
+                );
+
+                databaseManager.initDatabase("mysql.sql");
+
+                SqlPlayerRepository repository = new SqlPlayerRepository(databaseManager, playerFactory);
+                Game.playerService = new PlayerService(repository);
+                repository.createElements(Game.getElementRegistry().getElements());
+                return repository;
+            } catch (PropertyVetoException e) {
+                e.printStackTrace();
+            }
+        }
+
+        PlayerRepository repository = new MemoryPlayerRepository(playerFactory);
+        Game.playerService = new PlayerService(repository);
+        return repository;
     }
 
     public AbilityDescription getAbilityDescription(String abilityName) {

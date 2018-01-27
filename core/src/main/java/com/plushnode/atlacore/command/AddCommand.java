@@ -2,6 +2,7 @@ package com.plushnode.atlacore.command;
 
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 
 public class AddCommand implements CoreCommand {
@@ -35,6 +36,10 @@ public class AddCommand implements CoreCommand {
         }
 
         user.addElement(element);
+
+        if (user instanceof Player) {
+            Game.getPlayerService().saveElements((Player)user);
+        }
 
         sender.sendMessage("Added element " + element.getName() + ".");
 
