@@ -84,9 +84,9 @@ public class Game {
 
         loadAbilities();
 
-        Game.getPlayerService().reload(loadPlayerRepository());
         if (!startup) {
             plugin.loadConfig();
+            Game.getPlayerService().reload(loadPlayerRepository());
         }
     }
 
