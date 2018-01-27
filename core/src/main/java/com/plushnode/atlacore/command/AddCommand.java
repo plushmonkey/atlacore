@@ -4,6 +4,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.element.Element;
 import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.util.ChatColor;
 
 public class AddCommand implements CoreCommand {
     private String[] aliases = { "add", "a" };
@@ -11,12 +12,12 @@ public class AddCommand implements CoreCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!(sender instanceof User)) {
-            sender.sendMessage("Only users can execute this command.");
+            sender.sendMessage(ChatColor.RED + "Only users can execute this command.");
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage("/bending add [element]");
+            sender.sendMessage(ChatColor.GREEN + "/bending add [element]");
             return true;
         }
 
@@ -24,14 +25,14 @@ public class AddCommand implements CoreCommand {
         Element element = Game.getElementRegistry().getElementByName(elementName);
 
         if (element == null) {
-            sender.sendMessage("There is no element named " + elementName + ".");
+            sender.sendMessage(ChatColor.RED + "There is no element named " + elementName + ".");
             return true;
         }
 
         User user = (User)sender;
 
         if (user.getElements().contains(element)) {
-            sender.sendMessage("User already has element " + element.getName() + ".");
+            sender.sendMessage(ChatColor.RED + "User already has element " + element.toString() + ChatColor.RED + ".");
             return true;
         }
 
@@ -41,7 +42,7 @@ public class AddCommand implements CoreCommand {
             Game.getPlayerService().saveElements((Player)user);
         }
 
-        sender.sendMessage("Added element " + element.getName() + ".");
+        sender.sendMessage(ChatColor.GOLD + "Added element " + element.toString() + ChatColor.GOLD + ".");
 
         return true;
     }
@@ -53,7 +54,7 @@ public class AddCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "";
+        return "bending.command.add";
     }
 
     @Override

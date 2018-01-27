@@ -7,3 +7,35 @@ commands:
   atla:
     aliases: [b, bending]
     usage: /<command>
+permissions:
+  bending.admin:
+    default: op
+    children:
+      bending.player: true
+      bending.command.reload: true
+      bending.command.add: true
+  bending.player:
+    default: true
+    children:
+      bending.command.bind: true
+      bending.command.choose: true
+      bending.air: true
+      bending.chi: true
+      bending.earth: true
+      bending.fire: true
+      bending.water: true
+  bending.air:
+    children:
+      bending.ability.AirBlast: true
+      bending.ability.AirScooter: true
+      bending.ability.AirSwipe: true
+  bending.earth:
+    children:
+      bending.ability.Shockwave: true
+  bending.fire:
+    children:
+      bending.ability.Blaze: true
+      bending.ability.FireBlast: true
+      bending.ability.FireBlastCharged: true
+      bending.ability.FireJet: true
+      bending.ability.FireKick: true

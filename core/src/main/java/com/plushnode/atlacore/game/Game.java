@@ -23,6 +23,7 @@ import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.store.sql.DatabaseManager;
+import com.plushnode.atlacore.util.ChatColor;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.Task;
 import com.plushnode.atlacore.util.TempBlockManager;
@@ -77,10 +78,10 @@ public class Game {
         elementRegistry.clear();
         sequenceService.clear();
 
-        elementRegistry.registerElement(new BasicElement("Air"));
-        elementRegistry.registerElement(new BasicElement("Earth"));
-        elementRegistry.registerElement(new BasicElement("Fire"));
-        elementRegistry.registerElement(new BasicElement("Water"));
+        elementRegistry.registerElement(new BasicElement("Air", ChatColor.GRAY));
+        elementRegistry.registerElement(new BasicElement("Earth", ChatColor.GREEN));
+        elementRegistry.registerElement(new BasicElement("Fire", ChatColor.RED));
+        elementRegistry.registerElement(new BasicElement("Water", ChatColor.AQUA));
 
         loadAbilities();
 

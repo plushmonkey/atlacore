@@ -4,6 +4,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.element.Element;
 import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.util.ChatColor;
 
 public class ChooseCommand implements CoreCommand {
     private String[] aliases = { "choose", "ch" };
@@ -11,12 +12,12 @@ public class ChooseCommand implements CoreCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!(sender instanceof User)) {
-            sender.sendMessage("Only users can execute this command.");
+            sender.sendMessage(ChatColor.RED + "Only users can execute this command.");
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage("/bending choose [element]");
+            sender.sendMessage(ChatColor.GREEN + "/bending choose [element]");
             return true;
         }
 
@@ -24,7 +25,7 @@ public class ChooseCommand implements CoreCommand {
         Element element = Game.getElementRegistry().getElementByName(elementName);
 
         if (element == null) {
-            sender.sendMessage("There is no element named " + elementName + ".");
+            sender.sendMessage(ChatColor.RED + "There is no element named " + elementName + ".");
             return true;
         }
 
@@ -39,7 +40,7 @@ public class ChooseCommand implements CoreCommand {
             Game.getPlayerService().saveSlots((Player)user);
         }
 
-        sender.sendMessage("Element set to " + element.getName() + ".");
+        sender.sendMessage(ChatColor.GOLD + "Element set to " + element.toString() + ChatColor.GOLD + ".");
 
         return true;
     }
@@ -51,7 +52,7 @@ public class ChooseCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "";
+        return "bending.command.choose";
     }
 
     @Override

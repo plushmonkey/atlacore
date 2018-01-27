@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.command;
 
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.util.ChatColor;
 
 public class ReloadCommand implements CoreCommand {
     private String[] aliases = { "reload" };
@@ -9,7 +10,7 @@ public class ReloadCommand implements CoreCommand {
     public boolean execute(CommandSender sender, String[] args) {
         Game.reload();
 
-        sender.sendMessage("Bending plugin config reloaded.");
+        sender.sendMessage(ChatColor.GOLD + "Bending plugin config reloaded.");
 
         return true;
     }
@@ -21,7 +22,7 @@ public class ReloadCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "";
+        return "bending.command.reload";
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.game.ability;
 
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.util.ChatColor;
 
 import java.util.List;
 
@@ -96,5 +97,10 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     public boolean isAbility(Ability ability) {
         if (ability == null) return false;
         return this.type.isAssignableFrom(ability.getClass());
+    }
+
+    @Override
+    public String toString() {
+        return element.getColor() + getName();
     }
 }

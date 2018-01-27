@@ -6,6 +6,7 @@ import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.util.ChatColor;
 
 public class BindCommand implements CoreCommand {
     private String[] aliases = { "bind", "b" };
@@ -13,24 +14,24 @@ public class BindCommand implements CoreCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!(sender instanceof User)) {
-            sender.sendMessage("Only users can execute this command.");
+            sender.sendMessage(ChatColor.RED + "Only users can execute this command.");
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage("/bending bind [abilityName] <slot#>");
+            sender.sendMessage(ChatColor.GREEN + "/bending bind [abilityName] <slot#>");
             return true;
         }
 
         String abilityName = args[1];
         AbilityDescription abilityDesc = Game.getAbilityRegistry().getAbilityByName(abilityName);
         if (abilityDesc == null) {
-            sender.sendMessage("Could not find ability named " + abilityName + ".");
+            sender.sendMessage(ChatColor.RED + "Could not find ability named " + abilityName + ".");
             return true;
         }
 
         if (abilityDesc.isActivatedBy(ActivationMethod.Sequence)) {
-            sender.sendMessage("Cannot bind sequence abilities.");
+            sender.sendMessage(ChatColor.RED + "Cannot bind sequence abilities.");
             return true;
         }
 
@@ -41,7 +42,7 @@ public class BindCommand implements CoreCommand {
             try {
                 slot = Integer.parseInt(args[2]);
             } catch (NumberFormatException e) {
-                sender.sendMessage("Failed to parse slot index.");
+                sender.sendMessage(ChatColor.RED + "Failed to parse slot index.");
                 return true;
             }
         } else {
@@ -49,20 +50,20 @@ public class BindCommand implements CoreCommand {
         }
 
         if (slot < 1 || slot > 9) {
-            sender.sendMessage("Invalid slot number. Slot must be between 1 and 9.");
+            sender.sendMessage(ChatColor.RED + "Invalid slot number. Slot must be between 1 and 9.");
             return true;
         }
 
         Element element = abilityDesc.getElement();
         if (!player.hasElement(element)) {
-            sender.sendMessage(abilityDesc.getName() + " requires element " + element.getName() + ".");
+            sender.sendMessage(ChatColor.RED + abilityDesc.getName() + " requires element " + element.toString() + ChatColor.RED + ".");
             return true;
         }
 
         player.setSlotAbility(slot, abilityDesc);
         Game.getPlayerService().saveSlot(player, slot);
 
-        sender.sendMessage(abilityDesc.getName() + " was bound to slot " + slot);
+        sender.sendMessage(ChatColor.GOLD + abilityDesc.toString() + ChatColor.GOLD + " was bound to slot " + slot + ".");
         return true;
     }
 
@@ -73,7 +74,7 @@ public class BindCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "atla.commands.bind";
+        return "bending.command.bind";
     }
 
     @Override
