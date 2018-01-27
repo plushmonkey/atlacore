@@ -47,9 +47,9 @@ public class PlayerListener {
 
         if (ability.activate(user, method)) {
             plugin.getGame().addAbility(user, ability);
-            System.out.println(abilityName + " created!");
+            Game.info(abilityName + " created!");
         } else {
-            System.out.println("Failed to activate "  + abilityName);
+            Game.info("Failed to activate "  + abilityName);
             return false;
         }
 
@@ -79,7 +79,7 @@ public class PlayerListener {
                 = Game.getPlayerService().getPlayerByName(spongePlayer.getName());
 
         Game.getPlayerService().savePlayer(player, (p) -> {
-            System.out.println(p.getName() + " saved to database.");
+            Game.info(p.getName() + " saved to database.");
         });
 
         Game.getPlayerService().invalidatePlayer(player);

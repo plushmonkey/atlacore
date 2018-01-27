@@ -3,6 +3,7 @@ package com.plushnode.atlacore;
 import com.google.inject.Inject;
 import com.plushnode.atlacore.command.AddCommand;
 import com.plushnode.atlacore.command.ChooseCommand;
+import com.plushnode.atlacore.command.ReloadCommand;
 import com.plushnode.atlacore.events.SneakEventDispatcher;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.SpongeBendingPlayer;
@@ -19,6 +20,7 @@ import com.plushnode.atlacore.platform.ParticleEffectRenderer;
 import com.plushnode.atlacore.player.MemoryPlayerRepository;
 import com.plushnode.atlacore.player.PlayerFactory;
 import com.plushnode.atlacore.player.PlayerRepository;
+import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -66,8 +68,7 @@ public class AtlaPlugin implements CorePlugin {
 
         loadConfig();
 
-        game = new com.plushnode.atlacore.game.Game(this, new SpongeCollisionSystem());
-        createPlayerRepository();
+        game = new Game(this, new SpongeCollisionSystem());
 
         sneakDispatcher = new SneakEventDispatcher();
         createTaskTimer(sneakDispatcher::run, 1, 1);
@@ -82,38 +83,8 @@ public class AtlaPlugin implements CorePlugin {
             e.printStackTrace();
         }
 
-        createTaskTimer(game::update, 1, 1);
-    }
-
-    private void createPlayerRepository() {
-        PlayerFactory factory = new PlayerFactory() {
-            @Override
-            public Player createPlayer(String name) {
-                Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(name);
-                if (!result.isPresent()) {
-                    return null;
-                }
-
-                return new SpongeBendingPlayer(result.get());
-            }
-
-            @Override
-            public Player createPlayer(UUID uuid) {
-                Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(uuid);
-                if (!result.isPresent()) {
-                    return null;
-                }
-
-                return new SpongeBendingPlayer(result.get());
-            }
-        };
-
-
-        PlayerRepository repository = game.loadPlayerService(factory, configDir.toString());
-
-        if (repository instanceof MemoryPlayerRepository) {
-            getLogger().warn("Failed to load storage engine. Defaulting to in-memory engine.");
-        }
+        // Reload config after Game was created so all of the values are set.
+        loadConfig();
     }
 
     public Game getGame() {
@@ -127,13 +98,13 @@ public class AtlaPlugin implements CorePlugin {
         cmd.registerCommand(new BindCommand());
         cmd.registerCommand(new ChooseCommand());
         cmd.registerCommand(new AddCommand());
+        cmd.registerCommand(new ReloadCommand());
 
         Sponge.getCommandManager().register(this, cmd, "bending", "b", "atla");
-
-        com.plushnode.atlacore.game.Game.getProtectionSystem().reload();
     }
 
-    private void loadConfig() {
+    @Override
+    public void loadConfig() {
         ConfigurationOptions options = ConfigurationOptions.defaults().setShouldCopyDefaults(true);
         loader = HoconConfigurationLoader.builder()
                 .setPath(configPath)
@@ -216,5 +187,45 @@ public class AtlaPlugin implements CorePlugin {
     @Override
     public ParticleEffectRenderer getParticleRenderer() {
         return particleEffectRenderer;
+    }
+
+    @Override
+    public PlayerFactory getPlayerFactory() {
+        return new PlayerFactory() {
+            @Override
+            public Player createPlayer(String name) {
+                Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(name);
+                if (!result.isPresent()) {
+                    return null;
+                }
+
+                return new SpongeBendingPlayer(result.get());
+            }
+
+            @Override
+            public Player createPlayer(UUID uuid) {
+                Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(uuid);
+                if (!result.isPresent()) {
+                    return null;
+                }
+
+                return new SpongeBendingPlayer(result.get());
+            }
+        };
+    }
+
+    @Override
+    public String getConfigFolder() {
+        return configDir.toString();
+    }
+
+    @Override
+    public void info(String message) {
+        getLogger().info(message);
+    }
+
+    @Override
+    public void warn(String message) {
+        getLogger().warn(message);
     }
 }

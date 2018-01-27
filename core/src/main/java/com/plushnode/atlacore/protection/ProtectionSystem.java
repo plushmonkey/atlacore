@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.protection;
 
+import com.plushnode.atlacore.config.Configurable;
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
@@ -9,16 +11,12 @@ import com.plushnode.atlacore.protection.cache.ProtectionCache;
 
 import java.util.*;
 
-public class ProtectionSystem {
+public class ProtectionSystem extends Configurable {
     private Map<String, RegionProtection> worldProtections = new HashMap<>();
     private RegionProtection globalProtection = new RegionProtection();
     private ProtectionFactory protectionFactory = new ProtectionFactory();
     private boolean allowHarmless;
     private ProtectionCache cache = new PerPlayerProtectionCache();
-
-    public ProtectionSystem() {
-
-    }
 
     public void setCache(ProtectionCache cache) {
         this.cache = cache;
@@ -77,10 +75,12 @@ public class ProtectionSystem {
         return worldProtection == null || worldProtection.canBuild(user, abilityDescription, location);
     }
 
-    // Reset the protection system from config file.
-    public void reload() {
-        // todo: read from config file
+    @Override
+    public void onConfigReload() {
+        // Cache will be null for the initial startup.
+        if (cache == null) return;
 
+        // todo: read from config file
         allowHarmless = true;
         cache.reload();
 
@@ -100,14 +100,13 @@ public class ProtectionSystem {
                 ProtectMethod method = this.protectionFactory.getProtectMethod(methodName);
 
                 if (method == null) {
-
-                    System.out.println("Failed to find ProtectMethod " + methodName);
+                    Game.warn("Failed to find ProtectMethod " + methodName);
                     continue;
                 }
 
                 protection.addProtectMethod(method);
             } catch (PluginNotFoundException e) {
-                System.out.println("ProtectMethod " + methodName + " not able to be used since plugin was not found.");
+                Game.warn("ProtectMethod " + methodName + " not able to be used since plugin was not found.");
             }
         }
     }

@@ -11,8 +11,6 @@ public interface Element {
 
     String toString();
 
-    AbilityRegistry getAbilityRegistry();
-
     List<AbilityDescription> getPassives();
     void addPassive(AbilityDescription passive);
 }

@@ -30,7 +30,7 @@ public class SequenceService {
         }
     }
 
-    public void reload() {
+    public void clear() {
         userSequences.clear();
     }
 

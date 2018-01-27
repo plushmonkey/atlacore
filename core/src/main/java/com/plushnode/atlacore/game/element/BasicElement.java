@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BasicElement implements Element {
-    private AbilityRegistry abilityRegistry = new AbilityRegistry();
     private String name;
 
     public BasicElement(String name) {
@@ -22,11 +21,6 @@ public class BasicElement implements Element {
     @Override
     public String getPermission() {
         return "";
-    }
-
-    @Override
-    public AbilityRegistry getAbilityRegistry() {
-        return abilityRegistry;
     }
 
     @Override

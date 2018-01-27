@@ -2,6 +2,7 @@ package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.ParticleEffectRenderer;
+import com.plushnode.atlacore.player.PlayerFactory;
 import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
@@ -16,4 +17,11 @@ public interface CorePlugin {
     Task createTaskTimer(Task task, long delay, long period);
 
     ParticleEffectRenderer getParticleRenderer();
+
+    PlayerFactory getPlayerFactory();
+    String getConfigFolder();
+    void loadConfig();
+
+    void info(String message);
+    void warn(String message);
 }

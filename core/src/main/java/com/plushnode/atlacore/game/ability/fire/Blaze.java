@@ -12,11 +12,14 @@ import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.util.TempBlock;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.*;
 
 public class Blaze implements Ability {
+    public static Config config = new Config();
+
     private User user;
 
     private Location location;
@@ -24,7 +27,6 @@ public class Blaze implements Ability {
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
-        System.out.println("Creating blaze for caster " + user);
         this.location = user.getLocation();
         this.fireStreams = new ArrayList<>();
         this.user = user;
@@ -51,8 +53,7 @@ public class Blaze implements Ability {
 
             direction = new Vector3D(vx, direction.getY(), vz);
 
-            int range = 10;
-            fireStreams.add(new FireStream(direction, range));
+            fireStreams.add(new FireStream(direction, config.range));
         }
 
         user.setCooldown(getDescription());
@@ -175,11 +176,17 @@ public class Blaze implements Ability {
     }
 
     private static class Config extends Configurable {
-        public int range;
+        public boolean enabled;
+        public long cooldown;
+        public double range;
 
         @Override
         public void onConfigReload() {
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "fire", "blaze");
 
+            enabled = abilityNode.getNode("enabled").getBoolean(true);
+            cooldown = abilityNode.getNode("cooldown").getLong(500);
+            range = abilityNode.getNode("range").getDouble(7.0);
         }
     }
 }

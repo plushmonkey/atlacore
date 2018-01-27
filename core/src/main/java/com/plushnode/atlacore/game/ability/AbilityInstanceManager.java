@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.game.ability;
 
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.element.Element;
 
@@ -19,7 +20,7 @@ public class AbilityInstanceManager {
         }
 
         playerInstanceList.add(instance);
-        System.out.println("Active instances: " + getInstanceCount());
+        Game.info("Active instances: " + getInstanceCount());
     }
 
     public void createPassives(User user) {
@@ -135,7 +136,7 @@ public class AbilityInstanceManager {
         }
         globalInstances.remove(user);
 
-        System.out.println("Active instances: " + getInstanceCount());
+        Game.info("Active instances: " + getInstanceCount());
     }
 
     // Destroy all instances created by every player.
@@ -178,7 +179,7 @@ public class AbilityInstanceManager {
                 if (result == UpdateResult.Remove) {
                     ability.destroy();
                     iterator.remove();
-                    System.out.println("Active instances: " + getInstanceCount());
+                    Game.info("Active instances: " + getInstanceCount());
                 }
             }
 

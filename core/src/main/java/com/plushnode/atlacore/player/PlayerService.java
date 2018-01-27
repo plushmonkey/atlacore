@@ -3,10 +3,7 @@ package com.plushnode.atlacore.player;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.Player;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -19,6 +16,17 @@ public class PlayerService {
     public PlayerService(PlayerRepository repository) {
         this.repository = repository;
         this.executor = Executors.newFixedThreadPool(3);
+    }
+
+    public void reload(PlayerRepository repository) {
+        List<Player> players = new ArrayList<>(playerCache.values());
+
+        this.repository = repository;
+        // Clear cache and reload all of them back into cache.
+        playerCache.clear();
+        for (Player player : players) {
+            getPlayerByUUID(player.getUniqueId());
+        }
     }
 
     public Player getPlayerByUUID(UUID uuid) {

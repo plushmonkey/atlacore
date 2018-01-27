@@ -2,6 +2,7 @@ package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.command.AddCommand;
 import com.plushnode.atlacore.command.ChooseCommand;
+import com.plushnode.atlacore.command.ReloadCommand;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.BukkitBendingPlayer;
 import com.plushnode.atlacore.platform.BukkitParticleEffectRenderer;
@@ -17,7 +18,6 @@ import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.protection.methods.*;
-import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -27,7 +27,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -49,7 +48,6 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         loadConfig();
 
         this.game = new Game(this, new BukkitCollisionSystem());
-        createPlayerRepository();
 
         ProtectionSystem protection = Game.getProtectionSystem();
 
@@ -59,10 +57,6 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         protection.getFactory().registerProtectMethod("Towny", () -> new TownyProtectMethod(this));
         protection.getFactory().registerProtectMethod("WorldGuard", () -> new WorldGuardProtectMethod(this));
 
-        // TODO: fix this
-        // Must be called after registering all protection methods.
-        protection.reload();
-
         getLogger().info("Enabling AltaCore-Bukkit");
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 
@@ -71,6 +65,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         executor.registerCommand(new BindCommand());
         executor.registerCommand(new ChooseCommand());
         executor.registerCommand(new AddCommand());
+        executor.registerCommand(new ReloadCommand());
 
         this.getCommand("b").setExecutor(executor);
         this.getCommand("atla").setExecutor(executor);
@@ -83,34 +78,12 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
             e.printStackTrace();
         }
 
-        createTaskTimer(game::update, 1, 1);
+        // Reload config after Game was created so all of the values are set.
+        loadConfig();
     }
 
-    private void createPlayerRepository() {
-        PlayerFactory factory = new PlayerFactory() {
-            @Override
-            public Player createPlayer(String name) {
-                if (Bukkit.getPlayer(name) == null)
-                    return null;
-                return new BukkitBendingPlayer(Bukkit.getPlayer(name));
-            }
-
-            @Override
-            public Player createPlayer(UUID uuid) {
-                if (Bukkit.getPlayer(uuid) == null)
-                    return null;
-                return new BukkitBendingPlayer(Bukkit.getPlayer(uuid));
-            }
-        };
-
-        PlayerRepository repository = this.game.loadPlayerService(factory, getDataFolder().toString());
-
-        if (repository instanceof MemoryPlayerRepository) {
-            getLogger().warning("Failed to load storage engine. Defaulting to in-memory engine.");
-        }
-    }
-
-    private void loadConfig() {
+    @Override
+    public void loadConfig() {
         getLogger().info("Loading config.");
         File dataFolder = getDataFolder();
 
@@ -209,5 +182,39 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     @Override
     public ParticleEffectRenderer getParticleRenderer() {
         return particleRenderer;
+    }
+
+    @Override
+    public PlayerFactory getPlayerFactory() {
+        return new PlayerFactory() {
+            @Override
+            public Player createPlayer(String name) {
+                if (Bukkit.getPlayer(name) == null)
+                    return null;
+                return new BukkitBendingPlayer(Bukkit.getPlayer(name));
+            }
+
+            @Override
+            public Player createPlayer(UUID uuid) {
+                if (Bukkit.getPlayer(uuid) == null)
+                    return null;
+                return new BukkitBendingPlayer(Bukkit.getPlayer(uuid));
+            }
+        };
+    }
+
+    @Override
+    public String getConfigFolder() {
+        return getDataFolder().toString();
+    }
+
+    @Override
+    public void info(String message) {
+        getLogger().info(message);
+    }
+
+    @Override
+    public void warn(String message) {
+        getLogger().warning(message);
     }
 }

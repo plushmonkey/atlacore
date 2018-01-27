@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.collision;
 
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.util.TypeUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.Bukkit;
@@ -32,7 +33,7 @@ public final class BukkitAABB {
         }
 
         if (!setupReflection(serverVersion)) {
-            System.out.println("ERROR: Failed to setup BukkitAABB reflection.");
+            Game.warn("ERROR: Failed to setup BukkitAABB reflection.");
         }
     }
 

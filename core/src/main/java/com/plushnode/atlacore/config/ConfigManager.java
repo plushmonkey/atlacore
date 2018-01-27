@@ -28,7 +28,6 @@ public class ConfigManager extends Observable {
     }
 
     public void onConfigReload() {
-        System.out.println("ConfigManager::onConfigReload");
         setChanged();
         notifyObservers(config);
     }

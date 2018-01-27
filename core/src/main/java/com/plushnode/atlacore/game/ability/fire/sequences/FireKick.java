@@ -85,13 +85,14 @@ public class FireKick implements Ability {
 
         // Return false to destroy this stream
         public boolean update() {
+            Location previous = location;
             location = location.add(direction.scalarMultiply(config.speed));
 
             if (!Game.getProtectionSystem().canBuild(user, location)) {
                 return false;
             }
 
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.2f, 0.2f, 0.2f, 0.0f, 5, location, 257);
             Collider collider = new Sphere(location.toVector(), config.entityCollisionRadius);
             boolean hit = Game.getCollisionSystem().handleEntityCollisions(user, collider, (entity) -> {
                 if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
@@ -103,11 +104,14 @@ public class FireKick implements Ability {
                 return true;
             }, true);
 
-            if (hit) {
+            if (hit || location.distanceSquared(origin) > config.range * config.range) {
                 return false;
             }
 
-            return location.distanceSquared(origin) <= config.range * config.range;
+            if (previous.equals(origin)) return true;
+
+            return !Game.getCollisionSystem().collidesWithBlocks(user.getWorld(),
+                    new Sphere(location.toVector(), 0.01), previous, location, true);
         }
     }
 

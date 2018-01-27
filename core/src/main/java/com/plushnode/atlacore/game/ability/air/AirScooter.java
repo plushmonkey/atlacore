@@ -51,7 +51,7 @@ public class AirScooter implements Ability {
             Player player = (Player)user;
 
             if (player.isSneaking()) {
-                System.out.println("Player is sneaking.");
+                Game.info("Player is sneaking.");
                 return false;
             }
         }

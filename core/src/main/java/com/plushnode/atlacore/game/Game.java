@@ -24,6 +24,7 @@ import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.Flight;
+import com.plushnode.atlacore.util.Task;
 import com.plushnode.atlacore.util.TempBlockManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
@@ -57,11 +58,39 @@ public class Game {
 
         sequenceService.start();
 
+        initializeAbilities();
+
+        plugin.createTaskTimer(this::update, 1, 1);
+        plugin.createTaskTimer(Flight::updateAll, 1, 1);
+
+        Game.playerService = new PlayerService(loadPlayerRepository());
+        reload(true);
+    }
+
+    public static void reload() {
+        reload(false);
+    }
+
+    private static void reload(boolean startup) {
+        getAbilityInstanceManager().destroyAllInstances();
+        abilityRegistry.clear();
+        elementRegistry.clear();
+        sequenceService.clear();
+
         elementRegistry.registerElement(new BasicElement("Air"));
         elementRegistry.registerElement(new BasicElement("Earth"));
         elementRegistry.registerElement(new BasicElement("Fire"));
         elementRegistry.registerElement(new BasicElement("Water"));
 
+        loadAbilities();
+
+        Game.getPlayerService().reload(loadPlayerRepository());
+        if (!startup) {
+            plugin.loadConfig();
+        }
+    }
+
+    private static void loadAbilities() {
         AbilityDescription blazeDesc = new GenericAbilityDescription<>("Blaze", "Blaze it 420",
                 elementRegistry.getElementByName("Fire"), 3000,
                 Arrays.asList(ActivationMethod.Sneak), Blaze.class, false);
@@ -110,13 +139,9 @@ public class Game {
                 new AbilityAction(fireBlastDesc, Action.Sneak),
                 new AbilityAction(fireBlastDesc, Action.Punch)
         ));
-
-        initializeAbilities();
-
-        plugin.createTaskTimer(Flight::updateAll, 1, 1);
     }
 
-    public PlayerRepository loadPlayerService(PlayerFactory playerFactory, String dataFolder) {
+    private static PlayerRepository loadPlayerRepository() {
         CommentedConfigurationNode configRoot = ConfigManager.getInstance().getConfig();
 
         String engine = configRoot.getNode("storage").getNode("engine").getString("sqlite");
@@ -132,17 +157,17 @@ public class Game {
         String password = mysqlNode.getNode("password").getString("password");
         String database = mysqlNode.getNode("database").getString("bending");
 
+        PlayerRepository repository = null;
+
         if ("sqlite".equalsIgnoreCase(engine)) {
-            String databasePath = dataFolder + "/atlacore.db";
+            String databasePath = plugin.getConfigFolder() + "/atlacore.db";
 
             try {
                 databaseManager = new DatabaseManager("jdbc:sqlite:" + databasePath, "", "", "", "org.sqlite.JDBC");
                 databaseManager.initDatabase("sqlite.sql");
 
-                SqlPlayerRepository repository = new SqlPlayerRepository(databaseManager, playerFactory);
-                Game.playerService = new PlayerService(repository);
-                repository.createElements(Game.getElementRegistry().getElements());
-                return repository;
+                repository = new SqlPlayerRepository(databaseManager, plugin.getPlayerFactory());
+                ((SqlPlayerRepository)repository).createElements(Game.getElementRegistry().getElements());
             } catch (PropertyVetoException e) {
                 e.printStackTrace();
             }
@@ -158,17 +183,18 @@ public class Game {
 
                 databaseManager.initDatabase("mysql.sql");
 
-                SqlPlayerRepository repository = new SqlPlayerRepository(databaseManager, playerFactory);
-                Game.playerService = new PlayerService(repository);
-                repository.createElements(Game.getElementRegistry().getElements());
-                return repository;
+                repository = new SqlPlayerRepository(databaseManager, plugin.getPlayerFactory());
+                ((SqlPlayerRepository)repository).createElements(Game.getElementRegistry().getElements());
             } catch (PropertyVetoException e) {
                 e.printStackTrace();
             }
         }
 
-        PlayerRepository repository = new MemoryPlayerRepository(playerFactory);
-        Game.playerService = new PlayerService(repository);
+        if (repository == null) {
+            repository = new MemoryPlayerRepository(plugin.getPlayerFactory());
+            plugin.warn("Failed to load storage engine. Defaulting to in-memory engine.");
+        }
+
         return repository;
     }
 
@@ -235,5 +261,13 @@ public class Game {
         } catch (IOException e) {
 
         }
+    }
+
+    public static void info(String message) {
+        plugin.info(message);
+    }
+
+    public static void warn(String message) {
+        plugin.warn(message);
     }
 }
