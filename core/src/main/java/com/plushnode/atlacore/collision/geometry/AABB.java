@@ -85,9 +85,19 @@ public class AABB implements Collider {
                 min.getZ() < other.max.getZ());
     }
 
-    @Override
     public boolean intersects(Sphere sphere) {
         return sphere.intersects(this);
+    }
+
+    @Override
+    public boolean intersects(Collider collider) {
+        if (collider instanceof Sphere) {
+            return intersects((Sphere) collider);
+        } else if (collider instanceof AABB) {
+            return intersects((AABB) collider);
+        }
+
+        return false;
     }
 
     @Override

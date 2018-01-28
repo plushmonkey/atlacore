@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.game.ability.fire;
 
+import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
@@ -19,6 +21,9 @@ import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public class FireBlastCharged implements Ability {
     public static Config config = new Config();
@@ -148,6 +153,23 @@ public class FireBlastCharged implements Ability {
     }
 
     @Override
+    public Collection<Collider> getColliders() {
+        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+    }
+
+    @Override
+    public void handleCollision(Collision collision) {
+        if (collision.shouldRemoveFirst()) {
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
+    }
+
+    @Override
+    public User getUser() {
+        return user;
+    }
+
+    @Override
     public String getName() {
         return "FireBlastCharged";
     }
@@ -165,6 +187,7 @@ public class FireBlastCharged implements Ability {
         public double damage;
         public double range;
         public double entityCollisionRadius;
+        public double abilityCollisionRadius;
 
         @Override
         public void onConfigReload() {
@@ -178,6 +201,7 @@ public class FireBlastCharged implements Ability {
             range = abilityNode.getNode("range").getDouble(20.0);
 
             entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(3.0);
+            abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(3.0);
         }
     }
 }

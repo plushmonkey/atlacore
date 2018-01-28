@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.game.ability.fire;
 
+import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
@@ -83,8 +84,18 @@ public class Blaze implements Ability {
     }
 
     @Override
+    public User getUser() {
+        return user;
+    }
+
+    @Override
     public String getName() {
         return "Blaze";
+    }
+
+    @Override
+    public void handleCollision(Collision collision) {
+
     }
 
     private class FireStream {

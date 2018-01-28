@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.game.ability.fire;
 
+import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -75,8 +76,18 @@ public class FireJet implements Ability {
     }
 
     @Override
+    public User getUser() {
+        return user;
+    }
+
+    @Override
     public String getName() {
         return "FireJet";
+    }
+
+    @Override
+    public void handleCollision(Collision collision) {
+
     }
 
     private static class Config extends Configurable {

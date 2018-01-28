@@ -1,7 +1,6 @@
 package com.plushnode.atlacore.game.ability.air;
 
-import com.plushnode.atlacore.collision.CollisionUtil;
-import com.plushnode.atlacore.collision.RayCaster;
+import com.plushnode.atlacore.collision.*;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
@@ -21,6 +20,9 @@ import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
 import com.plushnode.atlacore.util.Flight;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public class AirBlast implements Ability {
     private static final double BLOCK_COLLISION_RADIUS = 0.5;
@@ -182,6 +184,23 @@ public class AirBlast implements Ability {
     }
 
     @Override
+    public void handleCollision(Collision collision) {
+        if (collision.shouldRemoveFirst()) {
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
+    }
+
+    @Override
+    public Collection<Collider> getColliders() {
+        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+    }
+
+    @Override
+    public User getUser() {
+        return user;
+    }
+
+    @Override
     public String getName() {
         return "AirBlast";
     }
@@ -192,6 +211,7 @@ public class AirBlast implements Ability {
         double range;
         double speed;
         double entityCollisionRadius;
+        double abilityCollisionRadius;
         int particles;
         double selfPush;
         double otherPush;
@@ -210,6 +230,7 @@ public class AirBlast implements Ability {
             speed = abilityNode.getNode("speed").getDouble(1.25);
             particles = abilityNode.getNode("particles").getInt(6);
             entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(2.0);
+            abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(2.0);
 
             selfPush = abilityNode.getNode("push").getNode("self").getDouble(2.5);
             otherPush = abilityNode.getNode("push").getNode("other").getDouble(3.5);

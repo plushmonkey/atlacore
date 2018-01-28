@@ -2,6 +2,7 @@ package com.plushnode.atlacore.game;
 
 import com.google.common.reflect.ClassPath;
 import com.plushnode.atlacore.CorePlugin;
+import com.plushnode.atlacore.collision.CollisionService;
 import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.game.ability.*;
 import com.plushnode.atlacore.game.ability.air.AirBlast;
@@ -42,6 +43,7 @@ public class Game {
     private static AbilityInstanceManager instanceManager;
     private static TempBlockManager tempBlockManager;
     private static SequenceService sequenceService;
+    private static CollisionService collisionService;
 
     public Game(CorePlugin plugin) {
         Game.plugin = plugin;
@@ -52,8 +54,10 @@ public class Game {
         tempBlockManager = new TempBlockManager();
         elementRegistry = new ElementRegistry();
         sequenceService = new SequenceService();
+        collisionService = new CollisionService();
 
         sequenceService.start();
+        collisionService.start();
 
         initializeAbilities();
 
@@ -73,6 +77,7 @@ public class Game {
         abilityRegistry.clear();
         elementRegistry.clear();
         sequenceService.clear();
+        collisionService.clear();
 
         elementRegistry.registerElement(new BasicElement("Air", ChatColor.GRAY));
         elementRegistry.registerElement(new BasicElement("Earth", ChatColor.GREEN));
@@ -136,6 +141,9 @@ public class Game {
                 new AbilityAction(fireBlastDesc, Action.Sneak),
                 new AbilityAction(fireBlastDesc, Action.Punch)
         ));
+
+        collisionService.registerCollision(airBlastDesc, fireBlastDesc, true, true);
+        collisionService.registerCollision(airSwipeDesc, fireBlastDesc, false, true);
     }
 
     private static PlayerRepository loadPlayerRepository() {
@@ -209,6 +217,10 @@ public class Game {
 
     public static SequenceService getSequenceService() {
         return sequenceService;
+    }
+
+    public static CollisionService getCollisionService() {
+        return collisionService;
     }
 
     public static PlayerService getPlayerService() {

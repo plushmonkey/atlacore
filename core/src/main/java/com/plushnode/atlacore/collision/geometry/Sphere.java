@@ -40,6 +40,17 @@ public class Sphere implements Collider {
     }
 
     @Override
+    public boolean intersects(Collider collider) {
+        if (collider instanceof Sphere) {
+            return intersects((Sphere)collider);
+        } else if (collider instanceof AABB) {
+            return intersects((AABB)collider);
+        }
+
+        return false;
+    }
+
+    @Override
     public Vector3D getPosition() {
         return center;
     }

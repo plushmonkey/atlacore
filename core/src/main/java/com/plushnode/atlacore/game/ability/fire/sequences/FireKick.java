@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.game.ability.fire.sequences;
 
 import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
@@ -17,8 +18,10 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FireKick implements Ability {
     public static Config config = new Config();
@@ -66,6 +69,25 @@ public class FireKick implements Ability {
     @Override
     public void destroy() {
 
+    }
+
+    @Override
+    public void handleCollision(Collision collision) {
+        if (collision.shouldRemoveFirst()) {
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
+    }
+
+    @Override
+    public Collection<Collider> getColliders() {
+        return streams.stream()
+                .map((stream) -> new Sphere(stream.location.toVector(), config.abilityCollisionRadius))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public User getUser() {
+        return user;
     }
 
     @Override
@@ -123,6 +145,7 @@ public class FireKick implements Ability {
         double range;
         double speed;
         double entityCollisionRadius;
+        double abilityCollisionRadius;
 
         @Override
         public void onConfigReload() {
@@ -134,6 +157,7 @@ public class FireKick implements Ability {
             range = abilityNode.getNode("range").getDouble(7.0);
             speed = abilityNode.getNode("speed").getDouble(1.0);
             entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(0.5);
+            abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(0.5);
 
             abilityNode.getNode("speed").setComment("How many meters the streams advance with each tick.");
         }

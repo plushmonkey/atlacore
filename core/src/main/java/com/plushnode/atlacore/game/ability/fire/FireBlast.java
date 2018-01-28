@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.game.ability.fire;
 
+import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.RayCaster;
 import com.plushnode.atlacore.collision.geometry.Ray;
@@ -21,6 +23,9 @@ import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public class FireBlast implements Ability {
     public static Config config = new Config();
@@ -164,6 +169,24 @@ public class FireBlast implements Ability {
     }
 
     @Override
+    public Collection<Collider> getColliders() {
+        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+    }
+
+    @Override
+    public void handleCollision(Collision collision) {
+        if (collision.shouldRemoveFirst()) {
+            System.out.println("Fireblast collided!");
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
+    }
+
+    @Override
+    public User getUser() {
+        return user;
+    }
+
+    @Override
     public String getName() {
         return "FireBlast";
     }
@@ -176,6 +199,7 @@ public class FireBlast implements Ability {
         public double range;
         public double igniteRadius;
         public double entityCollisionRadius;
+        public double abilityCollisionRadius;
 
         @Override
         public void onConfigReload() {
@@ -188,6 +212,7 @@ public class FireBlast implements Ability {
             range = abilityNode.getNode("range").getDouble(25.0);
             igniteRadius = abilityNode.getNode("ignite-radius").getDouble(2.0);
             entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(1.5);
+            abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(2.0);
         }
     }
 }

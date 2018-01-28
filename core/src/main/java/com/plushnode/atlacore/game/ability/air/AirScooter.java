@@ -1,5 +1,8 @@
 package com.plushnode.atlacore.game.ability.air;
 
+import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.collision.Collision;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
@@ -24,6 +27,8 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -134,6 +139,23 @@ public class AirScooter implements Ability {
 
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 2, base.add(x, y, z), 257);
         }
+    }
+
+    @Override
+    public void handleCollision(Collision collision) {
+        if (collision.shouldRemoveFirst()) {
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
+    }
+
+    @Override
+    public Collection<Collider> getColliders() {
+        return Collections.singletonList(new Sphere(user.getLocation().toVector(), config.abilityCollisionRadius));
+    }
+
+    @Override
+    public User getUser() {
+        return user;
     }
 
     @Override
@@ -284,6 +306,7 @@ public class AirScooter implements Ability {
         double targetHeight;
         double springStiffness;
         int heightTolerance;
+        double abilityCollisionRadius;
 
         public Config() {
             super();
@@ -299,6 +322,7 @@ public class AirScooter implements Ability {
             targetHeight = abilityNode.getNode("target-height").getDouble(1.25);
             springStiffness = abilityNode.getNode("spring-stiffness").getDouble(0.3);
             heightTolerance = abilityNode.getNode("height-tolerance").getInt(10);
+            abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(2.0);
 
             abilityNode.getNode("target-height").setComment("How far above ground the scooter should try to stabilize at.");
             abilityNode.getNode("spring-stiffness").setComment("How stiff the spring should be. Higher numbers will cause it to jerk into position.");

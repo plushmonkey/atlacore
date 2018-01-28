@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.game.ability.air;
 
+import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -24,9 +25,8 @@ import com.plushnode.atlacore.util.MaterialUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AirSwipe implements Ability {
     public static Config config = new Config();
@@ -144,6 +144,25 @@ public class AirSwipe implements Ability {
     }
 
     @Override
+    public void handleCollision(Collision collision) {
+        if (collision.shouldRemoveFirst()) {
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
+    }
+
+    @Override
+    public Collection<Collider> getColliders() {
+        return streams.stream()
+                .map((stream) -> new Sphere(stream.location.toVector(), config.abilityCollisionRadius))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public User getUser() {
+        return user;
+    }
+
+    @Override
     public String getName() {
         return "AirSwipe";
     }
@@ -238,6 +257,7 @@ public class AirSwipe implements Ability {
         long maxChargeTime;
         double chargeFactor;
         double entityCollisionRadius;
+        double abilityCollisionRadius;
 
         @Override
         public void onConfigReload() {
@@ -251,6 +271,7 @@ public class AirSwipe implements Ability {
             arcStep = abilityNode.getNode("arc-step").getInt(4);
             speed = abilityNode.getNode("speed").getDouble(1.25);
             entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(0.5);
+            abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(0.5);
             maxChargeTime = abilityNode.getNode("charge").getNode("max-time").getLong(2500);
             chargeFactor = abilityNode.getNode("charge").getNode("factor").getDouble(3.0);
 
