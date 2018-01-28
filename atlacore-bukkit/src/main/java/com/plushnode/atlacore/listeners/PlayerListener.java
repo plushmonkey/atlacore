@@ -6,24 +6,16 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
-import com.plushnode.atlacore.collision.AABB;
-import com.plushnode.atlacore.collision.Ray;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.Flight;
-import com.plushnode.atlacore.util.TypeUtil;
-import com.plushnode.atlacore.platform.EntityWrapper;
 import com.plushnode.atlacore.util.WorldUtil;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
-
-import java.util.Optional;
 
 // NOTE: test code.
 public class PlayerListener implements Listener {

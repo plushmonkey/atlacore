@@ -1,9 +1,8 @@
 package com.plushnode.atlacore.util;
 
-import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
-import com.plushnode.atlacore.collision.AABB;
+import com.plushnode.atlacore.collision.geometry.AABB;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +30,7 @@ public final class MaterialUtil {
     }
 
     public static boolean isSolid(Block block) {
-        AABB blockBounds = Game.getCollisionSystem().getAABB(block);
+        AABB blockBounds = block.getBounds();
 
         // The block bounding box will have width if it's solid.
         if (blockBounds.min() == null || blockBounds.max() == null) return false;

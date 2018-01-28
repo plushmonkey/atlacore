@@ -1,10 +1,12 @@
 package com.plushnode.atlacore.game.ability.air;
 
+import com.plushnode.atlacore.collision.CollisionUtil;
+import com.plushnode.atlacore.collision.RayCaster;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
-import com.plushnode.atlacore.collision.Ray;
-import com.plushnode.atlacore.collision.Sphere;
+import com.plushnode.atlacore.collision.geometry.Ray;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.User;
@@ -74,7 +76,7 @@ public class AirBlast implements Ability {
     private void selectOrigin() {
         Ray ray = new Ray(user.getEyeLocation(), user.getDirection());
 
-        this.origin = Game.getCollisionSystem().castRay(user.getWorld(), ray, config.selectRange, true);
+        this.origin = RayCaster.cast(user.getWorld(), ray, config.selectRange, true);
         // Move origin back slightly so it doesn't collide with ground.
         this.origin = this.origin.subtract(user.getDirection().scalarMultiply(BLOCK_COLLISION_RADIUS));
 
@@ -124,20 +126,20 @@ public class AirBlast implements Ability {
 
             // Handle user separately from the general entity collision.
             if (this.selectedOrigin) {
-                if (Game.getCollisionSystem().getAABB(user).at(user.getLocation()).intersects(collider)) {
+                if (user.getBounds().at(user.getLocation()).intersects(collider)) {
                     affect(user);
                     return UpdateResult.Remove;
                 }
             }
 
-            boolean hit = Game.getCollisionSystem().handleEntityCollisions(user, collider, this::affect, false, false);
+            boolean hit = CollisionUtil.handleEntityCollisions(user, collider, this::affect, false, false);
 
             if (hit) {
                 return UpdateResult.Remove;
             }
 
 
-            boolean collision = Game.getCollisionSystem().collidesWithBlocks(user.getWorld(),
+            boolean collision = CollisionUtil.handleBlockCollisions(user.getWorld(),
                     new Sphere(location.toVector(), BLOCK_COLLISION_RADIUS), previous, location, true);
 
             if (collision && doBlockCollision(previous)) {

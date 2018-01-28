@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.collision.geometry.AABB;
+import com.plushnode.atlacore.collision.BukkitAABB;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
@@ -125,5 +127,10 @@ public class BlockWrapper implements Block {
     @Override
     public void setTypeIdAndData(int typeId, byte data, boolean applyPhysics) {
         block.setTypeIdAndData(typeId, data, applyPhysics);
+    }
+
+    @Override
+    public AABB getBounds() {
+        return BukkitAABB.getBlockBounds(block);
     }
 }

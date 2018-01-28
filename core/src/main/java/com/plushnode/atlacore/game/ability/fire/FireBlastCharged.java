@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.game.ability.fire;
 
-import com.plushnode.atlacore.collision.Sphere;
+import com.plushnode.atlacore.collision.CollisionUtil;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -12,8 +13,6 @@ import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
-import com.plushnode.atlacore.platform.block.BlockSetter;
-import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
@@ -101,7 +100,7 @@ public class FireBlastCharged implements Ability {
 
         Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
 
-        Game.getCollisionSystem().handleEntityCollisions(user, collider, (entity) -> {
+        CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
             if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
                 return false;
             }
@@ -111,7 +110,7 @@ public class FireBlastCharged implements Ability {
             return false;
         }, true);
 
-        boolean collision = Game.getCollisionSystem().collidesWithBlocks(user.getWorld(),
+        boolean collision = CollisionUtil.handleBlockCollisions(user.getWorld(),
                 new Sphere(location.toVector(), 1.0), previous, location, true);
 
         return collision ? UpdateResult.Remove : UpdateResult.Continue;

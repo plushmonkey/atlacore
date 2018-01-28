@@ -1,9 +1,10 @@
 package com.plushnode.atlacore.platform.block;
 
+import com.plushnode.atlacore.collision.geometry.AABBProvider;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.World;
 
-public interface Block {
+public interface Block extends AABBProvider {
     boolean breakNaturally();
 
     int getTypeId();

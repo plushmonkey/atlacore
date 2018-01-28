@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.collision;
 
+import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.util.TypeUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;

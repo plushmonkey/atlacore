@@ -3,12 +3,15 @@ package com.plushnode.atlacore.platform;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.plushnode.atlacore.AtlaPlugin;
+import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.SpongeMaterialUtil;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
@@ -147,5 +150,15 @@ public class BlockWrapper implements Block {
     public void setTypeIdAndData(int typeId, byte data, boolean applyPhysics) {
         // todo: data?/physics
         setTypeId(typeId);
+    }
+
+    @Override
+    public AABB getBounds() {
+        // todo: get actual block bounding box instead of binary solid
+        if (MaterialUtil.isTransparent(this)) {
+            return new AABB(null, null);
+        }
+
+        return new AABB(new Vector3D(0, 0, 0), new Vector3D(1, 1, 1));
     }
 }

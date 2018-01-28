@@ -376,4 +376,17 @@ public class EntityWrapper implements Entity {
         Vector3d newRot = new Vector3d(rot.getX(), yaw, rot.getZ());
         entity.setRotation(newRot);
     }
+
+    @Override
+    public com.plushnode.atlacore.collision.geometry.AABB getBounds() {
+        Optional<org.spongepowered.api.util.AABB> result = entity.getBoundingBox();
+
+        if (result.isPresent()) {
+            Vector3D min = SpongeTypeUtil.adapt(result.get().getMin()).subtract(getLocation().toVector());
+            Vector3D max = SpongeTypeUtil.adapt(result.get().getMax()).subtract(getLocation().toVector());
+            return new com.plushnode.atlacore.collision.geometry.AABB(min, max);
+        }
+
+        return new com.plushnode.atlacore.collision.geometry.AABB(null, null);
+    }
 }

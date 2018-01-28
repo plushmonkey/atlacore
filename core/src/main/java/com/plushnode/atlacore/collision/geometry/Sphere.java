@@ -1,5 +1,6 @@
-package com.plushnode.atlacore.collision;
+package com.plushnode.atlacore.collision.geometry;
 
+import com.plushnode.atlacore.collision.Collider;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 public class Sphere implements Collider {

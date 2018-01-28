@@ -9,7 +9,6 @@ import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.game.ability.air.AirSwipe;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.Blaze;
-import com.plushnode.atlacore.collision.CollisionSystem;
 import com.plushnode.atlacore.game.ability.fire.FireBlast;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.fire.sequences.FireKick;
@@ -25,7 +24,6 @@ import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.ChatColor;
 import com.plushnode.atlacore.util.Flight;
-import com.plushnode.atlacore.util.Task;
 import com.plushnode.atlacore.util.TempBlockManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
@@ -38,7 +36,6 @@ public class Game {
 
     private static PlayerService playerService;
     private static ProtectionSystem protectionSystem;
-    private static CollisionSystem collisionSystem;
 
     private static AbilityRegistry abilityRegistry;
     private static ElementRegistry elementRegistry;
@@ -46,9 +43,8 @@ public class Game {
     private static TempBlockManager tempBlockManager;
     private static SequenceService sequenceService;
 
-    public Game(CorePlugin plugin, CollisionSystem collisionSystem) {
+    public Game(CorePlugin plugin) {
         Game.plugin = plugin;
-        Game.collisionSystem = collisionSystem;
 
         instanceManager = new AbilityInstanceManager();
         abilityRegistry = new AbilityRegistry();
@@ -225,10 +221,6 @@ public class Game {
 
     public static void setProtectionSystem(ProtectionSystem protectionSystem) {
         Game.protectionSystem = protectionSystem;
-    }
-
-    public static CollisionSystem getCollisionSystem() {
-        return collisionSystem;
     }
 
     public static AbilityRegistry getAbilityRegistry() {

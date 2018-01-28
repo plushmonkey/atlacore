@@ -7,7 +7,7 @@ import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
-import com.plushnode.atlacore.collision.AABB;
+import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
@@ -19,6 +19,7 @@ import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.VectorUtil;
+import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -64,7 +65,7 @@ public class AirScooter implements Ability {
         this.heightPredictor = new HeightPredictor(user, config.targetHeight, config.speed);
         this.heightSmoother = new DoubleSmoother(config.heightTolerance);
 
-        double dist = Game.getCollisionSystem().distanceAboveGround(user, groundMaterials);
+        double dist = WorldUtil.distanceAboveGround(user, groundMaterials);
         // Only activate AirScooter if the player is in the air and near the ground.
         if ((dist < 0.5 || dist > 5.0) && !user.getLocation().getBlock().isLiquid()) {
             return false;
@@ -144,7 +145,7 @@ public class AirScooter implements Ability {
         Vector3D direction = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
 
         // How far the player is above the ground.
-        double height = Game.getCollisionSystem().distanceAboveGround(user, groundMaterials);
+        double height = WorldUtil.distanceAboveGround(user, groundMaterials);
         double maxHeight = config.targetHeight + 2.0;
         double smoothedHeight = heightSmoother.add(height);
 
@@ -233,7 +234,7 @@ public class AirScooter implements Ability {
             double s = Math.max(speed, playerSpeed) * 3;
             location = location.add(currentDirection.scalarMultiply(s));
 
-            AABB playerBounds = Game.getCollisionSystem().getAABB(user).at(location);
+            AABB playerBounds = user.getBounds().at(location);
 
             // Project the player forward and check all surrounding blocks for collision.
             for (Vector3D direction : DIRECTIONS) {
@@ -241,7 +242,7 @@ public class AirScooter implements Ability {
 
                 Block block = checkLocation.getBlock();
 
-                AABB bounds = Game.getCollisionSystem().getAABB(block).at(block.getLocation());
+                AABB bounds = block.getBounds().at(block.getLocation());
 
                 if (bounds.intersects(playerBounds)) {
                     // Player will collide with a block soon, so try to raise the player over it.

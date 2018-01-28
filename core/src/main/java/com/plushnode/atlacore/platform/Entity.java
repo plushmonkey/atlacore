@@ -1,11 +1,12 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.collision.geometry.AABBProvider;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface Entity {
+public interface Entity extends AABBProvider {
     boolean addPassenger(Entity passenger);
     boolean eject();
     float getFallDistance();

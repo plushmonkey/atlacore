@@ -1,7 +1,9 @@
 package com.plushnode.atlacore.game.ability.fire;
 
-import com.plushnode.atlacore.collision.Ray;
-import com.plushnode.atlacore.collision.Sphere;
+import com.plushnode.atlacore.collision.CollisionUtil;
+import com.plushnode.atlacore.collision.RayCaster;
+import com.plushnode.atlacore.collision.geometry.Ray;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -85,7 +87,7 @@ public class FireBlast implements Ability {
 
         Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
 
-        boolean hit = Game.getCollisionSystem().handleEntityCollisions(user, collider, (entity) -> {
+        boolean hit = CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
             if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
                 return false;
             }
@@ -99,7 +101,7 @@ public class FireBlast implements Ability {
             return UpdateResult.Remove;
         }
 
-        boolean collision = Game.getCollisionSystem().collidesWithBlocks(user.getWorld(),
+        boolean collision = CollisionUtil.handleBlockCollisions(user.getWorld(),
                 new Sphere(location.toVector(), 1.0), previous, location, true);
 
         if (collision) {
@@ -128,7 +130,7 @@ public class FireBlast implements Ability {
                     // Cast a ray to see if there's line of sight of the target block to ignite.
                     // This stops it from igniting blocks through walls.
                     Ray ray = new Ray(top.toVector(), checkTop.subtract(top).toVector().normalize());
-                    Location rayLocation = Game.getCollisionSystem().castRay(location.getWorld(), ray, config.igniteRadius, true);
+                    Location rayLocation = RayCaster.cast(location.getWorld(), ray, config.igniteRadius, true);
 
                     if (rayLocation.distanceSquared(top) < checkTop.distanceSquared(top)) {
                         // The casted ray collided with something before it reached the target ignite block.

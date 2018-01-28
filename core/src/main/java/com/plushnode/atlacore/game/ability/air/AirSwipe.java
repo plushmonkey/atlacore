@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.game.ability.air;
 
+import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
@@ -9,7 +10,7 @@ import com.plushnode.atlacore.util.WorldUtil;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.collision.Collider;
-import com.plushnode.atlacore.collision.Sphere;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Entity;
@@ -182,7 +183,7 @@ public class AirSwipe implements Ability {
                 }
             }
 
-            return !Game.getCollisionSystem().collidesWithBlocks(user.getWorld(),
+            return !CollisionUtil.handleBlockCollisions(user.getWorld(),
                     new Sphere(location.toVector(), 0.5), previous, location, true);
         }
 
@@ -208,7 +209,7 @@ public class AirSwipe implements Ability {
 
         // Returns true if it collides with an entity
         private boolean collide(Collider collider) {
-            return Game.getCollisionSystem().handleEntityCollisions(user, collider, (entity) -> {
+            return CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
                 if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
                     return false;
                 }

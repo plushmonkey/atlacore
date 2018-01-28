@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.collision.geometry.AABB;
+import com.plushnode.atlacore.collision.BukkitAABB;
 import com.plushnode.atlacore.util.TypeUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.util.Vector;
@@ -252,5 +254,10 @@ public class EntityWrapper implements Entity {
     @Override
     public void setYaw(float yaw) {
         entity.getLocation().setYaw(yaw);
+    }
+
+    @Override
+    public AABB getBounds() {
+        return BukkitAABB.getEntityBounds(entity);
     }
 }

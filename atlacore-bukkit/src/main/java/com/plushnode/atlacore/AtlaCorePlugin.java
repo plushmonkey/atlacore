@@ -8,7 +8,6 @@ import com.plushnode.atlacore.platform.BukkitBendingPlayer;
 import com.plushnode.atlacore.platform.BukkitParticleEffectRenderer;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
-import com.plushnode.atlacore.collision.BukkitCollisionSystem;
 import com.plushnode.atlacore.command.BindCommand;
 import com.plushnode.atlacore.commands.CoreExecutor;
 import com.plushnode.atlacore.config.ConfigManager;
@@ -47,7 +46,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         loadConfig();
 
-        this.game = new Game(this, new BukkitCollisionSystem());
+        this.game = new Game(this);
 
         ProtectionSystem protection = Game.getProtectionSystem();
 

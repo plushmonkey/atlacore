@@ -1,25 +1,33 @@
 package com.plushnode.atlacore.collision;
 
-import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.collision.geometry.AABB;
+import com.plushnode.atlacore.collision.geometry.Ray;
+import com.plushnode.atlacore.platform.*;
+import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
-import com.plushnode.atlacore.platform.*;
-import com.plushnode.atlacore.platform.block.Block;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 
-public abstract class BaseCollisionSystem implements CollisionSystem {
-    @Override
-    public boolean handleEntityCollisions(User user, Collider collider, CollisionCallback callback, boolean livingOnly) {
-        return handleEntityCollisions(user, collider, callback, livingOnly, false);
+public final class CollisionUtil {
+    private CollisionUtil() {
+
     }
+
     // Checks a collider to see if it's hitting any entities near it.
     // Calls the CollisionCallback when hitting a target.
     // Returns true if it hits a target.
-    @Override
-    public boolean handleEntityCollisions(User user, Collider collider, CollisionCallback callback, boolean livingOnly, boolean selfCollision) {
+    public static boolean handleEntityCollisions(User user, Collider collider, CollisionCallback callback, boolean livingOnly) {
+        return handleEntityCollisions(user, collider, callback, livingOnly, false);
+    }
+
+    // Checks a collider to see if it's hitting any entities near it.
+    // Calls the CollisionCallback when hitting a target.
+    // Returns true if it hits a target.
+    public static boolean handleEntityCollisions(User user, Collider collider, CollisionCallback callback, boolean livingOnly, boolean selfCollision) {
         // This is used to increase the lookup volume for nearby entities.
         // Entity locations can be out of the collider volume while still intersecting.
         final double ExtentBuffer = 4.0;
@@ -42,7 +50,7 @@ public abstract class BaseCollisionSystem implements CollisionSystem {
                 continue;
             }
 
-            AABB entityBounds = Game.getCollisionSystem().getAABB(entity).at(entity.getLocation());
+            AABB entityBounds = entity.getBounds().at(entity.getLocation());
             if (collider.intersects(entityBounds)) {
                 if (callback.onCollision(entity)) {
                     return true;
@@ -55,36 +63,7 @@ public abstract class BaseCollisionSystem implements CollisionSystem {
         return hit;
     }
 
-    @Override
-    public Location castRay(World world, Ray ray, double maxRange, boolean liquidCollision) {
-        Collection<Block> blocks = WorldUtil.getNearbyBlocks(world.getLocation(ray.origin), maxRange + 1);
-
-        double closestDistance = Double.MAX_VALUE;
-
-        for (Block block : blocks) {
-            AABB localBounds = Game.getCollisionSystem().getAABB(block);
-            if (liquidCollision && block.isLiquid()) {
-                localBounds = AABB.BLOCK_BOUNDS;
-            }
-
-            AABB blockBounds = localBounds.at(block.getLocation());
-
-            Optional<Double> result = blockBounds.intersects(ray);
-            if (result.isPresent()) {
-                double distance = result.get();
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                }
-            }
-        }
-
-        closestDistance = Math.min(closestDistance, maxRange);
-
-        return world.getLocation(ray.origin).add(ray.direction.scalarMultiply(closestDistance));
-    }
-
-    @Override
-    public boolean collidesWithBlocks(World world, Collider collider, Location begin, Location end, boolean liquids) {
+    public static boolean handleBlockCollisions(World world, Collider collider, Location begin, Location end, boolean liquids) {
         double maxExtent = VectorUtil.getMaxComponent(collider.getHalfExtents());
         double distance = begin.distance(end);
 
@@ -95,7 +74,7 @@ public abstract class BaseCollisionSystem implements CollisionSystem {
         double lookupRadius = (distance / 2.0) + maxExtent + 1.0;
 
         for (Block block : WorldUtil.getNearbyBlocks(mid, lookupRadius, Collections.singletonList(Material.AIR))) {
-            AABB localBounds = Game.getCollisionSystem().getAABB(block);
+            AABB localBounds = block.getBounds();
 
             if (liquids && block.isLiquid()) {
                 localBounds = AABB.BLOCK_BOUNDS;

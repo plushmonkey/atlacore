@@ -1,7 +1,8 @@
 package com.plushnode.atlacore.game.ability.fire.sequences;
 
 import com.plushnode.atlacore.collision.Collider;
-import com.plushnode.atlacore.collision.Sphere;
+import com.plushnode.atlacore.collision.CollisionUtil;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -94,7 +95,7 @@ public class FireKick implements Ability {
 
             Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.2f, 0.2f, 0.2f, 0.0f, 5, location, 257);
             Collider collider = new Sphere(location.toVector(), config.entityCollisionRadius);
-            boolean hit = Game.getCollisionSystem().handleEntityCollisions(user, collider, (entity) -> {
+            boolean hit = CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
                 if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
                     return false;
                 }
@@ -110,7 +111,7 @@ public class FireKick implements Ability {
 
             if (previous.equals(origin)) return true;
 
-            return !Game.getCollisionSystem().collidesWithBlocks(user.getWorld(),
+            return !CollisionUtil.handleBlockCollisions(user.getWorld(),
                     new Sphere(location.toVector(), 0.01), previous, location, true);
         }
     }
