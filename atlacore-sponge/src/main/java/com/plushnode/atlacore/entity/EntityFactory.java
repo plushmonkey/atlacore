@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.entity;
 
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.SpongeBendingPlayer;
 import com.plushnode.atlacore.platform.EntityWrapper;
 import com.plushnode.atlacore.platform.LivingEntityWrapper;
@@ -13,10 +14,19 @@ public final class EntityFactory {
     }
 
     public static EntityWrapper createEntity(Entity entity) {
-        if (entity instanceof Player)
-            return new SpongeBendingPlayer((Player)entity);
+        if (entity instanceof Player) {
+            com.plushnode.atlacore.platform.Player result = Game.getPlayerService().getPlayerByName(((Player) entity).getName());
+
+            if (result == null) {
+                return new SpongeBendingPlayer((Player) entity);
+            }
+
+            return (EntityWrapper)result;
+        }
+
         if (entity instanceof Living)
-            return new LivingEntityWrapper((Living)entity);
+            return new LivingEntityWrapper(entity);
+
         return new EntityWrapper(entity);
     }
 }
