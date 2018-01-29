@@ -5,6 +5,7 @@ import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.element.Element;
 
 import java.util.List;
+import java.util.Map;
 
 public interface User extends LivingEntity {
     void addElement(Element element);
@@ -26,6 +27,8 @@ public interface User extends LivingEntity {
             setCooldown(ability.getDescription());
         }
     }
+
+    Map<AbilityDescription, Long> getCooldowns();
 
     default boolean isSneaking() {
         // Non-players are always considered sneaking so they can charge abilities.

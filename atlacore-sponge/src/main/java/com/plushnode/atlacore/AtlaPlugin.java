@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 import com.plushnode.atlacore.command.AddCommand;
 import com.plushnode.atlacore.command.ChooseCommand;
 import com.plushnode.atlacore.command.ReloadCommand;
+import com.plushnode.atlacore.event.EventBus;
+import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.events.SneakEventDispatcher;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.SpongeBendingPlayer;
@@ -41,6 +43,7 @@ public class AtlaPlugin implements CorePlugin {
     public static AtlaPlugin plugin;
     public static Game game;
 
+    private BendingEventBus eventBus = new BendingEventBus();
     private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();
     private SpongeParticleEffectRenderer particleEffectRenderer = new SpongeParticleEffectRenderer();
     private SneakEventDispatcher sneakDispatcher;
@@ -223,5 +226,10 @@ public class AtlaPlugin implements CorePlugin {
     @Override
     public void warn(String message) {
         getLogger().warn(message);
+    }
+
+    @Override
+    public EventBus getEventBus() {
+        return eventBus;
     }
 }

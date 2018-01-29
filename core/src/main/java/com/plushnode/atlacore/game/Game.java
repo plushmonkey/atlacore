@@ -20,11 +20,13 @@ import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
 import com.plushnode.atlacore.game.element.BasicElement;
 import com.plushnode.atlacore.game.element.ElementRegistry;
+import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.ChatColor;
+import com.plushnode.atlacore.util.FireTick;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.TempBlockManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -32,6 +34,8 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Game {
     public static CorePlugin plugin;
@@ -60,12 +64,13 @@ public class Game {
         sequenceService.start();
         collisionService.start();
 
-        initializeAbilities();
+        initializeClasses();
 
         plugin.createTaskTimer(this::update, 1, 1);
         plugin.createTaskTimer(Flight::updateAll, 1, 1);
 
         Game.playerService = new PlayerService(loadPlayerRepository());
+
         reload(true);
     }
 
@@ -124,7 +129,7 @@ public class Game {
 
         AbilityDescription fireShieldDesc = new GenericAbilityDescription<>("FireShield", "fire shield shield",
                 elementRegistry.getElementByName("Fire"), 100,
-                Arrays.asList(ActivationMethod.Punch), FireShield.class, false);
+                Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireShield.class, false);
 
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 elementRegistry.getElementByName("Fire"), 1500,
@@ -220,6 +225,27 @@ public class Game {
 
     public void update() {
         instanceManager.update();
+
+        updateCooldowns();
+    }
+
+    private void updateCooldowns() {
+        long time = System.currentTimeMillis();
+
+        for (Player player : Game.getPlayerService().getOnlinePlayers()) {
+            Map<AbilityDescription, Long> cooldowns = player.getCooldowns();
+
+            for (Iterator<Map.Entry<AbilityDescription, Long>> iterator = cooldowns.entrySet().iterator();
+                 iterator.hasNext();)
+            {
+                Map.Entry<AbilityDescription, Long> entry = iterator.next();
+
+                if (time >= entry.getValue()) {
+                    Game.plugin.getEventBus().postCooldownRemoveEvent(player, entry.getKey());
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     public static SequenceService getSequenceService() {
@@ -258,12 +284,15 @@ public class Game {
         return tempBlockManager;
     }
 
-    // Forces all abilities to be loaded. This ensures all of them create their static Config objects.
-    private void initializeAbilities() {
+    // Forces all atlacore classes to be loaded. This ensures all of them create their static Config objects.
+    // Creating the config objects forces them to fill out their default values, which get saved after game is created.
+    private void initializeClasses() {
         try {
             ClassPath cp = ClassPath.from(Game.class.getClassLoader());
 
-            for (ClassPath.ClassInfo info : cp.getTopLevelClassesRecursive("com.plushnode.atlacore.game.ability")) {
+            for (ClassPath.ClassInfo info : cp.getTopLevelClassesRecursive("com.plushnode.atlacore")) {
+                if (info.getPackageName().contains("internal")) continue;
+
                 try {
                     Class.forName(info.getName());
                 } catch (ClassNotFoundException e) {

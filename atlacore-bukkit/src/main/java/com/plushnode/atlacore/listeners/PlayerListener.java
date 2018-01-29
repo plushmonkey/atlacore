@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.listeners;
 
 import com.plushnode.atlacore.*;
+import com.plushnode.atlacore.board.BendingBoard;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
@@ -17,9 +18,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 // NOTE: test code.
 public class PlayerListener implements Listener {
     private AtlaCorePlugin plugin;
+    private Map<String, BendingBoard> boards = new HashMap<>();
 
     public PlayerListener(AtlaCorePlugin plugin) {
         this.plugin = plugin;
@@ -59,6 +64,16 @@ public class PlayerListener implements Listener {
                     // This can happen if the player logs off before the player is created.
                     return;
                 }
+
+                boards.put(p.getName(), new BendingBoard(p));
+
+                if (boards.size() <= 1) {
+                    plugin.createTaskTimer(() -> {
+                        for (BendingBoard board : boards.values()) {
+                            board.update();
+                        }
+                    }, 5, 5);
+                }
             });
         }, 1);
     }
@@ -73,6 +88,8 @@ public class PlayerListener implements Listener {
         });
 
         Game.getPlayerService().invalidatePlayer(player);
+
+        boards.remove(player.getName());
     }
 
     @EventHandler(ignoreCancelled = true)

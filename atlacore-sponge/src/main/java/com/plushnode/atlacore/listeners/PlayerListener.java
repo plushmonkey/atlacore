@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.listeners;
 
 import com.plushnode.atlacore.AtlaPlugin;
+import com.plushnode.atlacore.board.BendingBoard;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.sequence.Action;
@@ -25,10 +26,11 @@ import org.spongepowered.api.event.entity.living.humanoid.AnimateHandEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import java.util.Optional;
+import java.util.*;
 
 public class PlayerListener {
     private AtlaPlugin plugin;
+    private Map<String, BendingBoard> boards = new HashMap<>();
 
     public PlayerListener(AtlaPlugin plugin) {
         this.plugin = plugin;
@@ -67,6 +69,16 @@ public class PlayerListener {
                     // This can happen if the player logs off before the player is created.
                     return;
                 }
+
+                boards.put(p.getName(), new BendingBoard(p));
+
+                if (boards.size() <= 1) {
+                    plugin.createTaskTimer(() -> {
+                        for (BendingBoard board : boards.values()) {
+                            board.update();
+                        }
+                    }, 5, 5);
+                }
             });
         }, 1);
     }
@@ -83,6 +95,8 @@ public class PlayerListener {
         });
 
         Game.getPlayerService().invalidatePlayer(player);
+
+        boards.remove(player.getName());
     }
 
     @Listener

@@ -1,5 +1,6 @@
 package com.plushnode.atlacore;
 
+import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.ParticleEffectRenderer;
 import com.plushnode.atlacore.player.PlayerFactory;
@@ -24,4 +25,6 @@ public interface CorePlugin {
 
     void info(String message);
     void warn(String message);
+
+    EventBus getEventBus();
 }

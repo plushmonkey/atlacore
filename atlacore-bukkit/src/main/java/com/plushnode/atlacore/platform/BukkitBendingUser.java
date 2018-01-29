@@ -1,7 +1,7 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
-import com.plushnode.atlacore.game.ability.AbilityRegistry;
 import com.plushnode.atlacore.game.element.Element;
 import org.bukkit.entity.LivingEntity;
 
@@ -82,7 +82,11 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
     @Override
     public void setCooldown(AbilityDescription abilityDesc) {
         long cooldown = abilityDesc.getCooldown();
-        cooldowns.put(abilityDesc, System.currentTimeMillis() + cooldown);
+
+        if (cooldown > 0) {
+            cooldowns.put(abilityDesc, System.currentTimeMillis() + cooldown);
+            Game.plugin.getEventBus().postCooldownAddEvent(this, abilityDesc);
+        }
     }
 
     @Override
@@ -93,12 +97,12 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
 
         long time = System.currentTimeMillis();
         long end = cooldowns.get(abilityDesc);
-        boolean onCooldown = time < end;
 
-        if (!onCooldown) {
-            cooldowns.remove(abilityDesc);
-        }
+        return time < end;
+    }
 
-        return onCooldown;
+    @Override
+    public Map<AbilityDescription, Long> getCooldowns() {
+        return cooldowns;
     }
 }

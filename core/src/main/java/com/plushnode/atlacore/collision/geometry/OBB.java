@@ -196,9 +196,11 @@ public class OBB implements Collider {
 
     @Override
     public Vector3D getHalfExtents() {
-        e.dotProduct(Vector3D.PLUS_I);
+        double x = e.dotProduct(Vector3D.PLUS_I);
+        double y = e.dotProduct(Vector3D.PLUS_J);
+        double z = e.dotProduct(Vector3D.PLUS_K);
 
-        return null;
+        return new Vector3D(x, y, z);
     }
 
     @Override

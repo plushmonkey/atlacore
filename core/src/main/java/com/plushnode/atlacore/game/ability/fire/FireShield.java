@@ -2,6 +2,7 @@ package com.plushnode.atlacore.game.ability.fire;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
+import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.collision.geometry.OBB;
 import com.plushnode.atlacore.collision.geometry.Sphere;
@@ -13,7 +14,13 @@ import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
+import com.plushnode.atlacore.util.FireTick;
 import com.plushnode.atlacore.util.VectorUtil;
+import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -25,38 +32,53 @@ public class FireShield implements Ability {
     public static Config config = new Config();
 
     private User user;
-    private Disc disc;
+    private Shield shield;
     private long startTime;
     private long nextRender;
+    private CompositeRemovalPolicy removalPolicy;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
-        if (method != ActivationMethod.Punch) return false;
-
         this.user = user;
-        this.disc = new Disc();
         this.startTime = System.currentTimeMillis();
-        this.nextRender = this.startTime;
 
-        user.setCooldown(this);
+        this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
+                new IsOfflineRemovalPolicy(user),
+                new SwappedSlotsRemovalPolicy<>(user, FireShield.class)
+        );
+
+        if (method == ActivationMethod.Punch) {
+            this.shield = new DiscShield();
+            user.setCooldown(this);
+        } else {
+            this.shield = new SphereShield();
+        }
 
         return true;
     }
 
     @Override
     public UpdateResult update() {
-        this.disc.update();
+        if (this.removalPolicy.shouldRemove() || this.shield.update()) {
+            return UpdateResult.Remove;
+        }
 
         long time = System.currentTimeMillis();
 
         if (time >= this.nextRender) {
-            this.disc.render();
-            this.nextRender = time + config.discParticleRenderDelay;
+            this.shield.render();
+            this.nextRender = time + this.shield.getRenderDelay();
         }
 
-        if (time >= this.startTime + config.discDuration) {
-            return UpdateResult.Remove;
-        }
+        CollisionUtil.handleEntityCollisions(user, this.shield, (entity) ->{
+            if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
+                return false;
+            }
+
+            FireTick.set(entity, this.shield.getFireTicks());
+
+            return false;
+        }, true);
 
         return UpdateResult.Continue;
     }
@@ -85,7 +107,7 @@ public class FireShield implements Ability {
 
     @Override
     public Collection<Collider> getColliders() {
-        return Collections.singletonList(disc);
+        return Collections.singletonList(shield);
     }
 
     @Override
@@ -95,12 +117,19 @@ public class FireShield implements Ability {
         }
     }
 
+    private interface Shield extends Collider {
+        boolean update();
+        void render();
+        long getRenderDelay();
+        int getFireTicks();
+    }
+
     // Combines an OBB and Sphere to create a disc with thickness.
-    private class Disc implements Collider {
+    private class DiscShield implements Shield {
         private Sphere sphere;
         private OBB obb;
 
-        public Disc() {
+        public DiscShield() {
             update();
         }
 
@@ -124,7 +153,8 @@ public class FireShield implements Ability {
             return sphere.contains(point) && obb.contains(point);
         }
 
-        public void update() {
+        @Override
+        public boolean update() {
             Vector3D rotateAxis = calculateRotationAxis();
 
             // project disc in front of player
@@ -140,8 +170,11 @@ public class FireShield implements Ability {
 
             this.sphere = new Sphere(location.toVector(), config.discRadius);
             this.obb = new OBB(globalAABB, rot);
+
+            return System.currentTimeMillis() >= startTime + config.discDuration;
         }
 
+        @Override
         public void render() {
             Location center = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.discExtension));
             for (double angle = 0; angle < 360; angle += 20) {
@@ -156,17 +189,92 @@ public class FireShield implements Ability {
                 }
             }
         }
+
+        @Override
+        public long getRenderDelay() {
+            return config.discParticleRenderDelay;
+        }
+
+        @Override
+        public int getFireTicks() {
+            return config.discFireTicks;
+        }
     }
+
+    private class SphereShield implements Shield {
+        private Sphere sphere;
+
+        public SphereShield() {
+            update();
+        }
+
+        @Override
+        public boolean intersects(Collider collider) {
+            return sphere.intersects(collider);
+        }
+
+        @Override
+        public Vector3D getPosition() {
+            return sphere.center;
+        }
+
+        @Override
+        public Vector3D getHalfExtents() {
+            return sphere.getHalfExtents();
+        }
+
+        @Override
+        public boolean contains(Vector3D point) {
+            return sphere.contains(point);
+        }
+
+        @Override
+        public boolean update() {
+            this.sphere = new Sphere(user.getEyeLocation().toVector(), config.shieldRadius);
+
+            return !user.isSneaking();
+        }
+
+        @Override
+        public void render() {
+            for (Block block : WorldUtil.getNearbyBlocks(user.getEyeLocation(), config.shieldRadius)) {
+                Location location = block.getLocation().add(0.5, 0.5, 0.5);
+
+                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.6f, 0.6f, 0.6f, 0.0f, 1, location, 257);
+
+                if (Math.random() < 1.0 / 3.0) {
+                    Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.6f, 0.6f, 0.6f, 0.0f, 1, location, 257);
+                }
+            }
+        }
+
+        @Override
+        public long getRenderDelay() {
+            return config.shieldParticleRenderDelay;
+        }
+
+        @Override
+        public int getFireTicks() {
+            return config.shieldFireTicks;
+        }
+    }
+
 
     private static class Config extends Configurable {
         public boolean enabled;
         public long cooldown;
+
         public double discRadius;
         public long discDuration;
         public double discThickness;
         public double discExtension;
         public int discParticleLayers;
         public long discParticleRenderDelay;
+        public int discFireTicks;
+
+        public double shieldRadius;
+        public long shieldParticleRenderDelay;
+        public int shieldFireTicks;
 
         @Override
         public void onConfigReload() {
@@ -174,12 +282,18 @@ public class FireShield implements Ability {
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
             cooldown = abilityNode.getNode("cooldown").getLong(500);
+
             discRadius = abilityNode.getNode("disc", "radius").getDouble(3.0);
             discThickness = abilityNode.getNode("disc", "thickness").getDouble(1.0);
             discDuration = abilityNode.getNode("disc", "duration").getLong(1000);
             discExtension = abilityNode.getNode("disc", "extension").getDouble(3.0);
             discParticleLayers = abilityNode.getNode("disc", "particle-layers").getInt(5);
             discParticleRenderDelay = abilityNode.getNode("disc", "particle-render-delay").getInt(200);
+            discFireTicks = abilityNode.getNode("disc", "fire-ticks").getInt(40);
+
+            shieldParticleRenderDelay = abilityNode.getNode("shield", "particle-render-delay").getInt(200);
+            shieldRadius = abilityNode.getNode("shield", "radius").getDouble(4.0);
+            shieldFireTicks = abilityNode.getNode("shield", "fire-ticks").getInt(40);
         }
     }
 }

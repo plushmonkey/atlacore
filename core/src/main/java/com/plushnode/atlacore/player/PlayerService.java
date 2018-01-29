@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class PlayerService {
     private Executor executor;
@@ -51,6 +52,10 @@ public class PlayerService {
         }
 
         return player;
+    }
+
+    public List<Player> getOnlinePlayers() {
+        return playerCache.values().stream().filter(Player::isOnline).collect(Collectors.toList());
     }
 
     public void invalidatePlayer(Player player) {

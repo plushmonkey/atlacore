@@ -3,6 +3,8 @@ package com.plushnode.atlacore;
 import com.plushnode.atlacore.command.AddCommand;
 import com.plushnode.atlacore.command.ChooseCommand;
 import com.plushnode.atlacore.command.ReloadCommand;
+import com.plushnode.atlacore.event.EventBus;
+import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.BukkitBendingPlayer;
 import com.plushnode.atlacore.platform.BukkitParticleEffectRenderer;
@@ -39,6 +41,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     private BukkitParticleEffectRenderer particleRenderer = new BukkitParticleEffectRenderer();
     private Game game;
     private ConfigurationLoader<CommentedConfigurationNode> loader;
+    private BendingEventBus eventBus = new BendingEventBus();
 
     @Override
     public void onEnable() {
@@ -215,5 +218,10 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     @Override
     public void warn(String message) {
         getLogger().warning(message);
+    }
+
+    @Override
+    public EventBus getEventBus() {
+        return eventBus;
     }
 }
