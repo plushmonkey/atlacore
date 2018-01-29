@@ -176,7 +176,6 @@ public class FireBlast implements Ability {
     @Override
     public void handleCollision(Collision collision) {
         if (collision.shouldRemoveFirst()) {
-            System.out.println("Fireblast collided!");
             Game.getAbilityInstanceManager().destroyInstance(user, this);
         }
     }

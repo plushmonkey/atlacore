@@ -31,6 +31,13 @@ public class Sphere implements Collider {
         return contains(new Vector3D(x, y, z));
     }
 
+    public boolean intersects(OBB obb) {
+        Vector3D closest = obb.getClosestPosition(center);
+        Vector3D v = center.subtract(closest);
+
+        return v.dotProduct(v) <= radius * radius;
+    }
+
     public boolean intersects(Sphere other) {
         double distSq = other.center.distanceSq(center);
         double rsum = radius + other.radius;
@@ -45,6 +52,8 @@ public class Sphere implements Collider {
             return intersects((Sphere)collider);
         } else if (collider instanceof AABB) {
             return intersects((AABB)collider);
+        } else if (collider instanceof OBB) {
+            return intersects((OBB)collider);
         }
 
         return false;

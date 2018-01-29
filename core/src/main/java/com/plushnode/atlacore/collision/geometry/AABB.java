@@ -95,6 +95,8 @@ public class AABB implements Collider {
             return intersects((Sphere) collider);
         } else if (collider instanceof AABB) {
             return intersects((AABB) collider);
+        } else if (collider instanceof OBB) {
+            return collider.intersects(this);
         }
 
         return false;

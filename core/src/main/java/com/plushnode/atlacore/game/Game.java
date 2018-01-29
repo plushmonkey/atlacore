@@ -12,6 +12,7 @@ import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.Blaze;
 import com.plushnode.atlacore.game.ability.fire.FireBlast;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
+import com.plushnode.atlacore.game.ability.fire.FireShield;
 import com.plushnode.atlacore.game.ability.fire.sequences.FireKick;
 import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
@@ -121,6 +122,10 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 7000,
                 Arrays.asList(ActivationMethod.Punch), FireJet.class, false);
 
+        AbilityDescription fireShieldDesc = new GenericAbilityDescription<>("FireShield", "fire shield shield",
+                elementRegistry.getElementByName("Fire"), 100,
+                Arrays.asList(ActivationMethod.Punch), FireShield.class, false);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 elementRegistry.getElementByName("Fire"), 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -132,6 +137,7 @@ public class Game {
         abilityRegistry.registerAbility(airBlastDesc);
         abilityRegistry.registerAbility(fireBlastDesc);
         abilityRegistry.registerAbility(fireJetDesc);
+        abilityRegistry.registerAbility(fireShieldDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
 
@@ -144,6 +150,7 @@ public class Game {
 
         collisionService.registerCollision(airBlastDesc, fireBlastDesc, true, true);
         collisionService.registerCollision(airSwipeDesc, fireBlastDesc, false, true);
+        collisionService.registerCollision(fireShieldDesc, fireBlastDesc, false, true);
     }
 
     private static PlayerRepository loadPlayerRepository() {
