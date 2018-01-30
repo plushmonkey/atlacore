@@ -6,6 +6,7 @@ import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.platform.SpongeBendingPlayer;
 import com.plushnode.atlacore.util.ChatColor;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scoreboard.Score;
 import org.spongepowered.api.scoreboard.Scoreboard;
 import org.spongepowered.api.scoreboard.Team;
@@ -17,6 +18,7 @@ import org.spongepowered.api.text.Text;
 import java.util.*;
 
 public class BendingBoard {
+    private Player spongePlayer;
     private SpongeBendingPlayer bendingPlayer;
     private Scoreboard scoreboard;
     private Set<Text> updatedScores = new HashSet<>();
@@ -24,7 +26,7 @@ public class BendingBoard {
 
     public BendingBoard(com.plushnode.atlacore.platform.Player player) {
         this.bendingPlayer = (SpongeBendingPlayer)player;
-
+        this.spongePlayer = bendingPlayer.getSpongePlayer();
         this.scoreboard = Scoreboard.builder().build();
         this.scoreboard.registerTeam(Team.builder().name(player.getName() + "-team").build());
         this.objective = Objective.builder().name("Slots").criterion(Criteria.DUMMY).build();
@@ -38,8 +40,10 @@ public class BendingBoard {
     }
 
     public void update() {
-        if (bendingPlayer.getSpongePlayer().getScoreboard() != scoreboard) {
-            bendingPlayer.getSpongePlayer().setScoreboard(scoreboard);
+        bendingPlayer = (SpongeBendingPlayer)Game.getPlayerService().getPlayerByName(spongePlayer.getName());
+
+        if (spongePlayer.getScoreboard() != scoreboard) {
+            spongePlayer.setScoreboard(scoreboard);
         }
 
         updatedScores.clear();

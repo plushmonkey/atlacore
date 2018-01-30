@@ -6,6 +6,7 @@ import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.platform.BukkitBendingPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 public class BendingBoard {
+    private Player bukkitPlayer;
     private BukkitBendingPlayer bendingPlayer;
     private org.bukkit.scoreboard.Scoreboard scoreboard;
     private Team team;
@@ -22,18 +24,21 @@ public class BendingBoard {
 
     public BendingBoard(com.plushnode.atlacore.platform.Player player) {
         this.bendingPlayer = (BukkitBendingPlayer)player;
+        this.bukkitPlayer = bendingPlayer.getBukkitPlayer();
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         this.team = scoreboard.registerNewTeam(player.getName() + "-team");
         this.objective = scoreboard.registerNewObjective("Slots", "dummy");
         this.objective.setDisplayName(ChatColor.BOLD + "Slots");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        bendingPlayer.getBukkitPlayer().setScoreboard(scoreboard);
+        bukkitPlayer.setScoreboard(scoreboard);
     }
 
     public void update() {
-        if (bendingPlayer.getBukkitPlayer().getScoreboard() != scoreboard) {
-            bendingPlayer.getBukkitPlayer().setScoreboard(scoreboard);
+        bendingPlayer = (BukkitBendingPlayer)Game.getPlayerService().getPlayerByName(bukkitPlayer.getName());
+
+        if (bukkitPlayer.getScoreboard() != scoreboard) {
+            bukkitPlayer.setScoreboard(scoreboard);
         }
 
         updatedScores.clear();
