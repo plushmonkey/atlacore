@@ -40,6 +40,10 @@ public class FireBlast implements Ability {
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getEyeLocation())) {
+            return false;
+        }
+
         removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsOfflineRemovalPolicy(user)
         );
@@ -84,6 +88,10 @@ public class FireBlast implements Ability {
         location = location.add(direction.scalarMultiply(config.speed));
 
         if (location.distanceSquared(origin) >= config.range * config.range) {
+            return UpdateResult.Remove;
+        }
+
+        if (!Game.getProtectionSystem().canBuild(user, location)) {
             return UpdateResult.Remove;
         }
 

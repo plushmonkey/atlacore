@@ -37,16 +37,20 @@ public class FireJet implements Ability {
             return false;
         }
 
+        if (!Game.getProtectionSystem().canBuild(user, getDescription(), user.getLocation())) {
+            return false;
+        }
+
         this.speed = config.speed;
         this.duration = config.duration;
 
         this.flight = Flight.get(user);
         user.setCooldown(this);
 
+        // Don't use getDescription in the protection check because it's not a harmless action.
         if (ignitable && Game.getProtectionSystem().canBuild(user, block.getLocation())) {
-            new TempBlock(block, Material.FIRE, 3000);
             // TODO: TempFire
-            //Game.plugin.getBlockSetter(BlockSetter.Flag.FAST).setBlock(block, Material.FIRE);
+            new TempBlock(block, Material.FIRE, 3000);
         }
 
         return true;

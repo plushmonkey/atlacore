@@ -64,6 +64,10 @@ public class AirSwipe implements Ability {
             }
         }
 
+        if (!Game.getProtectionSystem().canBuild(user, origin)) {
+            return false;
+        }
+
         if (method == ActivationMethod.Punch) {
             launch();
         }

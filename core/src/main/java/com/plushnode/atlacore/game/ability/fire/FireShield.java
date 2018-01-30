@@ -42,6 +42,10 @@ public class FireShield implements Ability {
         this.user = user;
         this.startTime = System.currentTimeMillis();
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+            return false;
+        }
+
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsOfflineRemovalPolicy(user),
                 new SwappedSlotsRemovalPolicy<>(user, FireShield.class)
@@ -59,6 +63,10 @@ public class FireShield implements Ability {
 
     @Override
     public UpdateResult update() {
+        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+            return UpdateResult.Remove;
+        }
+
         if (this.removalPolicy.shouldRemove() || this.shield.update()) {
             return UpdateResult.Remove;
         }

@@ -50,6 +50,10 @@ public class Shockwave implements Ability {
     public boolean activate(User user, ActivationMethod method) {
         this.startTime = System.currentTimeMillis();
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+            return false;
+        }
+
         if (method == ActivationMethod.Fall) {
             // Don't activate fall method when user is sneaking.
             if (user instanceof Player && ((Player) user).isSneaking()) {

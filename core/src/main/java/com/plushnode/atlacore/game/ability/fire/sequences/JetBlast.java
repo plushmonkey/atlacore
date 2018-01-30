@@ -21,6 +21,10 @@ public class JetBlast implements Ability {
             return false;
         }
 
+        if (!Game.getProtectionSystem().canBuild(user, getDescription(), user.getLocation())) {
+            return false;
+        }
+
         jet = new FireJet();
 
         if (!jet.activate(user, ActivationMethod.Punch)) {

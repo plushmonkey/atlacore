@@ -54,6 +54,10 @@ public class WallOfFire implements Ability {
 
         Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.range));
 
+        if (!Game.getProtectionSystem().canBuild(user, location)) {
+            return false;
+        }
+
         Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
         rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
 

@@ -35,6 +35,10 @@ public class FireKick implements Ability {
 
         this.user = user;
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+            return false;
+        }
+
         user.setCooldown(this);
 
         Vector3D up = Vector3D.PLUS_J;

@@ -125,7 +125,7 @@ public class Game {
 
         AbilityDescription fireJetDesc = new GenericAbilityDescription<>("FireJet", "jet jet",
                 elementRegistry.getElementByName("Fire"), 7000,
-                Arrays.asList(ActivationMethod.Punch), FireJet.class, false);
+                Arrays.asList(ActivationMethod.Punch), FireJet.class, true);
 
         AbilityDescription fireShieldDesc = new GenericAbilityDescription<>("FireShield", "fire shield shield",
                 elementRegistry.getElementByName("Fire"), 100,
@@ -141,7 +141,7 @@ public class Game {
 
         AbilityDescription jetBlastDesc = new GenericAbilityDescription<>("JetBlast", "jet blast blast",
                 elementRegistry.getElementByName("Fire"), 6000,
-                Arrays.asList(ActivationMethod.Sequence), JetBlast.class, false);
+                Arrays.asList(ActivationMethod.Sequence), JetBlast.class, true);
 
         AbilityDescription jetBlazeDesc = new GenericAbilityDescription<>("JetBlaze", "jet blaze blaze",
                 elementRegistry.getElementByName("Fire"), 6000,

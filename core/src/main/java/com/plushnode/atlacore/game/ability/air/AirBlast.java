@@ -67,8 +67,17 @@ public class AirBlast implements Ability {
 
         if (method == ActivationMethod.Sneak) {
             selectOrigin();
+
+            if (!Game.getProtectionSystem().canBuild(user, origin)) {
+                return false;
+            }
         } else {
             this.origin = user.getEyeLocation();
+
+            if (!Game.getProtectionSystem().canBuild(user, origin)) {
+                return false;
+            }
+
             launch();
         }
 

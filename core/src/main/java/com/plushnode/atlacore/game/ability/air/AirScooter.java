@@ -63,6 +63,7 @@ public class AirScooter implements Ability {
         }
 
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
+            Game.info("Destroyed airscooter.");
             return false;
         }
 
@@ -73,6 +74,7 @@ public class AirScooter implements Ability {
         double dist = WorldUtil.distanceAboveGround(user, groundMaterials);
         // Only activate AirScooter if the player is in the air and near the ground.
         if ((dist < 0.5 || dist > 5.0) && !user.getLocation().getBlock().isLiquid()) {
+            Game.info("User is " + dist + " meters above ground.");
             return false;
         }
 
@@ -90,6 +92,10 @@ public class AirScooter implements Ability {
     @Override
     public UpdateResult update() {
         if (this.removalPolicy.shouldRemove()) {
+            return UpdateResult.Remove;
+        }
+
+        if (!Game.getProtectionSystem().canBuild(user, getDescription(), user.getLocation())) {
             return UpdateResult.Remove;
         }
 

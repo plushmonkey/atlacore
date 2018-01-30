@@ -46,6 +46,10 @@ public class FireBlastCharged implements Ability {
         this.launched = false;
         this.startTime = System.currentTimeMillis();
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getEyeLocation())) {
+            return false;
+        }
+
         removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsOfflineRemovalPolicy(user),
                 new SwappedSlotsRemovalPolicy<>(user, FireBlast.class)
@@ -65,12 +69,19 @@ public class FireBlastCharged implements Ability {
                 return UpdateResult.Remove;
             }
 
+            if (!Game.getProtectionSystem().canBuild(user, user.getEyeLocation())) {
+                return UpdateResult.Remove;
+            }
+
             return UpdateResult.Continue;
         }
 
-
         if (!isLaunched()) {
             if (user.isSneaking()) {
+                if (!Game.getProtectionSystem().canBuild(user, user.getEyeLocation())) {
+                    return UpdateResult.Remove;
+                }
+
                 // Display particles showing that it's ready to fire.
                 Vector3D direction = user.getDirection();
                 Location displayLocation = user.getEyeLocation().add(direction);
@@ -91,6 +102,10 @@ public class FireBlastCharged implements Ability {
         Location previous = location;
 
         location = location.add(direction.scalarMultiply(config.speed));
+
+        if (!Game.getProtectionSystem().canBuild(user, location)) {
+            return UpdateResult.Remove;
+        }
 
         if (location.distanceSquared(origin) >= config.range * config.range) {
             return UpdateResult.Remove;

@@ -7,10 +7,8 @@ public final class VectorUtil {
 
     }
 
-    public static double getEntry(Vector3D vec, int axis) {
-        if (axis == 0) return vec.getX();
-        if (axis == 1) return vec.getY();
-        return vec.getZ();
+    public static double component(Vector3D vec, int axis) {
+        return vec.toArray()[axis];
     }
 
     public static Vector3D setX(Vector3D vec, double x) {

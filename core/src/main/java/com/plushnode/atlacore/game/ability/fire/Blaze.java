@@ -32,6 +32,10 @@ public class Blaze implements Ability {
         this.fireStreams = new ArrayList<>();
         this.user = user;
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+            return false;
+        }
+
         int arcBegin = 0;
         int arcEnd = 360;
         int stepSize = 10;
@@ -143,6 +147,10 @@ public class Blaze implements Ability {
             currentLocation = currentLocation.clone().add(direction);
             if (this.blocked || currentLocation.distanceSquared(origin) > range * range) {
                 return this.ignitedBlocks.isEmpty();
+            }
+
+            if (!Game.getProtectionSystem().canBuild(user, currentLocation)) {
+                return true;
             }
 
             Block block = currentLocation.getBlock();

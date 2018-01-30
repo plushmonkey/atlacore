@@ -2,11 +2,11 @@ package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.util.VectorUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
+import static com.plushnode.atlacore.util.VectorUtil.component;
 
 // Oriented bounding box
 public class OBB implements Collider {
@@ -84,10 +84,10 @@ public class OBB implements Collider {
         for (int i = 0; i < 3; ++i) {
             Vector3D row = new Vector3D(absR.getRow(i));
 
-            ra = VectorUtil.getEntry(e, i);
+            ra = component(e, i);
             rb = other.e.dotProduct(row);
 
-            if (Math.abs(VectorUtil.getEntry(t, i)) > ra + rb) {
+            if (Math.abs(component(t, i)) > ra + rb) {
                 return false;
             }
         }
@@ -97,7 +97,7 @@ public class OBB implements Collider {
             Vector3D col = new Vector3D(absR.getColumn(i));
 
             ra = e.dotProduct(col);
-            rb = VectorUtil.getEntry(other.e, i);
+            rb = component(other.e, i);
 
             Vector3D rotCol = new Vector3D(R.getColumn(i));
             if (Math.abs(t.dotProduct(rotCol)) > ra + rb) {
@@ -106,65 +106,65 @@ public class OBB implements Collider {
         }
 
         // A0 x B0
-        ra = VectorUtil.getEntry(e, 1) * absR.getEntry(2, 0) + VectorUtil.getEntry(e, 2) * absR.getEntry(1, 0);
-        rb = VectorUtil.getEntry(other.e, 1) * absR.getEntry(0, 2) + VectorUtil.getEntry(other.e, 2) * absR.getEntry(0, 1);
-        if (Math.abs(VectorUtil.getEntry(t, 2) * R.getEntry(1, 0) - VectorUtil.getEntry(t, 1) * R.getEntry(2, 0)) > ra + rb) {
+        ra = component(e, 1) * absR.getEntry(2, 0) + component(e, 2) * absR.getEntry(1, 0);
+        rb = component(other.e, 1) * absR.getEntry(0, 2) + component(other.e, 2) * absR.getEntry(0, 1);
+        if (Math.abs(component(t, 2) * R.getEntry(1, 0) - component(t, 1) * R.getEntry(2, 0)) > ra + rb) {
             return false;
         }
 
         // A0 x B1
-        ra = VectorUtil.getEntry(e, 1) * absR.getEntry(2, 1) + VectorUtil.getEntry(e, 2) * absR.getEntry(1, 1);
-        rb = VectorUtil.getEntry(other.e, 0) * absR.getEntry(0, 2) + VectorUtil.getEntry(other.e, 2) * absR.getEntry(0, 0);
-        if (Math.abs(VectorUtil.getEntry(t, 2) * R.getEntry(1, 1) - VectorUtil.getEntry(t, 1) * R.getEntry(2, 1)) > ra + rb) {
+        ra = component(e, 1) * absR.getEntry(2, 1) + component(e, 2) * absR.getEntry(1, 1);
+        rb = component(other.e, 0) * absR.getEntry(0, 2) + component(other.e, 2) * absR.getEntry(0, 0);
+        if (Math.abs(component(t, 2) * R.getEntry(1, 1) - component(t, 1) * R.getEntry(2, 1)) > ra + rb) {
             return false;
         }
 
         // A0 x B2
-        ra = VectorUtil.getEntry(e, 1) * absR.getEntry(2, 2) + VectorUtil.getEntry(e, 2) * absR.getEntry(1, 2);
-        rb = VectorUtil.getEntry(other.e, 0) * absR.getEntry(0, 1) + VectorUtil.getEntry(other.e, 1) * absR.getEntry(0, 0);
-        if (Math.abs(VectorUtil.getEntry(t, 2) * R.getEntry(1, 2) - VectorUtil.getEntry(t, 1) * R.getEntry(2, 2)) > ra + rb) {
+        ra = component(e, 1) * absR.getEntry(2, 2) + component(e, 2) * absR.getEntry(1, 2);
+        rb = component(other.e, 0) * absR.getEntry(0, 1) + component(other.e, 1) * absR.getEntry(0, 0);
+        if (Math.abs(component(t, 2) * R.getEntry(1, 2) - component(t, 1) * R.getEntry(2, 2)) > ra + rb) {
             return false;
         }
 
         // A1 x B0
-        ra = VectorUtil.getEntry(e, 0) * absR.getEntry(2, 0) + VectorUtil.getEntry(e, 2) * absR.getEntry(0, 0);
-        rb = VectorUtil.getEntry(other.e, 1) * absR.getEntry(1, 2) + VectorUtil.getEntry(other.e, 2) * absR.getEntry(1, 1);
-        if (Math.abs(VectorUtil.getEntry(t, 0) * R.getEntry(2, 0) - VectorUtil.getEntry(t, 2) * R.getEntry(0, 0)) > ra + rb) {
+        ra = component(e, 0) * absR.getEntry(2, 0) + component(e, 2) * absR.getEntry(0, 0);
+        rb = component(other.e, 1) * absR.getEntry(1, 2) + component(other.e, 2) * absR.getEntry(1, 1);
+        if (Math.abs(component(t, 0) * R.getEntry(2, 0) - component(t, 2) * R.getEntry(0, 0)) > ra + rb) {
             return false;
         }
 
         // A1 x B1
-        ra = VectorUtil.getEntry(e, 0) * absR.getEntry(2, 1) + VectorUtil.getEntry(e, 2) * absR.getEntry(0, 1);
-        rb = VectorUtil.getEntry(other.e, 0) * absR.getEntry(1, 2) + VectorUtil.getEntry(other.e, 2) * absR.getEntry(1, 0);
-        if (Math.abs(VectorUtil.getEntry(t, 0) * R.getEntry(2, 1) - VectorUtil.getEntry(t, 2) * R.getEntry(0, 1)) > ra + rb) {
+        ra = component(e, 0) * absR.getEntry(2, 1) + component(e, 2) * absR.getEntry(0, 1);
+        rb = component(other.e, 0) * absR.getEntry(1, 2) + component(other.e, 2) * absR.getEntry(1, 0);
+        if (Math.abs(component(t, 0) * R.getEntry(2, 1) - component(t, 2) * R.getEntry(0, 1)) > ra + rb) {
             return false;
         }
 
         // A1 x B2
-        ra = VectorUtil.getEntry(e, 0) * absR.getEntry(2, 2) + VectorUtil.getEntry(e, 2) * absR.getEntry(0, 2);
-        rb = VectorUtil.getEntry(other.e, 0) * absR.getEntry(1, 1) + VectorUtil.getEntry(other.e, 1) * absR.getEntry(1, 0);
-        if (Math.abs(VectorUtil.getEntry(t, 0) * R.getEntry(2, 2) - VectorUtil.getEntry(t, 2) * R.getEntry(0, 2)) > ra + rb) {
+        ra = component(e, 0) * absR.getEntry(2, 2) + component(e, 2) * absR.getEntry(0, 2);
+        rb = component(other.e, 0) * absR.getEntry(1, 1) + component(other.e, 1) * absR.getEntry(1, 0);
+        if (Math.abs(component(t, 0) * R.getEntry(2, 2) - component(t, 2) * R.getEntry(0, 2)) > ra + rb) {
             return false;
         }
 
         // A2 x B0
-        ra = VectorUtil.getEntry(e, 0) * absR.getEntry(1, 0) + VectorUtil.getEntry(e, 1) * absR.getEntry(0, 0);
-        rb = VectorUtil.getEntry(other.e, 1) * absR.getEntry(2, 2) + VectorUtil.getEntry(other.e, 2) * absR.getEntry(2, 1);
-        if (Math.abs(VectorUtil.getEntry(t, 1) * R.getEntry(0, 0) - VectorUtil.getEntry(t, 0) * R.getEntry(1, 0)) > ra + rb) {
+        ra = component(e, 0) * absR.getEntry(1, 0) + component(e, 1) * absR.getEntry(0, 0);
+        rb = component(other.e, 1) * absR.getEntry(2, 2) + component(other.e, 2) * absR.getEntry(2, 1);
+        if (Math.abs(component(t, 1) * R.getEntry(0, 0) - component(t, 0) * R.getEntry(1, 0)) > ra + rb) {
             return false;
         }
 
         // A2 x B1
-        ra = VectorUtil.getEntry(e, 0) * absR.getEntry(1, 1) + VectorUtil.getEntry(e, 1) * absR.getEntry(0, 1);
-        rb = VectorUtil.getEntry(other.e, 0) * absR.getEntry(2, 2) + VectorUtil.getEntry(other.e, 2) * absR.getEntry(2, 0);
-        if (Math.abs(VectorUtil.getEntry(t, 1) * R.getEntry(0, 1) - VectorUtil.getEntry(t, 0) * R.getEntry(1, 1)) > ra + rb) {
+        ra = component(e, 0) * absR.getEntry(1, 1) + component(e, 1) * absR.getEntry(0, 1);
+        rb = component(other.e, 0) * absR.getEntry(2, 2) + component(other.e, 2) * absR.getEntry(2, 0);
+        if (Math.abs(component(t, 1) * R.getEntry(0, 1) - component(t, 0) * R.getEntry(1, 1)) > ra + rb) {
             return false;
         }
 
         // A2 x B2
-        ra = VectorUtil.getEntry(e, 0) * absR.getEntry(1, 2) + VectorUtil.getEntry(e, 1) * absR.getEntry(0, 2);
-        rb = VectorUtil.getEntry(other.e, 0) * absR.getEntry(2, 1) + VectorUtil.getEntry(other.e, 1) * absR.getEntry(2, 0);
-        if (Math.abs(VectorUtil.getEntry(t, 1) * R.getEntry(0, 2) - VectorUtil.getEntry(t, 0) * R.getEntry(1, 2)) > ra + rb) {
+        ra = component(e, 0) * absR.getEntry(1, 2) + component(e, 1) * absR.getEntry(0, 2);
+        rb = component(other.e, 0) * absR.getEntry(2, 1) + component(other.e, 1) * absR.getEntry(2, 0);
+        if (Math.abs(component(t, 1) * R.getEntry(0, 2) - component(t, 0) * R.getEntry(1, 2)) > ra + rb) {
             return false;
         }
 
@@ -195,7 +195,7 @@ public class OBB implements Collider {
         // Project target onto basis axes and move toward it.
         for (int i = 0; i < 3; ++i) {
             Vector3D axis = new Vector3D(basis.getRow(i));
-            double r = VectorUtil.getEntry(e, i);
+            double r = component(e, i);
             double dist = Math.max(-r, Math.min(t.dotProduct(axis), r));
 
             closest = closest.add(axis.scalarMultiply(dist));
@@ -228,7 +228,7 @@ public class OBB implements Collider {
         Vector3D result = Vector3D.ZERO;
 
         for (int i = 0; i < 3; ++i) {
-            result = result.add(new Vector3D(basis.getRow(i)).scalarMultiply(VectorUtil.getEntry(e, i)));
+            result = result.add(new Vector3D(basis.getRow(i)).scalarMultiply(component(e, i)));
         }
 
         return result;

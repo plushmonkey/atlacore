@@ -110,7 +110,7 @@ public final class WorldUtil {
         Ray ray = new Ray(location, new Vector3D(0, -1, 0));
 
         for (double y = location.getY() - 1; y >= 0; --y) {
-            location.setY(y);
+            location = location.setY(y);
 
             Block block = location.getBlock();
             AABB checkBounds;
@@ -118,7 +118,7 @@ public final class WorldUtil {
             if (groundMaterials.contains(block.getType())) {
                 checkBounds = AABB.BLOCK_BOUNDS;
             } else {
-                checkBounds = block.getBounds();;
+                checkBounds = block.getBounds();
             }
 
             checkBounds = checkBounds.at(block.getLocation());

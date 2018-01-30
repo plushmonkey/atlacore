@@ -26,6 +26,10 @@ public class JetBlaze implements Ability {
             return false;
         }
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+            return false;
+        }
+
         jet = new FireJet();
 
         if (!jet.activate(user, ActivationMethod.Punch)) {
