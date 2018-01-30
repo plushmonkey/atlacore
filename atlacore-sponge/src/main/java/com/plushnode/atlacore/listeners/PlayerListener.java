@@ -14,6 +14,7 @@ import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
 import com.plushnode.atlacore.util.Flight;
+import com.plushnode.atlacore.util.Task;
 import com.plushnode.atlacore.util.WorldUtil;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.Entity;
@@ -32,7 +33,9 @@ import java.util.*;
 
 public class PlayerListener {
     private AtlaPlugin plugin;
+    // TODO: Move into appropriate place
     private Map<String, BendingBoard> boards = new HashMap<>();
+    private Task boardTask = null;
 
     public PlayerListener(AtlaPlugin plugin) {
         this.plugin = plugin;
@@ -74,8 +77,8 @@ public class PlayerListener {
 
                 boards.put(p.getName(), new BendingBoard(p));
 
-                if (boards.size() <= 1) {
-                    plugin.createTaskTimer(() -> {
+                if (boardTask == null) {
+                    boardTask = plugin.createTaskTimer(() -> {
                         for (BendingBoard board : boards.values()) {
                             board.update();
                         }

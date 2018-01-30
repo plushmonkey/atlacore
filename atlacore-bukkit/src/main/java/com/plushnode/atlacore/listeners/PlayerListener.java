@@ -13,6 +13,7 @@ import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.Flight;
+import com.plushnode.atlacore.util.Task;
 import com.plushnode.atlacore.util.WorldUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,7 +27,9 @@ import java.util.Map;
 // NOTE: test code.
 public class PlayerListener implements Listener {
     private AtlaCorePlugin plugin;
+    // TODO: Move into appropriate place
     private Map<String, BendingBoard> boards = new HashMap<>();
+    private Task boardTask = null;
 
     public PlayerListener(AtlaCorePlugin plugin) {
         this.plugin = plugin;
@@ -69,8 +72,8 @@ public class PlayerListener implements Listener {
 
                 boards.put(p.getName(), new BendingBoard(p));
 
-                if (boards.size() <= 1) {
-                    plugin.createTaskTimer(() -> {
+                if (boardTask == null) {
+                    boardTask = plugin.createTaskTimer(() -> {
                         for (BendingBoard board : boards.values()) {
                             board.update();
                         }
