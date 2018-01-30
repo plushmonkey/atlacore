@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.util.VectorUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -23,6 +24,12 @@ public class OBB implements Collider {
         this.basis.setRow(2, axis2.toArray());
     }
 
+    public OBB(Vector3D center, RealMatrix basis, Vector3D halfExtents) {
+        this.center = center;
+        this.basis = basis;
+        this.e = halfExtents;
+    }
+
     public OBB(AABB aabb) {
         this.center = aabb.getPosition();
         this.basis = MatrixUtils.createRealIdentityMatrix(3);
@@ -30,9 +37,17 @@ public class OBB implements Collider {
     }
 
     public OBB(AABB aabb, Rotation rotation) {
-        this.center = aabb.getPosition();
+        this.center = rotation.applyTo(aabb.getPosition());
         this.basis = MatrixUtils.createRealMatrix(rotation.getMatrix());
         this.e = aabb.getHalfExtents();
+    }
+
+    public OBB at(Vector3D position) {
+        return new OBB(center.add(position), basis, e);
+    }
+
+    public OBB at(Location location) {
+        return new OBB(center.add(location.toVector()), basis, e);
     }
 
     @Override
@@ -56,7 +71,7 @@ public class OBB implements Collider {
         // translation
         Vector3D t = other.center.subtract(center);
         // Bring into coordinate frame
-        t = new Vector3D(R.operate(t.toArray()));
+        t = new Vector3D(basis.operate(t.toArray()));
         RealMatrix absR = MatrixUtils.createRealMatrix(3, 3);
 
         for (int i = 0; i < 3; ++i) {

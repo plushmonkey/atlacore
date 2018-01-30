@@ -83,13 +83,6 @@ public class FireShield implements Ability {
         return UpdateResult.Continue;
     }
 
-    private Vector3D calculateRotationAxis() {
-        Vector3D up = Vector3D.PLUS_J;
-        Vector3D lookingDir = user.getDirection();
-        Vector3D right = lookingDir.crossProduct(up).normalize();
-        return right.crossProduct(lookingDir);
-    }
-
     @Override
     public void destroy() {
 
@@ -155,21 +148,21 @@ public class FireShield implements Ability {
 
         @Override
         public boolean update() {
-            Vector3D rotateAxis = calculateRotationAxis();
-
             // project disc in front of player
             Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.discExtension));
             double r = config.discRadius;
             double ht = config.discThickness;
 
             AABB aabb = new AABB(new Vector3D(-r, -r, -ht), new Vector3D(r, r, ht));
-            AABB globalAABB = aabb.at(location);
+
+            Vector3D right = user.getDirection().crossProduct(Vector3D.PLUS_J).normalize();
 
             // rotate the bounding box so it's lined up with player's view
-            Rotation rot = new Rotation(rotateAxis, Math.toRadians(user.getYaw()));
+            Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
+            rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
 
             this.sphere = new Sphere(location.toVector(), config.discRadius);
-            this.obb = new OBB(globalAABB, rot);
+            this.obb = new OBB(aabb, rot).at(location);
 
             return System.currentTimeMillis() >= startTime + config.discDuration;
         }

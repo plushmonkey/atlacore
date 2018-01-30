@@ -50,19 +50,14 @@ public class WallOfFire implements Ability {
 
         AABB aabb = new AABB(new Vector3D(-hw, -hh, -ht), new Vector3D(hw, hh, ht));
 
-        Vector3D up = Vector3D.PLUS_J;
-        Vector3D lookingDir = user.getDirection();
-        Vector3D right = lookingDir.crossProduct(up).normalize();
-        Vector3D rotateAxis = right.crossProduct(lookingDir);
+        Vector3D right = user.getDirection().crossProduct(Vector3D.PLUS_J).normalize();
 
-        Location location = user.getLocation().add(user.getDirection().scalarMultiply(config.range));
+        Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.range));
 
-        AABB globalAABB = aabb.at(location);
+        Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
+        rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
 
-        // rotate the bounding box so it's lined up with player's view
-        Rotation rot = new Rotation(rotateAxis, Math.toRadians(user.getYaw()));
-
-        this.collider = new OBB(globalAABB, rot);
+        this.collider = new OBB(aabb, rot).at(location.toVector());
 
         blocks = WorldUtil.getNearbyBlocks(location, VectorUtil.getMaxComponent(collider.getHalfExtents()) + 1.0);
 
