@@ -131,7 +131,7 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 100,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireShield.class, false);
 
-        AbilityDescription wallOfFireDesc = new GenericAbilityDescription<>("WallOfFire", "wall off ire",
+        AbilityDescription wallOfFireDesc = new GenericAbilityDescription<>("WallOfFire", "wall of fire",
                 elementRegistry.getElementByName("Fire"), 100,
                 Arrays.asList(ActivationMethod.Punch), WallOfFire.class, false);
 
