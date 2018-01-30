@@ -11,6 +11,7 @@ import com.plushnode.atlacore.game.ability.air.AirSwipe;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.*;
 import com.plushnode.atlacore.game.ability.fire.sequences.FireKick;
+import com.plushnode.atlacore.game.ability.fire.sequences.FireSpin;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
@@ -147,6 +148,10 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 6000,
                 Arrays.asList(ActivationMethod.Sequence), JetBlaze.class, false);
 
+        AbilityDescription fireSpinDesc = new GenericAbilityDescription<>("FireSpin", "firespin",
+                elementRegistry.getElementByName("Fire"), 5000,
+                Arrays.asList(ActivationMethod.Sequence), FireSpin.class, false);
+
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
         abilityRegistry.registerAbility(shockwaveDesc);
@@ -160,6 +165,7 @@ public class Game {
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);
         abilityRegistry.registerAbility(jetBlazeDesc);
+        abilityRegistry.registerAbility(fireSpinDesc);
 
         sequenceService.registerSequence(fireKickDesc, new Sequence(true,
                 new AbilityAction(fireBlastDesc, Action.Punch),
@@ -186,6 +192,14 @@ public class Game {
                 new AbilityAction(blazeDesc, Action.Sneak),
                 new AbilityAction(blazeDesc, Action.SneakRelease),
                 new AbilityAction(fireJetDesc, Action.Punch)
+        ));
+
+        sequenceService.registerSequence(fireSpinDesc, new Sequence(true,
+                new AbilityAction(fireBlastDesc, Action.Punch),
+                new AbilityAction(fireBlastDesc, Action.Punch),
+                new AbilityAction(fireShieldDesc, Action.Punch),
+                new AbilityAction(fireShieldDesc, Action.Sneak),
+                new AbilityAction(fireShieldDesc, Action.SneakRelease)
         ));
 
         collisionService.registerCollision(airBlastDesc, fireBlastDesc, true, true);
