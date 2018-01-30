@@ -9,10 +9,7 @@ import com.plushnode.atlacore.game.ability.air.AirBlast;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.game.ability.air.AirSwipe;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
-import com.plushnode.atlacore.game.ability.fire.Blaze;
-import com.plushnode.atlacore.game.ability.fire.FireBlast;
-import com.plushnode.atlacore.game.ability.fire.FireJet;
-import com.plushnode.atlacore.game.ability.fire.FireShield;
+import com.plushnode.atlacore.game.ability.fire.*;
 import com.plushnode.atlacore.game.ability.fire.sequences.FireKick;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
@@ -134,6 +131,10 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 100,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireShield.class, false);
 
+        AbilityDescription wallOfFireDesc = new GenericAbilityDescription<>("WallOfFire", "wall off ire",
+                elementRegistry.getElementByName("Fire"), 100,
+                Arrays.asList(ActivationMethod.Punch), WallOfFire.class, false);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 elementRegistry.getElementByName("Fire"), 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -154,6 +155,7 @@ public class Game {
         abilityRegistry.registerAbility(fireBlastDesc);
         abilityRegistry.registerAbility(fireJetDesc);
         abilityRegistry.registerAbility(fireShieldDesc);
+        abilityRegistry.registerAbility(wallOfFireDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);
