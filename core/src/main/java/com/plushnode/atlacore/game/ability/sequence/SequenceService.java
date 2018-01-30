@@ -57,8 +57,10 @@ public class SequenceService {
                 if (!sequenceDesc.isEnabled()) continue;
 
                 Ability ability = sequenceDesc.createAbility();
-                ability.activate(user, ActivationMethod.Sequence);
-                Game.getAbilityInstanceManager().addAbility(user, ability);
+
+                if (ability.activate(user, ActivationMethod.Sequence)) {
+                    Game.getAbilityInstanceManager().addAbility(user, ability);
+                }
 
                 userSequences.put(user, new Sequence());
             }

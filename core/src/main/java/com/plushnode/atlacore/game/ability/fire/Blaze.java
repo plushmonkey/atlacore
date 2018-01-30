@@ -12,7 +12,7 @@ import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.util.TempBlock;
+import com.plushnode.atlacore.block.TempBlock;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 

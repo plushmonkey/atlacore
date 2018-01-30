@@ -20,11 +20,18 @@ public interface User extends LivingEntity {
     void clearSlots();
 
     void setCooldown(AbilityDescription abilityDesc);
+    void setCooldown(AbilityDescription abilityDesc, long duration);
     boolean isOnCooldown(AbilityDescription abilityDesc);
 
     default void setCooldown(Ability ability) {
         if (ability != null) {
             setCooldown(ability.getDescription());
+        }
+    }
+
+    default void setCooldown(Ability ability, long duration) {
+        if (ability != null) {
+            setCooldown(ability.getDescription(), duration);
         }
     }
 

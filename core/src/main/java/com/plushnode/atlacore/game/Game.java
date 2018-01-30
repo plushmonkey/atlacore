@@ -14,6 +14,8 @@ import com.plushnode.atlacore.game.ability.fire.FireBlast;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.fire.FireShield;
 import com.plushnode.atlacore.game.ability.fire.sequences.FireKick;
+import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
+import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
@@ -26,9 +28,8 @@ import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.ChatColor;
-import com.plushnode.atlacore.util.FireTick;
 import com.plushnode.atlacore.util.Flight;
-import com.plushnode.atlacore.util.TempBlockManager;
+import com.plushnode.atlacore.block.TempBlockService;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 import java.beans.PropertyVetoException;
@@ -46,7 +47,7 @@ public class Game {
     private static AbilityRegistry abilityRegistry;
     private static ElementRegistry elementRegistry;
     private static AbilityInstanceManager instanceManager;
-    private static TempBlockManager tempBlockManager;
+    private static TempBlockService tempBlockService;
     private static SequenceService sequenceService;
     private static CollisionService collisionService;
 
@@ -56,11 +57,12 @@ public class Game {
         instanceManager = new AbilityInstanceManager();
         abilityRegistry = new AbilityRegistry();
         protectionSystem = new ProtectionSystem();
-        tempBlockManager = new TempBlockManager();
+        tempBlockService = new TempBlockService();
         elementRegistry = new ElementRegistry();
         sequenceService = new SequenceService();
         collisionService = new CollisionService();
 
+        tempBlockService.start();
         sequenceService.start();
         collisionService.start();
 
@@ -84,6 +86,7 @@ public class Game {
         elementRegistry.clear();
         sequenceService.clear();
         collisionService.clear();
+        tempBlockService.resetAll();
 
         elementRegistry.registerElement(new BasicElement("Air", ChatColor.GRAY));
         elementRegistry.registerElement(new BasicElement("Earth", ChatColor.GREEN));
@@ -135,6 +138,14 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
 
+        AbilityDescription jetBlastDesc = new GenericAbilityDescription<>("JetBlast", "jet blast blast",
+                elementRegistry.getElementByName("Fire"), 6000,
+                Arrays.asList(ActivationMethod.Sequence), JetBlast.class, false);
+
+        AbilityDescription jetBlazeDesc = new GenericAbilityDescription<>("JetBlaze", "jet blaze blaze",
+                elementRegistry.getElementByName("Fire"), 6000,
+                Arrays.asList(ActivationMethod.Sequence), JetBlaze.class, false);
+
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
         abilityRegistry.registerAbility(shockwaveDesc);
@@ -145,12 +156,34 @@ public class Game {
         abilityRegistry.registerAbility(fireShieldDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
+        abilityRegistry.registerAbility(jetBlastDesc);
+        abilityRegistry.registerAbility(jetBlazeDesc);
 
         sequenceService.registerSequence(fireKickDesc, new Sequence(true,
                 new AbilityAction(fireBlastDesc, Action.Punch),
                 new AbilityAction(fireBlastDesc, Action.Punch),
                 new AbilityAction(fireBlastDesc, Action.Sneak),
                 new AbilityAction(fireBlastDesc, Action.Punch)
+        ));
+
+        sequenceService.registerSequence(jetBlastDesc, new Sequence(true,
+                new AbilityAction(fireJetDesc, Action.Sneak),
+                new AbilityAction(fireJetDesc, Action.SneakRelease),
+                new AbilityAction(fireJetDesc, Action.Sneak),
+                new AbilityAction(fireJetDesc, Action.SneakRelease),
+                new AbilityAction(fireShieldDesc, Action.Sneak),
+                new AbilityAction(fireShieldDesc, Action.SneakRelease),
+                new AbilityAction(fireJetDesc, Action.Punch)
+        ));
+
+        sequenceService.registerSequence(jetBlazeDesc, new Sequence(true,
+                new AbilityAction(fireJetDesc, Action.Sneak),
+                new AbilityAction(fireJetDesc, Action.SneakRelease),
+                new AbilityAction(fireJetDesc, Action.Sneak),
+                new AbilityAction(fireJetDesc, Action.SneakRelease),
+                new AbilityAction(blazeDesc, Action.Sneak),
+                new AbilityAction(blazeDesc, Action.SneakRelease),
+                new AbilityAction(fireJetDesc, Action.Punch)
         ));
 
         collisionService.registerCollision(airBlastDesc, fireBlastDesc, true, true);
@@ -280,8 +313,8 @@ public class Game {
         return instanceManager;
     }
 
-    public static TempBlockManager getTempBlockManager() {
-        return tempBlockManager;
+    public static TempBlockService getTempBlockService() {
+        return tempBlockService;
     }
 
     // Forces all atlacore classes to be loaded. This ensures all of them create their static Config objects.

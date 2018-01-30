@@ -1,4 +1,4 @@
-package com.plushnode.atlacore.util;
+package com.plushnode.atlacore.block;
 
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.block.Block;
@@ -11,6 +11,7 @@ public class TempBlock {
     private Material tempType;
     private boolean applyPhysics;
     private BlockSetter setter;
+    private long endTime;
 
     public TempBlock(Block block, Material tempType) {
         this(block, tempType, false);
@@ -33,7 +34,7 @@ public class TempBlock {
         setter = Game.plugin.getBlockSetter(flag);
         setter.setBlock(block, tempType);
 
-        Game.getTempBlockManager().add(this);
+        Game.getTempBlockService().add(this);
     }
 
     public TempBlock(BlockState blockState, Material tempType, boolean applyPhysics) {
@@ -49,7 +50,27 @@ public class TempBlock {
         setter = Game.plugin.getBlockSetter(flag);
         setter.setBlock(previousState.getBlock(), tempType);
 
-        Game.getTempBlockManager().add(this);
+        Game.getTempBlockService().add(this);
+    }
+
+    public TempBlock(Block block, Material tempType, long duration) {
+        this(block, tempType, false);
+        endTime = System.currentTimeMillis() + duration;
+    }
+
+    public TempBlock(BlockState blockState, Material tempType, long duration) {
+        this(blockState, tempType, false);
+        endTime = System.currentTimeMillis() + duration;
+    }
+
+    public TempBlock(Block block, Material tempType, boolean applyPhysics, long duration) {
+        this(block, tempType, applyPhysics);
+        endTime = System.currentTimeMillis() + duration;
+    }
+
+    public TempBlock(BlockState blockState, Material tempType, boolean applyPhysics, long duration) {
+        this(blockState, tempType, applyPhysics);
+        endTime = System.currentTimeMillis() + duration;
     }
 
     // Refresh the block to the temporary state
@@ -63,7 +84,7 @@ public class TempBlock {
     }
 
     public void reset() {
-        Game.getTempBlockManager().remove(this);
+        Game.getTempBlockService().remove(this);
 
         if (this.applyPhysics) {
             this.previousState.update(true);
@@ -79,5 +100,9 @@ public class TempBlock {
 
     public BlockState getPreviousState() {
         return previousState;
+    }
+
+    public long getEndTime() {
+        return this.endTime;
     }
 }

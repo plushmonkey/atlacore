@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.game.ability.fire;
 
+import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
@@ -21,6 +22,8 @@ public class FireJet implements Ability {
     private User user;
     private Flight flight;
     private long startTime;
+    private double speed;
+    private long duration;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -34,12 +37,16 @@ public class FireJet implements Ability {
             return false;
         }
 
+        this.speed = config.speed;
+        this.duration = config.duration;
+
         this.flight = Flight.get(user);
         user.setCooldown(this);
 
         if (ignitable && Game.getProtectionSystem().canBuild(user, block.getLocation())) {
+            new TempBlock(block, Material.FIRE, 3000);
             // TODO: TempFire
-            Game.plugin.getBlockSetter(BlockSetter.Flag.FAST).setBlock(block, Material.FIRE);
+            //Game.plugin.getBlockSetter(BlockSetter.Flag.FAST).setBlock(block, Material.FIRE);
         }
 
         return true;
@@ -49,7 +56,7 @@ public class FireJet implements Ability {
     public UpdateResult update() {
         long time = System.currentTimeMillis();
 
-        if (System.currentTimeMillis() > startTime + config.duration) {
+        if (System.currentTimeMillis() > startTime + duration) {
             return UpdateResult.Remove;
         }
 
@@ -58,9 +65,9 @@ public class FireJet implements Ability {
         }
 
         // scale down to 0.5 speed near the end
-        double factor = 1.0 - ((time - startTime) / (2.0 * config.duration));
+        double factor = 1.0 - ((time - startTime) / (2.0 * duration));
 
-        this.user.setVelocity(this.user.getDirection().scalarMultiply(config.speed * factor));
+        this.user.setVelocity(this.user.getDirection().scalarMultiply(speed * factor));
         this.user.setFallDistance(0.0f);
 
         Location location = user.getLocation();
@@ -88,6 +95,14 @@ public class FireJet implements Ability {
     @Override
     public void handleCollision(Collision collision) {
 
+    }
+
+    public void setSpeed(double newSpeed) {
+        this.speed = newSpeed;
+    }
+
+    public void setDuration(long newDuration) {
+        this.duration = newDuration;
     }
 
     private static class Config extends Configurable {

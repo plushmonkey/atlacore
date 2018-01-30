@@ -4,6 +4,8 @@ import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.board.BendingBoard;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
+import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
+import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -172,12 +174,6 @@ public class PlayerListener {
         Player player = (Player) entity;
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        if (WorldUtil.getTargetEntity(user, 4) != null) {
-            Game.getSequenceService().registerAction(user, Action.PunchEntity);
-        } else {
-            Game.getSequenceService().registerAction(user, Action.Punch);
-        }
-
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
             if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
                 return;
@@ -188,6 +184,20 @@ public class PlayerListener {
             if (Game.getAbilityInstanceManager().destroyInstanceType(user, FireJet.class)) {
                 return;
             }
+
+            if (Game.getAbilityInstanceManager().destroyInstanceType(user, JetBlast.class)) {
+                return;
+            }
+
+            if (Game.getAbilityInstanceManager().destroyInstanceType(user, JetBlaze.class)) {
+                return;
+            }
+        }
+
+        if (WorldUtil.getTargetEntity(user, 4) != null) {
+            Game.getSequenceService().registerAction(user, Action.PunchEntity);
+        } else {
+            Game.getSequenceService().registerAction(user, Action.Punch);
         }
 
         activateAbility(user, ActivationMethod.Punch);

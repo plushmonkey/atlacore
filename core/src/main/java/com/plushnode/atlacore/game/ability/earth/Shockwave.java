@@ -18,8 +18,8 @@ import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.util.MaterialUtil;
-import com.plushnode.atlacore.util.TempBlock;
-import com.plushnode.atlacore.util.TempBlockManager;
+import com.plushnode.atlacore.block.TempBlock;
+import com.plushnode.atlacore.block.TempBlockService;
 import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -143,7 +143,7 @@ public class Shockwave implements Ability {
 
     @Override
     public void destroy() {
-        TempBlockManager tbm = Game.getTempBlockManager();
+        TempBlockService tbm = Game.getTempBlockService();
 
         for (Block block : tempBlocks.keySet()) {
             TempBlock tempBlock = tbm.getTempBlock(block);
@@ -281,7 +281,7 @@ public class Shockwave implements Ability {
 
             int value = shockwaveGrid.getValue(gridX, gridY);
 
-            TempBlockManager tbm = Game.getTempBlockManager();
+            TempBlockService tbm = Game.getTempBlockService();
 
             if (value == 0) {
                 TempBlock tempBlock = tbm.getTempBlock(block);
@@ -355,7 +355,7 @@ public class Shockwave implements Ability {
                     material = Material.COBBLESTONE;
                 }
 
-                TempBlockManager tbm = Game.getTempBlockManager();
+                TempBlockService tbm = Game.getTempBlockService();
                 for (int i = 0; i < shockwaveGrid.getValue(x, z); ++i) {
                     TempBlock tempBlock = tbm.getTempBlock(block);
 

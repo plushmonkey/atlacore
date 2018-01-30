@@ -83,8 +83,16 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
     public void setCooldown(AbilityDescription abilityDesc) {
         long cooldown = abilityDesc.getCooldown();
 
-        if (cooldown > 0) {
-            cooldowns.put(abilityDesc, System.currentTimeMillis() + cooldown);
+        setCooldown(abilityDesc, cooldown);
+    }
+
+    @Override
+    public void setCooldown(AbilityDescription abilityDesc, long duration) {
+        long current = cooldowns.getOrDefault(abilityDesc, 0L);
+
+        // Only set cooldown if the new one is larger.
+        if (duration > 0 && duration > current - System.currentTimeMillis()) {
+            cooldowns.put(abilityDesc, System.currentTimeMillis() + duration);
             Game.plugin.getEventBus().postCooldownAddEvent(this, abilityDesc);
         }
     }
