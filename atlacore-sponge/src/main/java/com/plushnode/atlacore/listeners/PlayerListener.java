@@ -156,16 +156,16 @@ public class PlayerListener {
 
     @Listener
     public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
-        if (!event.isSneaking()) return;
-
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
         Game.getSequenceService().registerAction(user, event.isSneaking() ? Action.Sneak : Action.SneakRelease);
 
-        activateAbility(user, ActivationMethod.Sneak);
+        if (event.isSneaking()) {
+            activateAbility(user, ActivationMethod.Sneak);
 
-        Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
+            Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
+        }
     }
 
     @Listener

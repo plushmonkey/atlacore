@@ -20,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -122,10 +123,12 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR) {
-            Game.getSequenceService().registerAction(user, Action.Interact);
-        } else if(event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
-            Game.getSequenceService().registerAction(user, Action.InteractBlock);
+        if (event.getHand() == EquipmentSlot.HAND) {
+            if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR) {
+                Game.getSequenceService().registerAction(user, Action.Interact);
+            } else if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
+                Game.getSequenceService().registerAction(user, Action.InteractBlock);
+            }
         }
     }
 

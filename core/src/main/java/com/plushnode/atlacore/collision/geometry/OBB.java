@@ -58,6 +58,8 @@ public class OBB implements Collider {
             return intersects(new OBB((AABB)collider));
         } else if (collider instanceof OBB) {
             return intersects((OBB)collider);
+        } else if (collider instanceof Disc) {
+            return collider.intersects(this);
         }
 
         return false;

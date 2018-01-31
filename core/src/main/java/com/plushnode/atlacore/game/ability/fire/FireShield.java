@@ -4,6 +4,7 @@ import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.geometry.AABB;
+import com.plushnode.atlacore.collision.geometry.Disc;
 import com.plushnode.atlacore.collision.geometry.OBB;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
@@ -78,7 +79,7 @@ public class FireShield implements Ability {
             this.nextRender = time + this.shield.getRenderDelay();
         }
 
-        CollisionUtil.handleEntityCollisions(user, this.shield, (entity) ->{
+        CollisionUtil.handleEntityCollisions(user, this.shield.getCollider(), (entity) ->{
             if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
                 return false;
             }
@@ -108,7 +109,7 @@ public class FireShield implements Ability {
 
     @Override
     public Collection<Collider> getColliders() {
-        return Collections.singletonList(shield);
+        return Collections.singletonList(shield.getCollider());
     }
 
     @Override
@@ -118,40 +119,20 @@ public class FireShield implements Ability {
         }
     }
 
-    private interface Shield extends Collider {
+    private interface Shield {
         boolean update();
         void render();
+        Collider getCollider();
         long getRenderDelay();
         int getFireTicks();
     }
 
     // Combines an OBB and Sphere to create a disc with thickness.
     private class DiscShield implements Shield {
-        private Sphere sphere;
-        private OBB obb;
+        private Disc disc;
 
         public DiscShield() {
             update();
-        }
-
-        @Override
-        public boolean intersects(Collider collider) {
-            return sphere.intersects(collider) && obb.intersects(collider);
-        }
-
-        @Override
-        public Vector3D getPosition() {
-            return sphere.center;
-        }
-
-        @Override
-        public Vector3D getHalfExtents() {
-            return obb.getHalfExtents();
-        }
-
-        @Override
-        public boolean contains(Vector3D point) {
-            return sphere.contains(point) && obb.contains(point);
         }
 
         @Override
@@ -169,8 +150,7 @@ public class FireShield implements Ability {
             Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
             rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
 
-            this.sphere = new Sphere(location.toVector(), config.discRadius);
-            this.obb = new OBB(aabb, rot).at(location);
+            this.disc = new Disc(new OBB(aabb, rot).at(location), new Sphere(location.toVector(), config.discRadius));
 
             return System.currentTimeMillis() >= startTime + config.discDuration;
         }
@@ -192,6 +172,11 @@ public class FireShield implements Ability {
         }
 
         @Override
+        public Collider getCollider() {
+            return disc;
+        }
+
+        @Override
         public long getRenderDelay() {
             return config.discParticleRenderDelay;
         }
@@ -210,23 +195,8 @@ public class FireShield implements Ability {
         }
 
         @Override
-        public boolean intersects(Collider collider) {
-            return sphere.intersects(collider);
-        }
-
-        @Override
-        public Vector3D getPosition() {
-            return sphere.center;
-        }
-
-        @Override
-        public Vector3D getHalfExtents() {
-            return sphere.getHalfExtents();
-        }
-
-        @Override
-        public boolean contains(Vector3D point) {
-            return sphere.contains(point);
+        public Collider getCollider() {
+            return sphere;
         }
 
         @Override

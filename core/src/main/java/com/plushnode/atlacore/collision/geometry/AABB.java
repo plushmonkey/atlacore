@@ -97,6 +97,8 @@ public class AABB implements Collider {
             return intersects((AABB) collider);
         } else if (collider instanceof OBB) {
             return collider.intersects(this);
+        } else if (collider instanceof Disc) {
+            return collider.intersects(this);
         }
 
         return false;
@@ -109,6 +111,8 @@ public class AABB implements Collider {
 
     @Override
     public Vector3D getHalfExtents() {
+        if (max == null || min == null) return new Vector3D(0, 0, 0);
+
         Vector3D half = max.subtract(min).scalarMultiply(0.5);
         return new Vector3D(Math.abs(half.getX()), Math.abs(half.getY()), Math.abs(half.getZ()));
     }
