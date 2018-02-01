@@ -4,6 +4,7 @@ import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.board.BendingBoard;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
+import com.plushnode.atlacore.game.ability.fire.HeatControl;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.Action;
@@ -150,6 +151,21 @@ public class PlayerListener {
         }
 
         if (Flight.hasFlight(user)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener
+    public void onFireTickDamage(DamageEntityEvent event, @Root DamageSource source) {
+        if (source.getType() != DamageTypes.FIRE) return;
+
+        Entity entity = event.getTargetEntity();
+        if (!(entity instanceof Player)) return;
+
+        Player player = (Player) entity;
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
+
+        if (!HeatControl.canBurn(user)) {
             event.setCancelled(true);
         }
     }

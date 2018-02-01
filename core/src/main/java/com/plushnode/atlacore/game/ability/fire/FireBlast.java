@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.game.ability.fire;
 
+import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
@@ -152,7 +153,7 @@ public class FireBlast implements Ability {
                 }
 
                 // todo: TempFire
-                Game.plugin.getBlockSetter(BlockSetter.Flag.FAST).setBlock(block, Material.FIRE);
+                new TempBlock(block, Material.FIRE);
             }
         }
     }

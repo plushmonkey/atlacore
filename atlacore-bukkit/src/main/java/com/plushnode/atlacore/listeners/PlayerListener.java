@@ -8,9 +8,11 @@ import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
+import com.plushnode.atlacore.game.ability.fire.HeatControl;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.Action;
+import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.Task;
@@ -114,6 +116,19 @@ public class PlayerListener implements Listener {
         }
 
         if (Flight.hasFlight(user)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onFireTickDamage(EntityDamageEvent event) {
+        if (event.getCause() != EntityDamageEvent.DamageCause.FIRE && event.getCause() != EntityDamageEvent.DamageCause.FIRE_TICK) return;
+        if (!(event.getEntity() instanceof Player)) return;
+
+        Player player = (Player)event.getEntity();
+        User user = Game.getPlayerService().getPlayerByName(player.getName());
+
+        if (!HeatControl.canBurn(user)) {
             event.setCancelled(true);
         }
     }
