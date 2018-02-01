@@ -137,6 +137,10 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 500,
                 Arrays.asList(ActivationMethod.Punch), HeatControl.class, false);
 
+        AbilityDescription lightningDesc = new GenericAbilityDescription<>("Lightning", "shoot lightning",
+                elementRegistry.getElementByName("Fire"), 500,
+                Arrays.asList(ActivationMethod.Sneak), Lightning.class, false);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 elementRegistry.getElementByName("Fire"), 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -167,6 +171,7 @@ public class Game {
         abilityRegistry.registerAbility(fireShieldDesc);
         abilityRegistry.registerAbility(wallOfFireDesc);
         abilityRegistry.registerAbility(heatControlDesc);
+        abilityRegistry.registerAbility(lightningDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);
