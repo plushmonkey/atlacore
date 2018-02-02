@@ -5,9 +5,7 @@ import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.util.Task;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class TempBlockService {
     private Map<Location, TempBlock> temporaryBlocks = new HashMap<>();
@@ -47,7 +45,9 @@ public class TempBlockService {
     }
 
     public void resetAll() {
-        for (TempBlock block : temporaryBlocks.values()) {
+        List<TempBlock> temps = new ArrayList<>(temporaryBlocks.values());
+
+        for (TempBlock block : temps) {
             block.reset();
         }
         temporaryBlocks.clear();

@@ -7,6 +7,7 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
+import com.plushnode.atlacore.game.ability.fire.Combustion;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.fire.HeatControl;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
@@ -193,6 +194,8 @@ public class PlayerListener implements Listener {
                 return;
             }
         }
+
+        Combustion.combust(user);
 
         if (WorldUtil.getTargetEntity(user, 4) != null) {
             Game.getSequenceService().registerAction(user, Action.PunchEntity);

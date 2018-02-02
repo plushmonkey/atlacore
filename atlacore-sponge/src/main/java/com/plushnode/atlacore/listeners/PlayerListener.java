@@ -3,6 +3,7 @@ package com.plushnode.atlacore.listeners;
 import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.board.BendingBoard;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.fire.Combustion;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
 import com.plushnode.atlacore.game.ability.fire.HeatControl;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
@@ -212,6 +213,8 @@ public class PlayerListener {
                 return;
             }
         }
+
+        Combustion.combust(user);
 
         if (WorldUtil.getTargetEntity(user, 4) != null) {
             Game.getSequenceService().registerAction(user, Action.PunchEntity);

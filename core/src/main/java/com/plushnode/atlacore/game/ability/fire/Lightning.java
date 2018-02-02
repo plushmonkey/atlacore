@@ -45,6 +45,10 @@ public class Lightning implements Ability {
 
         for (Collider collider : colliders) {
             CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
+                if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
+                    return false;
+                }
+
                 if (entity instanceof LivingEntity) {
                     ((LivingEntity) entity).damage(config.damage, user);
                 }
@@ -113,6 +117,10 @@ public class Lightning implements Ability {
 
             boolean charged = time > startTime + config.chargeTime;
 
+            if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+                return false;
+            }
+
             if (charged) {
                 if (!user.isSneaking()) {
                     // Transition to travel state
@@ -158,6 +166,8 @@ public class Lightning implements Ability {
             this.distance = target.distance(location);
             this.startTime = System.currentTimeMillis();
             this.bolt = new Bolt(origin, target);
+
+            user.setCooldown(Lightning.this);
         }
 
         @Override
@@ -176,7 +186,13 @@ public class Lightning implements Ability {
                 }
             }
 
+
+
             for (Location current : bolt.interpolate(t)) {
+                if (!Game.getProtectionSystem().canBuild(user, current)) {
+                    return false;
+                }
+
                 colliders.add(new Sphere(current.toVector(), config.collisionRadius));
             }
 
