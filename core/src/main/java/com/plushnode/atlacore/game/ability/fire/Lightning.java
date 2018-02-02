@@ -168,48 +168,59 @@ public class Lightning implements Ability {
             double t = elapsedSeconds / totalSeconds;
             double step = 4.0 / (distance / (50.0 / 1000.0));
 
-            // Render all previous locations.
-            for (double prevT = 0.0; prevT <= t; prevT += step) {
-                Location location = bolt.interpolate(prevT);
-                displayParticle(location);
+            double prevStart = Math.max(0.0, t - 0.5);
+            // Render recent previous locations.
+            for (double prevT = prevStart; prevT <= t; prevT += step) {
+                for (Location location : bolt.interpolate(prevT)) {
+                    displayParticle(location);
+                }
             }
 
-            Location current = bolt.interpolate(t);
-            colliders.add(new Sphere(current.toVector(), config.collisionRadius));
+            for (Location current : bolt.interpolate(t)) {
+                colliders.add(new Sphere(current.toVector(), config.collisionRadius));
+            }
 
             return t < 1.0;
         }
     }
 
-    // TODO: Branches
     private class Bolt {
         List<LineSegment> segments = new ArrayList<>();
         private Location start;
         private Location end;
+        private double distance;
 
         public Bolt(Location start, Location end) {
             this.start = start;
             this.end = end;
+            this.distance = end.distance(start);
 
-            generateSegments(5);
+            generateSegments(config.boltGenerations);
         }
 
-        public Location interpolate(double t) {
+        public List<Location> interpolate(double t) {
+            List<Location> locations = new ArrayList<>();
+
             t = Math.max(0.0, Math.min(t, 1.0));
 
-            double normalizedSegmentSize = 1.0 / segments.size();
-            int segmentIndex = (int)(t / normalizedSegmentSize);
-            segmentIndex = Math.min(segmentIndex, segments.size() - 1);
+            for (LineSegment segment : segments) {
+                double tStart = segment.start.distance(start.toVector()) / distance;
+                double tEnd = tStart + (segment.length() / distance);
 
-            LineSegment segment = segments.get(segmentIndex);
+                if (t >= tStart && t <= tEnd) {
+                    double segT = (t - tStart) / (tEnd - tStart);
+                    Vector3D pos = segment.start.add(segment.end.subtract(segment.start).scalarMultiply(segT));
 
-            double tStart = segmentIndex * normalizedSegmentSize;
-            return start.getWorld().getLocation(segment.interpolate((t - tStart) / normalizedSegmentSize));
+                    locations.add(user.getWorld().getLocation(pos));
+                }
+            }
+
+            return locations;
         }
 
         // Generates segments along the main line and offsets them create some wiggle.
         private void generateSegments(int generations) {
-            double maxOffset = 3.0;
+            double maxOffset = config.boltMaxOffset;
 
             segments.add(new LineSegment(start, end));
 
@@ -219,22 +230,27 @@ public class Lightning implements Ability {
 
                 for (LineSegment segment : previousSegments) {
                     Vector3D mid = segment.interpolate(0.5);
-                    Vector3D offset = getOffset(segment, maxOffset);
+
+                    Vector3D offset = getOffset(segment.getDirection(), maxOffset);
 
                     Location castResult = RayCaster.cast(user.getWorld(), new Ray(mid, offset.normalize()), offset.getNorm(), false);
                     mid = castResult.toVector();
 
                     segments.add(new LineSegment(segment.start, mid));
                     segments.add(new LineSegment(mid, segment.end));
+
+                    if (Math.random() < config.boltForkChance) {
+                        Vector3D direction = mid.subtract(start.toVector()).normalize();
+                        Vector3D forkEnd = mid.add(getOffset(direction, Math.min(maxOffset * config.boltForkLength, config.boltMaxOffset * 0.75)));
+                        segments.add(new LineSegment(mid, forkEnd));
+                    }
                 }
 
                 maxOffset /= 2.0;
             }
         }
 
-        private Vector3D getOffset(LineSegment segment, double maxOffset) {
-            Vector3D direction = segment.getDirection();
-
+        private Vector3D getOffset(Vector3D direction, double maxOffset) {
             double t = (rand.nextDouble() * maxOffset * 2) - maxOffset;
 
             Vector3D side = Vector3D.PLUS_J.crossProduct(direction).normalize();
@@ -258,6 +274,10 @@ public class Lightning implements Ability {
         public double damage;
         public long chargeTime;
         public double collisionRadius;
+        public int boltGenerations;
+        public double boltMaxOffset;
+        public double boltForkChance;
+        public double boltForkLength;
 
         @Override
         public void onConfigReload() {
@@ -270,6 +290,13 @@ public class Lightning implements Ability {
             damage = abilityNode.getNode("damage").getDouble(4.0);
             chargeTime = abilityNode.getNode("charge-time").getLong(2500);
             collisionRadius = abilityNode.getNode("collision-radius").getDouble(1.0);
+
+            CommentedConfigurationNode bolt = abilityNode.getNode("bolt");
+
+            boltGenerations = bolt.getNode("generations").getInt(5);
+            boltMaxOffset = bolt.getNode("max-offset").getDouble(3.0);
+            boltForkChance = bolt.getNode("fork-chance").getDouble(0.3);
+            boltForkLength = bolt.getNode("fork-length").getDouble(1.7);
         }
     }
 }

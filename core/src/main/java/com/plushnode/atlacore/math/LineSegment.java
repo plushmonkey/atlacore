@@ -33,4 +33,12 @@ public class LineSegment {
         t = Math.max(0.0, Math.min(t, 1.0));
         return start.add(end.subtract(start).scalarMultiply(t));
     }
+
+    public double length() {
+        return end.distance(start);
+    }
+
+    public double lengthSq() {
+        return end.distanceSq(start);
+    }
 }
