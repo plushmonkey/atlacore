@@ -119,16 +119,16 @@ public class FireBlast implements Ability {
                 new Sphere(location.toVector(), 1.0), previous, location, true);
 
         if (collision) {
-            igniteBlocks();
+            // Ignite right before where the collision happened.
+            igniteBlocks(this.user, location.subtract(direction.scalarMultiply(config.speed)));
         }
 
         return collision ? UpdateResult.Remove : UpdateResult.Continue;
     }
 
-    private void igniteBlocks() {
-        // Get the top of the block right before the collision happened.
+    public static void igniteBlocks(User user, Location location) {
         // The top is used so the ray casted won't collide when going down a layer.
-        Location top = location.subtract(direction.scalarMultiply(config.speed)).getBlock().getLocation().add(0.5, 0.95, 0.5);
+        Location top = location.getBlock().getLocation().add(0.5, 0.95, 0.5);
 
         for (Block block : WorldUtil.getNearbyBlocks(location, config.igniteRadius)) {
             if (block.isLiquid()) continue;
@@ -152,8 +152,10 @@ public class FireBlast implements Ability {
                     }
                 }
 
-                // todo: TempFire
-                new TempBlock(block, Material.FIRE);
+                if (block.getType() != Material.FIRE) {
+                    // todo: TempFire
+                    new TempBlock(block, Material.FIRE, true, 10000);
+                }
             }
         }
     }

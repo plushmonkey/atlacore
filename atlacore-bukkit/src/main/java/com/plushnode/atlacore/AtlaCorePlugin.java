@@ -6,6 +6,7 @@ import com.plushnode.atlacore.command.ReloadCommand;
 import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.listeners.BlockListener;
 import com.plushnode.atlacore.platform.BukkitBendingPlayer;
 import com.plushnode.atlacore.platform.BukkitParticleEffectRenderer;
 import com.plushnode.atlacore.platform.block.BlockSetter;
@@ -61,6 +62,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         getLogger().info("Enabling AltaCore-Bukkit");
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new BlockListener(this), this);
 
         CoreExecutor executor = new CoreExecutor();
 

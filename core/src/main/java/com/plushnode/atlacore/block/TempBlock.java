@@ -31,6 +31,11 @@ public class TempBlock {
             flag = BlockSetter.Flag.LIGHTING;
         }
 
+        TempBlock previous = Game.getTempBlockService().getTempBlock(block);
+        if (previous != null) {
+            this.previousState = previous.previousState;
+        }
+
         setter = Game.plugin.getBlockSetter(flag);
         setter.setBlock(block, tempType);
 
@@ -45,6 +50,11 @@ public class TempBlock {
         BlockSetter.Flag flag = BlockSetter.Flag.FAST;
         if (applyPhysics) {
             flag = BlockSetter.Flag.LIGHTING;
+        }
+
+        TempBlock previous = Game.getTempBlockService().getTempBlock(blockState.getLocation());
+        if (previous != null) {
+            this.previousState = previous.previousState;
         }
 
         setter = Game.plugin.getBlockSetter(flag);

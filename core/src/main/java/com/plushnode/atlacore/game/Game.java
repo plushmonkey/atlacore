@@ -99,7 +99,7 @@ public class Game {
     private static void loadAbilities() {
         AbilityDescription blazeDesc = new GenericAbilityDescription<>("Blaze", "Blaze it 420",
                 elementRegistry.getElementByName("Fire"), 3000,
-                Arrays.asList(ActivationMethod.Sneak), Blaze.class, false);
+                Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), Blaze.class, false);
 
         AbilityDescription scooterDesc = new GenericAbilityDescription<>("AirScooter", "scoot scoot",
                 elementRegistry.getElementByName("Air"), 3000,
@@ -145,6 +145,10 @@ public class Game {
                 elementRegistry.getElementByName("Fire"), 500,
                 Arrays.asList(ActivationMethod.Sneak), Combustion.class, false);
 
+        AbilityDescription fireBurstDesc = new GenericAbilityDescription<>("FireBurst", "burst fire",
+                elementRegistry.getElementByName("Fire"), 500,
+                Arrays.asList(ActivationMethod.Sneak), FireBurst.class, false);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 elementRegistry.getElementByName("Fire"), 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -177,6 +181,7 @@ public class Game {
         abilityRegistry.registerAbility(heatControlDesc);
         abilityRegistry.registerAbility(lightningDesc);
         abilityRegistry.registerAbility(combustionDesc);
+        abilityRegistry.registerAbility(fireBurstDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);

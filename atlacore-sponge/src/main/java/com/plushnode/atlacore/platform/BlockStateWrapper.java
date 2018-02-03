@@ -1,11 +1,14 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.SpongeMaterialUtil;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.plugin.PluginContainer;
 
 public class BlockStateWrapper implements BlockState {
     private org.spongepowered.api.block.BlockState state;
@@ -91,20 +94,25 @@ public class BlockStateWrapper implements BlockState {
 
     @Override
     public void setType(Material type) {
-        location.setBlockType(SpongeMaterialUtil.toBlockType(type), Cause.of(NamedCause.owner(this)));
+        PluginContainer container = Sponge.getPluginManager().fromInstance(AtlaPlugin.plugin).orElse(null);
+        location.setBlockType(SpongeMaterialUtil.toBlockType(type), Cause.source(container).build());
         state = location.getBlock();
     }
 
     @Override
     public void setTypeId(int typeId) {
         Material type = SpongeMaterialUtil.fromTypeId(typeId);
-        location.setBlockType(SpongeMaterialUtil.toBlockType(type), Cause.of(NamedCause.owner(this)));
+
+        PluginContainer container = Sponge.getPluginManager().fromInstance(AtlaPlugin.plugin).orElse(null);
+        location.setBlockType(SpongeMaterialUtil.toBlockType(type), Cause.source(container).build());
+
         state = location.getBlock();
     }
 
     @Override
     public boolean update() {
-        return location.setBlockType(state.getType(), Cause.of(NamedCause.owner(this)));
+        PluginContainer container = Sponge.getPluginManager().fromInstance(AtlaPlugin.plugin).orElse(null);
+        return location.setBlockType(state.getType(), Cause.source(container).build());
     }
 
     @Override

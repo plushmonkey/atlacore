@@ -61,6 +61,10 @@ public class TempBlockService {
         return getTempBlock(block.getLocation());
     }
 
+    public boolean isTempBlock(Block block) {
+        return temporaryBlocks.containsKey(block.getLocation());
+    }
+
     public boolean isTempBlock(Location location) {
         return temporaryBlocks.containsKey(location);
     }

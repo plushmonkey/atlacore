@@ -483,8 +483,8 @@ public class Combustion implements Ability {
             chargeTime = abilityNode.getNode("charge-time").getLong(1500);
             explodeOnHit = abilityNode.getNode("explode-on-hit").getBoolean(true);
             explodeOnDeath = abilityNode.getNode("explode-on-death").getBoolean(true);
-            damageBlocks = abilityNode.getNode("damageBlocks").getBoolean(true);
-            regenBlocks = abilityNode.getNode("regenBlocks").getBoolean(true);
+            damageBlocks = abilityNode.getNode("damage-blocks").getBoolean(true);
+            regenBlocks = abilityNode.getNode("regen-blocks").getBoolean(true);
             misfireModifier = abilityNode.getNode("misfire-modifier").getDouble(-1.0);
             regenTime = abilityNode.getNode("regen-time").getLong(10000);
 

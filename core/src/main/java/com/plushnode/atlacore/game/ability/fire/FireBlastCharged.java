@@ -133,6 +133,11 @@ public class FireBlastCharged implements Ability {
         boolean collision = CollisionUtil.handleBlockCollisions(user.getWorld(),
                 new Sphere(location.toVector(), 1.0), previous, location, true);
 
+        if (collision) {
+            // Ignite right before where the collision happened.
+            FireBlast.igniteBlocks(this.user, location.subtract(direction.scalarMultiply(config.speed)));
+        }
+
         return collision ? UpdateResult.Remove : UpdateResult.Continue;
     }
 

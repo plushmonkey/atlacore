@@ -8,6 +8,7 @@ import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.events.SneakEventDispatcher;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.listeners.BlockListener;
 import com.plushnode.atlacore.platform.SpongeBendingPlayer;
 import com.plushnode.atlacore.platform.SpongeParticleEffectRenderer;
 import com.plushnode.atlacore.platform.block.BlockSetter;
@@ -74,6 +75,7 @@ public class AtlaPlugin implements CorePlugin {
 
         Sponge.getEventManager().registerListeners(this, sneakDispatcher);
         Sponge.getEventManager().registerListeners(this, new PlayerListener(this));
+        Sponge.getEventManager().registerListeners(this, new BlockListener(this));
 
         // Save the config after loading everything so the defaults are saved.
         try {
