@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.game.ability.fire;
 
 import com.plushnode.atlacore.block.TempBlock;
+import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.geometry.Sphere;
@@ -22,9 +23,7 @@ import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Combustion implements Ability {
     public static Config config = new Config();
@@ -82,8 +81,18 @@ public class Combustion implements Ability {
     }
 
     @Override
-    public void handleCollision(Collision collision) {
+    public Collection<Collider> getColliders() {
+        if (state instanceof TravelState) {
+            return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+        }
+        return Collections.emptyList();
+    }
 
+    @Override
+    public void handleCollision(Collision collision) {
+        if (collision.shouldRemoveFirst()) {
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
     }
 
     public static void combust(User user) {

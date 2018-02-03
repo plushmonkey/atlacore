@@ -174,6 +174,10 @@ public class FireBlastCharged implements Ability {
 
     @Override
     public Collection<Collider> getColliders() {
+        if (location == null) {
+            return Collections.emptyList();
+        }
+
         return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
     }
 

@@ -10,6 +10,7 @@ import com.plushnode.atlacore.game.ability.fire.HeatControl;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.Action;
+import com.plushnode.atlacore.game.element.Elements;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
@@ -148,7 +149,7 @@ public class PlayerListener {
 
         activateAbility(user, ActivationMethod.Fall);
 
-        if (user.hasElement(Game.getElementRegistry().getElementByName("Air"))) {
+        if (user.hasElement(Elements.AIR)) {
             event.setCancelled(true);
         }
 

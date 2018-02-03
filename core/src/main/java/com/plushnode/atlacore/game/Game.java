@@ -7,6 +7,7 @@ import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.game.ability.*;
 import com.plushnode.atlacore.game.ability.air.AirBlast;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
+import com.plushnode.atlacore.game.ability.air.AirShield;
 import com.plushnode.atlacore.game.ability.air.AirSwipe;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.*;
@@ -17,6 +18,7 @@ import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
 import com.plushnode.atlacore.game.element.BasicElement;
 import com.plushnode.atlacore.game.element.ElementRegistry;
+import com.plushnode.atlacore.game.element.Elements;
 import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.platform.User;
@@ -83,10 +85,10 @@ public class Game {
         collisionService.clear();
         tempBlockService.resetAll();
 
-        elementRegistry.registerElement(new BasicElement("Air", ChatColor.GRAY));
-        elementRegistry.registerElement(new BasicElement("Earth", ChatColor.GREEN));
-        elementRegistry.registerElement(new BasicElement("Fire", ChatColor.RED));
-        elementRegistry.registerElement(new BasicElement("Water", ChatColor.AQUA));
+        elementRegistry.registerElement(Elements.AIR);
+        elementRegistry.registerElement(Elements.EARTH);
+        elementRegistry.registerElement(Elements.FIRE);
+        elementRegistry.registerElement(Elements.WATER);
 
         loadAbilities();
 
@@ -98,75 +100,79 @@ public class Game {
 
     private static void loadAbilities() {
         AbilityDescription blazeDesc = new GenericAbilityDescription<>("Blaze", "Blaze it 420",
-                elementRegistry.getElementByName("Fire"), 3000,
+                Elements.FIRE, 3000,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), Blaze.class, false);
 
         AbilityDescription scooterDesc = new GenericAbilityDescription<>("AirScooter", "scoot scoot",
-                elementRegistry.getElementByName("Air"), 3000,
+                Elements.AIR, 3000,
                 Arrays.asList(ActivationMethod.Punch), AirScooter.class, true);
 
         AbilityDescription shockwaveDesc = new GenericAbilityDescription<>("Shockwave", "wave wave",
-                elementRegistry.getElementByName("Earth"), 6000,
+                Elements.EARTH, 6000,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak, ActivationMethod.Fall), Shockwave.class, false);
 
         AbilityDescription airSwipeDesc = new GenericAbilityDescription<>("AirSwipe", "swipe swipe",
-                elementRegistry.getElementByName("Air"), 1500,
+                Elements.AIR, 1500,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), AirSwipe.class, false);
 
         AbilityDescription airBlastDesc = new GenericAbilityDescription<>("AirBlast", "blast blast",
-                elementRegistry.getElementByName("Air"), 500,
+                Elements.AIR, 500,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), AirBlast.class, false);
 
         AbilityDescription fireBlastDesc = new GenericAbilityDescription<>("FireBlast", "fire blast blast",
-                elementRegistry.getElementByName("Fire"), 1500,
+                Elements.FIRE, 1500,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireBlast.class, false);
 
         AbilityDescription fireJetDesc = new GenericAbilityDescription<>("FireJet", "jet jet",
-                elementRegistry.getElementByName("Fire"), 7000,
+                Elements.FIRE, 7000,
                 Arrays.asList(ActivationMethod.Punch), FireJet.class, true);
 
         AbilityDescription fireShieldDesc = new GenericAbilityDescription<>("FireShield", "fire shield shield",
-                elementRegistry.getElementByName("Fire"), 100,
+                Elements.FIRE, 100,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireShield.class, false);
 
         AbilityDescription wallOfFireDesc = new GenericAbilityDescription<>("WallOfFire", "wall of fire",
-                elementRegistry.getElementByName("Fire"), 100,
+                Elements.FIRE, 100,
                 Arrays.asList(ActivationMethod.Punch), WallOfFire.class, false);
 
         AbilityDescription heatControlDesc = new GenericAbilityDescription<>("HeatControl", "controls heat",
-                elementRegistry.getElementByName("Fire"), 500,
+                Elements.FIRE, 500,
                 Arrays.asList(ActivationMethod.Punch), HeatControl.class, false);
 
         AbilityDescription lightningDesc = new GenericAbilityDescription<>("Lightning", "shoot lightning",
-                elementRegistry.getElementByName("Fire"), 500,
+                Elements.FIRE, 500,
                 Arrays.asList(ActivationMethod.Sneak), Lightning.class, false);
 
         AbilityDescription combustionDesc = new GenericAbilityDescription<>("Combustion", "combust",
-                elementRegistry.getElementByName("Fire"), 500,
+                Elements.FIRE, 500,
                 Arrays.asList(ActivationMethod.Sneak), Combustion.class, false);
 
         AbilityDescription fireBurstDesc = new GenericAbilityDescription<>("FireBurst", "burst fire",
-                elementRegistry.getElementByName("Fire"), 500,
+                Elements.FIRE, 500,
                 Arrays.asList(ActivationMethod.Sneak), FireBurst.class, false);
 
+        AbilityDescription airShieldDesc = new GenericAbilityDescription<>("AirShield", "shield air",
+                Elements.AIR, 500,
+                Arrays.asList(ActivationMethod.Sneak), AirShield.class, false);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
-                elementRegistry.getElementByName("Fire"), 1500,
+                Elements.FIRE, 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
 
         AbilityDescription jetBlastDesc = new GenericAbilityDescription<>("JetBlast", "jet blast blast",
-                elementRegistry.getElementByName("Fire"), 6000,
+                Elements.FIRE, 6000,
                 Arrays.asList(ActivationMethod.Sequence), JetBlast.class, true);
 
         AbilityDescription jetBlazeDesc = new GenericAbilityDescription<>("JetBlaze", "jet blaze blaze",
-                elementRegistry.getElementByName("Fire"), 6000,
+                Elements.FIRE, 6000,
                 Arrays.asList(ActivationMethod.Sequence), JetBlaze.class, false);
 
         AbilityDescription fireSpinDesc = new GenericAbilityDescription<>("FireSpin", "firespin",
-                elementRegistry.getElementByName("Fire"), 5000,
+                Elements.FIRE, 5000,
                 Arrays.asList(ActivationMethod.Sequence), FireSpin.class, false);
 
         AbilityDescription fireWheelDesc = new GenericAbilityDescription<>("FireWheel", "fire wheel",
-                elementRegistry.getElementByName("Fire"), 5000,
+                Elements.FIRE, 5000,
                 Arrays.asList(ActivationMethod.Sequence), FireWheel.class, false);
 
         abilityRegistry.registerAbility(blazeDesc);
@@ -182,6 +188,7 @@ public class Game {
         abilityRegistry.registerAbility(lightningDesc);
         abilityRegistry.registerAbility(combustionDesc);
         abilityRegistry.registerAbility(fireBurstDesc);
+        abilityRegistry.registerAbility(airShieldDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);
@@ -234,6 +241,12 @@ public class Game {
         collisionService.registerCollision(airBlastDesc, fireBlastDesc, true, true);
         collisionService.registerCollision(airSwipeDesc, fireBlastDesc, false, true);
         collisionService.registerCollision(fireShieldDesc, fireBlastDesc, false, true);
+
+        collisionService.registerCollision(airShieldDesc, fireBlastDesc, false, true);
+        collisionService.registerCollision(airShieldDesc, airBlastDesc, false, true);
+        collisionService.registerCollision(airShieldDesc, fireKickDesc, false, true);
+        collisionService.registerCollision(airShieldDesc, fireSpinDesc, false, true);
+        collisionService.registerCollision(airShieldDesc, fireWheelDesc, false, true);
     }
 
     private static PlayerRepository loadPlayerRepository() {

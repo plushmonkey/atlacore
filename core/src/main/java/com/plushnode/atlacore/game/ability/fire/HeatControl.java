@@ -11,6 +11,7 @@ import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.game.element.Elements;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
@@ -89,7 +90,7 @@ public class HeatControl implements Ability {
     }
 
     public static boolean canBurn(User user) {
-        if (!user.hasElement(Game.getElementRegistry().getElementByName("Fire"))) return true;
+        if (!user.hasElement(Elements.FIRE)) return true;
 
         AbilityDescription current = user.getSelectedAbility();
 

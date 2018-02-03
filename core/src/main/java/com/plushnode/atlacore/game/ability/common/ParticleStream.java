@@ -50,6 +50,8 @@ public abstract class ParticleStream {
 
         render();
 
+        this.collider = new Sphere(location.toVector(), abilityCollisionRadius);
+
         Sphere entityCollider = new Sphere(location.toVector(), entityCollisionRadius);
         boolean hit = CollisionUtil.handleEntityCollisions(user, entityCollider, this::onEntityHit, true);
 
