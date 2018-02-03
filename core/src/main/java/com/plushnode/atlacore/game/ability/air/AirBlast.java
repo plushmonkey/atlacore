@@ -10,14 +10,17 @@ import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Entity;
-import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
+import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.BlockSetter;
+import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.OutOfRangeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
 import com.plushnode.atlacore.util.Flight;
+import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -97,7 +100,9 @@ public class AirBlast implements Ability {
     private void launch() {
         this.launched = true;
         this.location = origin;
-        this.direction = user.getDirection();
+
+        Location target = RayCaster.cast(user, new Ray(origin.toVector(), user.getDirection()), config.range, true, true);
+        this.direction = target.subtract(origin).toVector().normalize();
 
         removalPolicy.removePolicyType(IsDeadRemovalPolicy.class);
         removalPolicy.removePolicyType(OutOfRangeRemovalPolicy.class);
@@ -133,22 +138,18 @@ public class AirBlast implements Ability {
                 return UpdateResult.Remove;
             }
 
+            extinguishFire(location);
+
             Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
 
             // Handle user separately from the general entity collision.
             if (this.selectedOrigin) {
                 if (user.getBounds().at(user.getLocation()).intersects(collider)) {
                     affect(user);
-                    return UpdateResult.Remove;
                 }
             }
 
-            boolean hit = CollisionUtil.handleEntityCollisions(user, collider, this::affect, false, false);
-
-            if (hit) {
-                return UpdateResult.Remove;
-            }
-
+            CollisionUtil.handleEntityCollisions(user, collider, this::affect, false, false);
 
             boolean collision = CollisionUtil.handleBlockCollisions(user.getWorld(),
                     new Sphere(location.toVector(), BLOCK_COLLISION_RADIUS), previous, location, true);
@@ -159,6 +160,18 @@ public class AirBlast implements Ability {
         }
 
         return UpdateResult.Continue;
+    }
+
+    private void extinguishFire(Location location) {
+        for (Block block : WorldUtil.getNearbyBlocks(location, config.abilityCollisionRadius)) {
+            if (block.getType() == Material.FIRE) {
+                if (!Game.getProtectionSystem().canBuild(user, location)) {
+                    continue;
+                }
+
+                Game.plugin.getBlockSetter(BlockSetter.Flag.FAST).setBlock(block, Material.AIR);
+            }
+        }
     }
 
     // Don't do block collision on initial launch of selected area.
@@ -177,14 +190,32 @@ public class AirBlast implements Ability {
 
         factor *= 1.0 - (location.distance(origin) / (2 * config.range));
 
-        entity.setVelocity(direction.scalarMultiply(factor));
+        // Reduce the push if the player is on the ground.
+        if (entity.equals(user) && WorldUtil.isOnGround(entity)) {
+            factor *= 0.5;
+        }
+
+        Vector3D velocity = entity.getVelocity();
+        // The strength of the entity's velocity in the direction of the blast.
+        double strength = velocity.dotProduct(direction);
+
+        if (strength > factor) {
+            velocity = velocity.scalarMultiply(0.5).add(direction.scalarMultiply(strength / 2));
+        } else if (strength > factor * 0.5) {
+            velocity = velocity.add(direction.scalarMultiply(factor - strength));
+        } else {
+            velocity = velocity.add(direction.scalarMultiply(factor * 0.5));
+        }
+
+        entity.setVelocity(velocity);
+        entity.setFireTicks(0);
 
         if (entity instanceof User) {
             // Give the target Flight so they don't take fall damage.
             new Flight.GroundRemovalTask((User)entity, 1, 20000);
         }
 
-        return entity instanceof LivingEntity;
+        return false;
     }
 
     @Override

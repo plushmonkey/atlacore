@@ -40,11 +40,9 @@ public class Flight {
             flight = new Flight(user);
 
             instances.put(user, flight);
-            Game.info("Enabling flight for " + user);
         }
 
         flight.references++;
-        Game.info("Flight references: " + flight.references + " for " + user);
         return flight;
     }
 
@@ -76,7 +74,6 @@ public class Flight {
     public static void remove(User user) {
         Flight flight = instances.get(user);
 
-        Game.info("Removing flight for " + user);
         if (flight != null) {
             user.setFlying(flight.wasFlying);
             user.setAllowFlight(flight.couldFly);
