@@ -9,6 +9,7 @@ import com.plushnode.atlacore.game.ability.air.AirBlast;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.game.ability.air.AirShield;
 import com.plushnode.atlacore.game.ability.air.AirSwipe;
+import com.plushnode.atlacore.game.ability.air.passives.AirAgility;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.*;
 import com.plushnode.atlacore.game.ability.fire.sequences.*;
@@ -71,6 +72,10 @@ public class Game {
         Game.playerService = new PlayerService(loadPlayerRepository());
 
         reload(true);
+
+        for (Player player : playerService.getOnlinePlayers()) {
+            getAbilityInstanceManager().createPassives(player);
+        }
     }
 
     public static void reload() {
@@ -95,6 +100,10 @@ public class Game {
         if (!startup) {
             plugin.loadConfig();
             Game.getPlayerService().reload(loadPlayerRepository());
+        }
+
+        for (Player player : playerService.getOnlinePlayers()) {
+            getAbilityInstanceManager().createPassives(player);
         }
     }
 
@@ -175,6 +184,11 @@ public class Game {
                 Elements.FIRE, 5000,
                 Arrays.asList(ActivationMethod.Sequence), FireWheel.class, false);
 
+        AbilityDescription airAgilityDesc = new GenericAbilityDescription<>("AirAgility", "air agility",
+                Elements.AIR, 5000,
+                Arrays.asList(ActivationMethod.Passive), AirAgility.class, true);
+        airAgilityDesc.setHidden(true);
+
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
         abilityRegistry.registerAbility(shockwaveDesc);
@@ -195,6 +209,8 @@ public class Game {
         abilityRegistry.registerAbility(jetBlazeDesc);
         abilityRegistry.registerAbility(fireSpinDesc);
         abilityRegistry.registerAbility(fireWheelDesc);
+
+        abilityRegistry.registerAbility(airAgilityDesc);
 
         sequenceService.registerSequence(fireKickDesc, new Sequence(true,
                 new AbilityAction(fireBlastDesc, Action.Punch),
@@ -247,6 +263,9 @@ public class Game {
         collisionService.registerCollision(airShieldDesc, fireKickDesc, false, true);
         collisionService.registerCollision(airShieldDesc, fireSpinDesc, false, true);
         collisionService.registerCollision(airShieldDesc, fireWheelDesc, false, true);
+
+        Elements.AIR.getPassives().clear();
+        Elements.AIR.addPassive(Game.getAbilityRegistry().getAbilityByName("AirAgility"));
     }
 
     private static PlayerRepository loadPlayerRepository() {

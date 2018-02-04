@@ -7,16 +7,13 @@ import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.listeners.BlockListener;
-import com.plushnode.atlacore.platform.BukkitBendingPlayer;
-import com.plushnode.atlacore.platform.BukkitParticleEffectRenderer;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
 import com.plushnode.atlacore.command.BindCommand;
 import com.plushnode.atlacore.commands.CoreExecutor;
 import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.listeners.PlayerListener;
-import com.plushnode.atlacore.platform.ParticleEffectRenderer;
-import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.protection.methods.*;
@@ -40,6 +37,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     private CommentedConfigurationNode configRoot;
     private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();;
     private BukkitParticleEffectRenderer particleRenderer = new BukkitParticleEffectRenderer();
+    private BukkitPotionFactory potionFactory = new BukkitPotionFactory();
     private Game game;
     private ConfigurationLoader<CommentedConfigurationNode> loader;
     private BendingEventBus eventBus = new BendingEventBus();
@@ -60,7 +58,6 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         protection.getFactory().registerProtectMethod("Towny", () -> new TownyProtectMethod(this));
         protection.getFactory().registerProtectMethod("WorldGuard", () -> new WorldGuardProtectMethod(this));
 
-        getLogger().info("Enabling AltaCore-Bukkit");
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new BlockListener(this), this);
 
@@ -88,7 +85,6 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
     @Override
     public void loadConfig() {
-        getLogger().info("Loading config.");
         File dataFolder = getDataFolder();
 
         if (!dataFolder.exists()) {
@@ -186,6 +182,11 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     @Override
     public ParticleEffectRenderer getParticleRenderer() {
         return particleRenderer;
+    }
+
+    @Override
+    public BukkitPotionFactory getPotionFactory() {
+        return potionFactory;
     }
 
     @Override

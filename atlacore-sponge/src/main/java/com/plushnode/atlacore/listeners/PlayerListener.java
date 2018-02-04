@@ -88,6 +88,8 @@ public class PlayerListener {
                         }
                     }, 5, 5);
                 }
+
+                Game.getAbilityInstanceManager().createPassives(p);
             });
         }, 1);
     }
@@ -106,6 +108,8 @@ public class PlayerListener {
         Game.getPlayerService().invalidatePlayer(player);
 
         boards.remove(player.getName());
+
+        Game.getAbilityInstanceManager().clearPassives(player);
     }
 
     @Listener

@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.util.PotionUtil;
 import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.entity.Entity;
 
@@ -28,7 +29,8 @@ public class PotionEffectWrapper implements PotionEffect {
 
     @Override
     public int getAmplifier() {
-        return effect.getAmplifier();
+        // Return it with +1 because that's how Bukkit does it.
+        return effect.getAmplifier() + 1;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class PotionEffectWrapper implements PotionEffect {
 
     @Override
     public PotionEffectType getType() {
-        return new PotionEffectTypeWrapper(effect.getType());
+        return PotionUtil.fromSponge(effect.getType());
     }
 
     @Override

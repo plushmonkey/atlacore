@@ -84,6 +84,8 @@ public class PlayerListener implements Listener {
                         }
                     }, 5, 5);
                 }
+
+                Game.getAbilityInstanceManager().createPassives(p);
             });
         }, 1);
     }
@@ -100,6 +102,8 @@ public class PlayerListener implements Listener {
         Game.getPlayerService().invalidatePlayer(player);
 
         boards.remove(player.getName());
+
+        Game.getAbilityInstanceManager().clearPassives(player);
     }
 
     @EventHandler(ignoreCancelled = true)

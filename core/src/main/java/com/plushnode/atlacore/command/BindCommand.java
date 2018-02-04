@@ -35,6 +35,16 @@ public class BindCommand implements CoreCommand {
             return true;
         }
 
+        if (abilityDesc.isActivatedBy(ActivationMethod.Passive)) {
+            sender.sendMessage(ChatColor.RED + "Cannot bind passive abilities.");
+            return true;
+        }
+
+        if (abilityDesc.isHidden()) {
+            sender.sendMessage(ChatColor.RED + "Cannot bind hidden abilities.");
+            return true;
+        }
+
         Player player = (Player) sender;
 
         int slot;

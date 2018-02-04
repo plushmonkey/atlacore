@@ -9,16 +9,13 @@ import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.events.SneakEventDispatcher;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.listeners.BlockListener;
-import com.plushnode.atlacore.platform.SpongeBendingPlayer;
-import com.plushnode.atlacore.platform.SpongeParticleEffectRenderer;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
 import com.plushnode.atlacore.command.BindCommand;
 import com.plushnode.atlacore.commands.BendingCommand;
 import com.plushnode.atlacore.config.ConfigManager;
-import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.listeners.PlayerListener;
-import com.plushnode.atlacore.platform.ParticleEffectRenderer;
 import com.plushnode.atlacore.player.PlayerFactory;
 import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.ConfigurationOptions;
@@ -47,6 +44,7 @@ public class AtlaPlugin implements CorePlugin {
     private BendingEventBus eventBus = new BendingEventBus();
     private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();
     private SpongeParticleEffectRenderer particleEffectRenderer = new SpongeParticleEffectRenderer();
+    private SpongePotionFactory potionFactory = new SpongePotionFactory();
     private SneakEventDispatcher sneakDispatcher;
 
     @Inject
@@ -188,6 +186,11 @@ public class AtlaPlugin implements CorePlugin {
     @Override
     public ParticleEffectRenderer getParticleRenderer() {
         return particleEffectRenderer;
+    }
+
+    @Override
+    public SpongePotionFactory getPotionFactory() {
+        return potionFactory;
     }
 
     @Override

@@ -1,7 +1,31 @@
 package com.plushnode.atlacore.platform;
 
-import com.plushnode.atlacore.platform.PotionEffect;
-
-public interface PotionEffectType {
-    PotionEffect createEffect(int duration, int amplifier);
+public enum PotionEffectType {
+    ABSORPTION,
+    BLINDNESS,
+    NAUSEA,
+    RESISTANCE,
+    HASTE,
+    FIRE_RESISTANCE,
+    GLOWING,
+    INSTANT_DAMAGE,
+    INSTANT_HEALTH,
+    HEALTH_BOOST,
+    HUNGER,
+    STRENGTH,
+    INVISIBILITY,
+    JUMP_BOOST,
+    LEVITATION,
+    LUCK,
+    NIGHT_VISION,
+    POISON,
+    REGENERATION,
+    SATURATION,
+    SLOWNESS,
+    MINING_FATIGUE,
+    SPEED,
+    UNLUCK,
+    WATER_BREATHING,
+    WEAKNESS,
+    WITHER
 }

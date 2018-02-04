@@ -1,6 +1,5 @@
 package com.plushnode.atlacore.game.ability;
 
-import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -23,6 +22,8 @@ public class AbilityRegistry extends Configurable {
             CommentedConfigurationNode node;
             if (abilityDesc.isActivatedBy(ActivationMethod.Sequence)) {
                 node = elementNode.getNode("sequences", abilityDesc.getName().toLowerCase());
+            } else if (abilityDesc.isActivatedBy(ActivationMethod.Passive)) {
+                node = elementNode.getNode("passives", abilityDesc.getName().toLowerCase());
             } else {
                 node = elementNode.getNode(abilityDesc.getName().toLowerCase());
             }

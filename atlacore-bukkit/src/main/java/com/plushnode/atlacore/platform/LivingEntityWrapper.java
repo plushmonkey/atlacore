@@ -2,6 +2,7 @@ package com.plushnode.atlacore.platform;
 
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.util.PotionUtil;
 import com.plushnode.atlacore.util.TypeUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -142,8 +143,11 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public PotionEffect getPotionEffect(PotionEffectType type) {
-        PotionEffectTypeWrapper wrapper = (PotionEffectTypeWrapper)type;
-        org.bukkit.potion.PotionEffect effect = ((org.bukkit.entity.LivingEntity)entity).getPotionEffect(wrapper.getBukkitType());
+        org.bukkit.potion.PotionEffect effect = ((org.bukkit.entity.LivingEntity)entity).getPotionEffect(PotionUtil.toBukkit(type));
+
+        if (effect == null) {
+            return null;
+        }
 
         return new PotionEffectWrapper(effect);
     }
@@ -174,8 +178,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public boolean hasPotionEffect(PotionEffectType type) {
-        PotionEffectTypeWrapper wrapper = (PotionEffectTypeWrapper)type;
-        return ((org.bukkit.entity.LivingEntity)entity).hasPotionEffect(wrapper.getBukkitType());
+        return ((org.bukkit.entity.LivingEntity)entity).hasPotionEffect(PotionUtil.toBukkit(type));
     }
 
     @Override
@@ -190,9 +193,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public void removePotionEffect(PotionEffectType type) {
-        PotionEffectTypeWrapper wrapper = (PotionEffectTypeWrapper)type;
-
-        ((org.bukkit.entity.LivingEntity)entity).removePotionEffect(wrapper.getBukkitType());
+        ((org.bukkit.entity.LivingEntity)entity).removePotionEffect(PotionUtil.toBukkit(type));
     }
 
     @Override

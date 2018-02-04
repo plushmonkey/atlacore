@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BasicElement implements Element {
+    private List<AbilityDescription> passives = new ArrayList<>();
     private String name;
     private ChatColor color;
 
@@ -28,12 +29,12 @@ public class BasicElement implements Element {
 
     @Override
     public List<AbilityDescription> getPassives() {
-        return new ArrayList<>();
+        return passives;
     }
 
     @Override
     public void addPassive(AbilityDescription passive) {
-
+        passives.add(passive);
     }
 
     @Override

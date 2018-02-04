@@ -30,10 +30,27 @@ public class AbilityInstanceManager {
             List<AbilityDescription> passives = element.getPassives();
             if (passives != null) {
                 for (AbilityDescription passive : passives) {
+                    destroyInstanceType(user, passive);
+
+                    if (!passive.isEnabled()) continue;
+
                     Ability ability = passive.createAbility();
                     if (ability.activate(user, ActivationMethod.Passive)) {
                         this.addAbility(user, ability);
                     }
+                }
+            }
+        }
+    }
+
+    public void clearPassives(User user) {
+        List<Element> elements = user.getElements();
+
+        for (Element element : elements) {
+            List<AbilityDescription> passives = element.getPassives();
+            if (passives != null) {
+                for (AbilityDescription passive : passives) {
+                    destroyInstanceType(user, passive);
                 }
             }
         }

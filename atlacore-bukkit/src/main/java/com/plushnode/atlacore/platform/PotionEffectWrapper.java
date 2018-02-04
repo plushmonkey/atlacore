@@ -1,5 +1,7 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.util.PotionUtil;
+
 public class PotionEffectWrapper implements PotionEffect {
     private org.bukkit.potion.PotionEffect effect;
 
@@ -42,7 +44,7 @@ public class PotionEffectWrapper implements PotionEffect {
 
     @Override
     public PotionEffectType getType() {
-        return new PotionEffectTypeWrapper(effect.getType());
+        return PotionUtil.fromBukkit(effect.getType());
     }
 
     @Override

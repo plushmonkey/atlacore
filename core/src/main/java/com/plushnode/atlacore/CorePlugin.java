@@ -1,6 +1,7 @@
 package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.event.EventBus;
+import com.plushnode.atlacore.platform.PotionFactory;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.ParticleEffectRenderer;
 import com.plushnode.atlacore.player.PlayerFactory;
@@ -18,6 +19,7 @@ public interface CorePlugin {
     Task createTaskTimer(Task task, long delay, long period);
 
     ParticleEffectRenderer getParticleRenderer();
+    PotionFactory getPotionFactory();
 
     PlayerFactory getPlayerFactory();
     String getConfigFolder();

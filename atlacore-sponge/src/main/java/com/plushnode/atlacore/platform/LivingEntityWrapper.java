@@ -2,6 +2,7 @@ package com.plushnode.atlacore.platform;
 
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.util.PotionUtil;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.data.type.PickupRules;
@@ -18,7 +19,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public boolean addPotionEffect(PotionEffect effect) {
-        return effect.apply((LivingEntity)entity);
+        return effect.apply(this);
     }
 
     @Override
@@ -96,9 +97,8 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
     public PotionEffect getPotionEffect(PotionEffectType type) {
         PotionEffectData effects = entity.getOrCreate(PotionEffectData.class).get();
 
-        org.spongepowered.api.effect.potion.PotionEffectType spongeType = ((PotionEffectTypeWrapper)type).getSpongeType();
         org.spongepowered.api.effect.potion.PotionEffect effect = effects.asList().stream()
-                .filter((pe) -> pe.getType().equals(spongeType))
+                .filter((pe) -> pe.getType().equals(PotionUtil.toSponge(type)))
                 .findAny().orElse(null);
 
         if (effect == null) {
@@ -147,9 +147,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
     public void removePotionEffect(PotionEffectType type) {
         PotionEffectData effects = entity.getOrCreate(PotionEffectData.class).get();
 
-        org.spongepowered.api.effect.potion.PotionEffectType spongeType = ((PotionEffectTypeWrapper) type).getSpongeType();
-
-        effects.removeAll((pe) -> pe.getType().equals(spongeType));
+        effects.removeAll((pe) -> pe.getType().equals(PotionUtil.toSponge(type)));
 
         entity.offer(effects);
     }
