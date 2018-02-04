@@ -269,7 +269,13 @@ public class Lightning implements Ability {
         private Vector3D getOffset(Vector3D direction, double maxOffset) {
             double t = (rand.nextDouble() * maxOffset * 2) - maxOffset;
 
-            Vector3D side = Vector3D.PLUS_J.crossProduct(direction).normalize();
+            Vector3D side = Vector3D.PLUS_J.crossProduct(direction);
+            // Avoid normalizing a zero vector. Side should be one of the axes if aimed straight up.
+            if (side.equals(Vector3D.ZERO)) {
+                side = Vector3D.PLUS_I;
+            }
+
+            side = side.normalize();
             // Get a random vector moving the midpoint to the side by some amount
             Vector3D first = side.scalarMultiply(t);
 

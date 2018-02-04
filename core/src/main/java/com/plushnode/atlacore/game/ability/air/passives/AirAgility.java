@@ -25,6 +25,10 @@ public class AirAgility implements PassiveAbility {
 
     @Override
     public UpdateResult update() {
+        if (user.isDead()) {
+            return UpdateResult.Continue;
+        }
+
         if (config.jumpAmplifier > 0) {
             handlePotionEffect(PotionEffectType.JUMP_BOOST, config.jumpAmplifier);
         }
