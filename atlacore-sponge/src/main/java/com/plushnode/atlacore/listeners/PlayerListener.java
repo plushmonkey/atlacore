@@ -53,14 +53,11 @@ public class PlayerListener {
         if (user.isOnCooldown(abilityDescription)) return false;
         if (!abilityDescription.isEnabled()) return false;
 
-        String abilityName = abilityDescription.getName();
         Ability ability = abilityDescription.createAbility();
 
         if (ability.activate(user, method)) {
             plugin.getGame().addAbility(user, ability);
-            Game.info(abilityName + " created!");
         } else {
-            Game.info("Failed to activate "  + abilityName);
             return false;
         }
 

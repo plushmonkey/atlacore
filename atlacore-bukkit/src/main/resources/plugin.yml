@@ -19,6 +19,7 @@ permissions:
     children:
       bending.command.bind: true
       bending.command.choose: true
+      bending.command.display: true
       bending.air: true
       bending.chi: true
       bending.earth: true

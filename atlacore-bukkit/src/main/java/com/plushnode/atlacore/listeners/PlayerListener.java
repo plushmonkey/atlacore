@@ -49,14 +49,11 @@ public class PlayerListener implements Listener {
         if (!abilityDescription.isEnabled()) return false;
         if (!user.hasElement(abilityDescription.getElement())) return false;
 
-        String abilityName = abilityDescription.getName();
         Ability ability = abilityDescription.createAbility();
 
         if (ability.activate(user, method)) {
             plugin.getGame().addAbility(user, ability);
-            Game.info(abilityName + " created!");
         } else {
-            Game.info("Failed to activate "  + abilityName);
             return false;
         }
 

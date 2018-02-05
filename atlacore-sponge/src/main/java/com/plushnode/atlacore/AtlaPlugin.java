@@ -1,9 +1,7 @@
 package com.plushnode.atlacore;
 
 import com.google.inject.Inject;
-import com.plushnode.atlacore.command.AddCommand;
-import com.plushnode.atlacore.command.ChooseCommand;
-import com.plushnode.atlacore.command.ReloadCommand;
+import com.plushnode.atlacore.command.*;
 import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.events.SneakEventDispatcher;
@@ -12,7 +10,6 @@ import com.plushnode.atlacore.listeners.BlockListener;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
-import com.plushnode.atlacore.command.BindCommand;
 import com.plushnode.atlacore.commands.BendingCommand;
 import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.listeners.PlayerListener;
@@ -98,6 +95,7 @@ public class AtlaPlugin implements CorePlugin {
         cmd.registerCommand(new ChooseCommand());
         cmd.registerCommand(new AddCommand());
         cmd.registerCommand(new ReloadCommand());
+        cmd.registerCommand(new DisplayCommand());
 
         Sponge.getCommandManager().register(this, cmd, "bending", "b", "atla");
     }

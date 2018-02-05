@@ -1,8 +1,6 @@
 package com.plushnode.atlacore;
 
-import com.plushnode.atlacore.command.AddCommand;
-import com.plushnode.atlacore.command.ChooseCommand;
-import com.plushnode.atlacore.command.ReloadCommand;
+import com.plushnode.atlacore.command.*;
 import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.game.Game;
@@ -10,7 +8,6 @@ import com.plushnode.atlacore.listeners.BlockListener;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
-import com.plushnode.atlacore.command.BindCommand;
 import com.plushnode.atlacore.commands.CoreExecutor;
 import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.listeners.PlayerListener;
@@ -67,6 +64,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         executor.registerCommand(new ChooseCommand());
         executor.registerCommand(new AddCommand());
         executor.registerCommand(new ReloadCommand());
+        executor.registerCommand(new DisplayCommand());
 
         this.getCommand("b").setExecutor(executor);
         this.getCommand("atla").setExecutor(executor);

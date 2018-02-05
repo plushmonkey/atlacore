@@ -20,7 +20,7 @@ public class AbilityInstanceManager {
         }
 
         playerInstanceList.add(instance);
-        Game.info("Active instances: " + getInstanceCount());
+        //Game.info("Active instances: " + getInstanceCount());
     }
 
     public void createPassives(User user) {
@@ -149,7 +149,7 @@ public class AbilityInstanceManager {
         }
         globalInstances.remove(user);
 
-        Game.info("Active instances: " + getInstanceCount());
+        //Game.info("Active instances: " + getInstanceCount());
     }
 
     // Destroy all instances created by every player.
@@ -192,7 +192,7 @@ public class AbilityInstanceManager {
                 if (result == UpdateResult.Remove) {
                     ability.destroy();
                     iterator.remove();
-                    Game.info("Active instances: " + getInstanceCount());
+                    //Game.info("Active instances: " + getInstanceCount());
                 }
             }
 

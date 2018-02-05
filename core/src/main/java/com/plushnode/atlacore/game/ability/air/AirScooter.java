@@ -57,13 +57,11 @@ public class AirScooter implements Ability {
             Player player = (Player)user;
 
             if (player.isSneaking()) {
-                Game.info("Player is sneaking.");
                 return false;
             }
         }
 
         if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
-            Game.info("Destroyed airscooter.");
             return false;
         }
 
@@ -74,7 +72,6 @@ public class AirScooter implements Ability {
         double dist = WorldUtil.distanceAboveGround(user, groundMaterials);
         // Only activate AirScooter if the player is in the air and near the ground.
         if ((dist < 0.5 || dist > 5.0) && !user.getLocation().getBlock().isLiquid()) {
-            Game.info("User is " + dist + " meters above ground.");
             return false;
         }
 
