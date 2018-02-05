@@ -1,11 +1,6 @@
 package com.plushnode.atlacore.platform;
 
-import com.plushnode.atlacore.platform.Player;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.ParticleEffectRenderer;
 import com.plushnode.atlacore.util.ReflectionUtil;
-import com.plushnode.atlacore.platform.LocationWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
@@ -37,6 +32,11 @@ public class BukkitParticleEffectRenderer implements ParticleEffectRenderer {
         }
 
         new ParticlePacket(effect, offsetX, offsetY, offsetZ, speed, amount, range > 256, null).sendTo(bukkitCenter, range);
+    }
+
+    @Override
+    public void displayColored(ParticleEffect effect, int red, int green, int blue, float speed, int amount, Location center, double range) {
+        display(effect, (float)red, (float)green, (float)blue, speed, amount, center, range);
     }
 
     private static boolean isSupported(ParticleEffect effect) {
@@ -241,7 +241,6 @@ public class BukkitParticleEffectRenderer implements ParticleEffectRenderer {
          * @param center Center location of the effect
          * @param players Receivers of the packet
          * @throws IllegalArgumentException If the player list is empty
-         * @see #sendTo(Location center, Player player)
          */
         public void sendTo(org.bukkit.Location center, List<org.bukkit.entity.Player> players) throws IllegalArgumentException {
             if (players.isEmpty()) {
@@ -260,7 +259,7 @@ public class BukkitParticleEffectRenderer implements ParticleEffectRenderer {
          *            range for particles is usually 16, but it can differ for
          *            some types)
          * @throws IllegalArgumentException If the range is lower than 1
-         * @see #sendTo(Location center, Player player)
+         * @see #sendTo(org.bukkit.Location center, org.bukkit.entity.Player player)
          */
         public void sendTo(org.bukkit.Location center, double range) throws IllegalArgumentException {
             if (range < 1) {

@@ -69,8 +69,6 @@ public class Game {
         plugin.createTaskTimer(this::update, 1, 1);
         plugin.createTaskTimer(Flight::updateAll, 1, 1);
 
-        Game.playerService = new PlayerService(loadPlayerRepository());
-
         reload(true);
 
         for (Player player : playerService.getOnlinePlayers()) {
@@ -97,7 +95,9 @@ public class Game {
 
         loadAbilities();
 
-        if (!startup) {
+        if (startup) {
+            Game.playerService = new PlayerService(loadPlayerRepository());
+        } else {
             plugin.loadConfig();
             Game.getPlayerService().reload(loadPlayerRepository());
         }
