@@ -20,6 +20,7 @@ public class BlockListener {
         this.plugin = plugin;
     }
 
+    @Listener
     public void onBlockBreak(ChangeBlockEvent.Break event) {
         event.getTransactions().stream().forEach((transaction) -> {
             Optional<Location<World>> result = transaction.getFinal().getLocation();
@@ -29,10 +30,26 @@ public class BlockListener {
                 TempBlock tempBlock = Game.getTempBlockService().getTempBlock(bw);
 
                 if (tempBlock != null) {
-                    tempBlock.reset();
+                    Game.plugin.createTask(tempBlock::reset, 1);
+                    transaction.setValid(false);
                 }
+            }
+        });
+    }
 
-                transaction.setValid(false);
+    @Listener
+    public void onBlockPlace(ChangeBlockEvent.Place event) {
+        event.getTransactions().stream().forEach((transaction) -> {
+            Optional<Location<World>> result = transaction.getFinal().getLocation();
+
+            if (result.isPresent()) {
+                BlockWrapper bw = new BlockWrapper(result.get());
+
+                TempBlock tempBlock = Game.getTempBlockService().getTempBlock(bw);
+                if (tempBlock != null) {
+                    // Stop tracking it, but don't reset it.
+                    Game.getTempBlockService().remove(tempBlock);
+                }
             }
         });
     }

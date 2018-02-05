@@ -44,14 +44,10 @@ public class AbilityInstanceManager {
     }
 
     public void clearPassives(User user) {
-        List<Element> elements = user.getElements();
-
-        for (Element element : elements) {
-            List<AbilityDescription> passives = element.getPassives();
-            if (passives != null) {
-                for (AbilityDescription passive : passives) {
-                    destroyInstanceType(user, passive);
-                }
+        List<Ability> abilities = new ArrayList<>(getPlayerInstances(user));
+        for (Ability instance : abilities) {
+            if (instance.getDescription().isActivatedBy(ActivationMethod.Passive)) {
+                this.destroyInstance(user, instance);
             }
         }
     }

@@ -17,6 +17,7 @@ import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.OutOfWorldRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -52,6 +53,7 @@ public class FireBlastCharged implements Ability {
 
         removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsOfflineRemovalPolicy(user),
+                new OutOfWorldRemovalPolicy(user),
                 new SwappedSlotsRemovalPolicy<>(user, FireBlast.class)
         );
 

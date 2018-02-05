@@ -13,6 +13,7 @@ import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.block.TempBlock;
+import com.plushnode.atlacore.util.MaterialUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -155,14 +156,14 @@ public class Blaze implements Ability {
 
             Block block = currentLocation.getBlock();
 
-            if (IgnitableBlocks.isIgnitable(block)) {
+            if (MaterialUtil.isIgnitable(block)) {
                 ignite(block);
-            } else if (IgnitableBlocks.isIgnitable(block.getRelative(BlockFace.DOWN))) {
+            } else if (MaterialUtil.isIgnitable(block.getRelative(BlockFace.DOWN))) {
                 Block nextBlock = block.getRelative(BlockFace.DOWN);
 
                 ignite(nextBlock);
                 currentLocation = nextBlock.getLocation().clone();
-            } else if (IgnitableBlocks.isIgnitable(block.getRelative(BlockFace.UP))) {
+            } else if (MaterialUtil.isIgnitable(block.getRelative(BlockFace.UP))) {
                 Block nextBlock = block.getRelative(BlockFace.UP);
 
                 ignite(nextBlock);

@@ -6,6 +6,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.policies.removal.OutOfWorldRemovalPolicy;
 import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import com.plushnode.atlacore.platform.block.Block;
@@ -54,7 +55,8 @@ public class AirSwipe implements Ability {
 
         removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
-                new IsOfflineRemovalPolicy(user)
+                new IsOfflineRemovalPolicy(user),
+                new OutOfWorldRemovalPolicy(user)
         );
 
         for (AirSwipe swipe : Game.getAbilityInstanceManager().getPlayerInstances(user, AirSwipe.class)) {

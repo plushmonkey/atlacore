@@ -14,6 +14,7 @@ import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.Flight;
+import com.plushnode.atlacore.util.MaterialUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public class FireJet implements Ability {
@@ -31,7 +32,7 @@ public class FireJet implements Ability {
         this.startTime = System.currentTimeMillis();
 
         Block block = user.getLocation().getBlock();
-        boolean ignitable = IgnitableBlocks.isIgnitable(block);
+        boolean ignitable = MaterialUtil.isIgnitable(block);
 
         if (!ignitable && block.getType() != Material.AIR) {
             return false;

@@ -11,6 +11,7 @@ import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.util.MaterialUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -122,7 +123,7 @@ public class FireBurst implements Ability {
                     }
                 }
 
-                if (!IgnitableBlocks.isIgnitable(location.getBlock())) {
+                if (!MaterialUtil.isIgnitable(location.getBlock())) {
                     continue;
                 }
 

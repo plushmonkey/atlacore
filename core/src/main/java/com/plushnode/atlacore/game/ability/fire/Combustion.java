@@ -46,6 +46,7 @@ public class Combustion implements Ability {
                 new CannotBendRemovalPolicy(user, getDescription()),
                 new IsOfflineRemovalPolicy(user),
                 new IsDeadRemovalPolicy(user),
+                new OutOfWorldRemovalPolicy(user),
                 new SwappedSlotsRemovalPolicy<>(user, Combustion.class)
         );
 
@@ -386,7 +387,7 @@ public class Combustion implements Ability {
 
             if (chance != 0) return;
 
-            if (IgnitableBlocks.isIgnitable(block)) {
+            if (MaterialUtil.isIgnitable(block)) {
                 new TempBlock(block, Material.FIRE);
             }
         }

@@ -22,6 +22,9 @@ public class OutOfRangeRemovalPolicy implements RemovalPolicy {
         if (this.range == 0) return false;
 
         Location from = this.fromSupplier.get();
+
+        if (!from.getWorld().equals(user.getWorld())) return true;
+
         return from.distanceSquared(this.user.getLocation()) >= (this.range * this.range);
     }
 

@@ -16,6 +16,10 @@ import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
+import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.OutOfWorldRemovalPolicy;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.block.TempBlock;
@@ -27,7 +31,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import java.util.*;
 
 public class Shockwave implements Ability {
-    private static Config config = new Config();
+    public static Config config = new Config();
     private static List<Shockwave> instances = new ArrayList<>();
 
     private User user;
@@ -45,6 +49,8 @@ public class Shockwave implements Ability {
     // Used to only damage entities once. They can be knocked back multiple times.
     private List<Entity> affectedEntities;
     private long startTime;
+
+    private CompositeRemovalPolicy removalPolicy;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -86,6 +92,10 @@ public class Shockwave implements Ability {
         this.affectedEntities = new ArrayList<>();
         this.conal = false;
         this.lastUpdate = 0;
+        this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
+                new IsOfflineRemovalPolicy(user),
+                new OutOfWorldRemovalPolicy(user)
+        );
 
         instances.add(this);
 
@@ -98,6 +108,10 @@ public class Shockwave implements Ability {
 
     @Override
     public UpdateResult update() {
+        if (removalPolicy.shouldRemove()) {
+            return UpdateResult.Remove;
+        }
+
         long time = System.currentTimeMillis();
 
         if (!this.charged) {

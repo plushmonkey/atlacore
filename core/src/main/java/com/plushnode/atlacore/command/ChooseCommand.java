@@ -40,6 +40,9 @@ public class ChooseCommand implements CoreCommand {
             Game.getPlayerService().saveSlots((Player)user);
         }
 
+        Game.getAbilityInstanceManager().clearPassives(user);
+        Game.getAbilityInstanceManager().createPassives(user);
+
         sender.sendMessage(ChatColor.GOLD + "Element set to " + element.toString() + ChatColor.GOLD + ".");
 
         return true;

@@ -8,17 +8,11 @@ import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.platform.User;
-import com.plushnode.atlacore.platform.Entity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.block.Material;
-import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
-import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
-import com.plushnode.atlacore.policies.removal.OutOfRangeRemovalPolicy;
-import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -65,7 +59,8 @@ public class AirBlast implements Ability {
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
                 new OutOfRangeRemovalPolicy(user, config.selectOutOfRange, () -> origin),
-                new SwappedSlotsRemovalPolicy<>(user, AirBlast.class)
+                new SwappedSlotsRemovalPolicy<>(user, AirBlast.class),
+                new OutOfWorldRemovalPolicy(user)
         );
 
         if (method == ActivationMethod.Sneak) {

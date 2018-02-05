@@ -21,6 +21,8 @@ import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.OutOfWorldRemovalPolicy;
+import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -46,7 +48,8 @@ public class FireBlast implements Ability {
         }
 
         removalPolicy = new CompositeRemovalPolicy(getDescription(),
-                new IsOfflineRemovalPolicy(user)
+                new IsOfflineRemovalPolicy(user),
+                new OutOfWorldRemovalPolicy(user)
         );
 
         if (method == ActivationMethod.Punch) {
@@ -137,7 +140,7 @@ public class FireBlast implements Ability {
                 continue;
             }
 
-            if (IgnitableBlocks.isIgnitable(block)) {
+            if (MaterialUtil.isIgnitable(block)) {
                 Location checkTop = block.getLocation().add(0.5, 0.95, 0.5);
 
                 if (!checkTop.getBlock().equals(top.getBlock())) {

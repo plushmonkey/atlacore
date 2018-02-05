@@ -42,6 +42,9 @@ public class AddCommand implements CoreCommand {
             Game.getPlayerService().saveElements((Player)user);
         }
 
+        Game.getAbilityInstanceManager().clearPassives(user);
+        Game.getAbilityInstanceManager().createPassives(user);
+
         sender.sendMessage(ChatColor.GOLD + "Added element " + element.toString() + ChatColor.GOLD + ".");
 
         return true;
