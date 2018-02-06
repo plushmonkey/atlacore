@@ -30,7 +30,7 @@ public class SneakEventDispatcher implements Runnable {
             }
 
             if (isSneaking != wasSneaking) {
-                PlayerToggleSneakEvent event = new PlayerToggleSneakEvent(player, isSneaking, Cause.source(this).build());
+                PlayerToggleSneakEvent event = new PlayerToggleSneakEvent(player, isSneaking, null);
                 Sponge.getEventManager().post(event);
 
                 sneakMap.put(player, isSneaking);

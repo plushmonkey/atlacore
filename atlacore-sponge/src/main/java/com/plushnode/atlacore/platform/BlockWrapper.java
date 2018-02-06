@@ -2,7 +2,6 @@ package com.plushnode.atlacore.platform;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
-import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
@@ -11,11 +10,8 @@ import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.SpongeMaterialUtil;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
+import com.plushnode.atlacore.util.SpongeVersionUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.Direction;
 
 public class BlockWrapper implements Block {
@@ -49,7 +45,7 @@ public class BlockWrapper implements Block {
     @Override
     public boolean breakNaturally() {
         // todo: figure out how to actually do this
-        return location.removeBlock(Cause.of(NamedCause.of(NamedCause.PLAYER_BREAK, this)));
+        return false;
     }
 
     @Override
@@ -130,8 +126,7 @@ public class BlockWrapper implements Block {
 
     @Override
     public void setType(Material type) {
-        PluginContainer container = Sponge.getPluginManager().fromInstance(AtlaPlugin.plugin).orElse(null);
-        location.setBlockType(SpongeMaterialUtil.toBlockType(type), Cause.source(container).build());
+        SpongeVersionUtil.setBlockType(location, SpongeMaterialUtil.toBlockType(type));
     }
 
     @Override

@@ -6,9 +6,9 @@ import com.plushnode.atlacore.util.PotionUtil;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.data.type.PickupRules;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
+import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
 
 import java.util.*;
 
@@ -208,7 +208,8 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public void damage(double amount, Entity source) {
-        entity.damage(amount, DamageSources.GENERIC, Cause.of(NamedCause.hitTarget(source)));
+        org.spongepowered.api.entity.Entity spongeEntity = ((EntityWrapper)source).getSpongeEntity();
+        entity.damage(amount, EntityDamageSource.builder().entity(spongeEntity).type(DamageTypes.CUSTOM).build());
     }
 
     @Override

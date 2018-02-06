@@ -1,14 +1,10 @@
 package com.plushnode.atlacore.platform;
 
-import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.SpongeMaterialUtil;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.plugin.PluginContainer;
+import com.plushnode.atlacore.util.SpongeVersionUtil;
 
 public class BlockStateWrapper implements BlockState {
     private org.spongepowered.api.block.BlockState state;
@@ -94,8 +90,8 @@ public class BlockStateWrapper implements BlockState {
 
     @Override
     public void setType(Material type) {
-        PluginContainer container = Sponge.getPluginManager().fromInstance(AtlaPlugin.plugin).orElse(null);
-        location.setBlockType(SpongeMaterialUtil.toBlockType(type), Cause.source(container).build());
+        SpongeVersionUtil.setBlockType(location, SpongeMaterialUtil.toBlockType(type));
+
         state = location.getBlock();
     }
 
@@ -103,16 +99,14 @@ public class BlockStateWrapper implements BlockState {
     public void setTypeId(int typeId) {
         Material type = SpongeMaterialUtil.fromTypeId(typeId);
 
-        PluginContainer container = Sponge.getPluginManager().fromInstance(AtlaPlugin.plugin).orElse(null);
-        location.setBlockType(SpongeMaterialUtil.toBlockType(type), Cause.source(container).build());
+        SpongeVersionUtil.setBlockType(location, SpongeMaterialUtil.toBlockType(type));
 
         state = location.getBlock();
     }
 
     @Override
     public boolean update() {
-        PluginContainer container = Sponge.getPluginManager().fromInstance(AtlaPlugin.plugin).orElse(null);
-        return location.setBlockType(state.getType(), Cause.source(container).build());
+        return SpongeVersionUtil.setBlockType(location, state.getType());
     }
 
     @Override

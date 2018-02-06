@@ -9,13 +9,13 @@ import org.spongepowered.api.event.cause.Cause;
 public class BendingEventBus implements EventBus {
     @Override
     public void postCooldownAddEvent(User user, AbilityDescription ability) {
-        CooldownAddEvent event = new CooldownAddEvent(user, ability, Cause.source(this).build());
+        CooldownAddEvent event = new CooldownAddEvent(user, ability, null);
         Sponge.getEventManager().post(event);
     }
 
     @Override
     public void postCooldownRemoveEvent(User user, AbilityDescription ability) {
-        CooldownRemoveEvent event = new CooldownRemoveEvent(user, ability, Cause.source(this).build());
+        CooldownRemoveEvent event = new CooldownRemoveEvent(user, ability, null);
         Sponge.getEventManager().post(event);
     }
 }
