@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS bending_players(
     uuid BINARY(16) PRIMARY KEY NOT NULL,
-    name VARCHAR(16) NOT NULL UNIQUE,
+    name VARCHAR(16) NOT NULL,
     creation_time TIMESTAMP NOT NULL
 );
 
