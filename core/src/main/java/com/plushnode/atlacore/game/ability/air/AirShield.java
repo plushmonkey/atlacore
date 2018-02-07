@@ -145,7 +145,7 @@ public class AirShield implements Ability {
             enabled = abilityNode.getNode("enabled").getBoolean(true);
             cooldown = abilityNode.getNode("cooldown").getLong(4000);
             duration = abilityNode.getNode("duration").getLong(10000);
-            radius = abilityNode.getNode("radius").getDouble(2.0);
+            radius = abilityNode.getNode("radius").getDouble(4.0);
             maxPush = abilityNode.getNode("max-push").getDouble(3.0);
 
             CommentedConfigurationNode renderNode = abilityNode.getNode("render");

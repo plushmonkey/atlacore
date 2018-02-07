@@ -39,10 +39,6 @@ public class Lightning implements Ability {
 
     @Override
     public UpdateResult update() {
-        if (!state.update()) {
-            return UpdateResult.Remove;
-        }
-
         for (Collider collider : colliders) {
             CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
                 if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
@@ -54,6 +50,10 @@ public class Lightning implements Ability {
                 }
                 return false;
             }, true);
+        }
+
+        if (!state.update()) {
+            return UpdateResult.Remove;
         }
 
         return UpdateResult.Continue;
@@ -162,6 +162,8 @@ public class Lightning implements Ability {
             location = user.getEyeLocation();
             this.origin = location;
             target = RayCaster.cast(user, new Ray(location, user.getDirection()), config.range, true, true);
+            // Make sure the bolt goes through the entity
+            target = target.add(user.getDirection());
 
             this.distance = target.distance(location);
             this.startTime = System.currentTimeMillis();
@@ -177,16 +179,14 @@ public class Lightning implements Ability {
             double totalSeconds = distance / (config.speed * 20);
             double t = elapsedSeconds / totalSeconds;
             double step = 4.0 / (distance / (50.0 / 1000.0));
-
             double prevStart = Math.max(0.0, t - 0.5);
+
             // Render recent previous locations.
             for (double prevT = prevStart; prevT <= t; prevT += step) {
                 for (Location location : bolt.interpolate(prevT)) {
                     displayParticle(location);
                 }
             }
-
-
 
             for (Location current : bolt.interpolate(t)) {
                 if (!Game.getProtectionSystem().canBuild(user, current)) {
@@ -311,7 +311,7 @@ public class Lightning implements Ability {
             speed = abilityNode.getNode("speed").getDouble(1.0);
             damage = abilityNode.getNode("damage").getDouble(4.0);
             chargeTime = abilityNode.getNode("charge-time").getLong(2500);
-            collisionRadius = abilityNode.getNode("collision-radius").getDouble(1.0);
+            collisionRadius = abilityNode.getNode("collision-radius").getDouble(1.5);
 
             CommentedConfigurationNode bolt = abilityNode.getNode("bolt");
 
