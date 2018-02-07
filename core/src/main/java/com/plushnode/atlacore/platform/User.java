@@ -43,6 +43,18 @@ public interface User extends LivingEntity {
         return true;
     }
 
+    default void setSneaking(boolean sneaking) {
+
+    }
+
+    default boolean isSprinting() {
+        return true;
+    }
+
+    default void setSprinting(boolean sprinting) {
+
+    }
+
     default boolean getAllowFlight() {
         return true;
     }

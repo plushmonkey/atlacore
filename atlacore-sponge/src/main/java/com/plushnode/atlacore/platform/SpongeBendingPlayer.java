@@ -25,15 +25,23 @@ public class SpongeBendingPlayer extends SpongeBendingUser implements Player {
     @Override
     public boolean isSneaking() {
         org.spongepowered.api.entity.living.player.Player player = getSpongePlayer();
+        return player.get(Keys.IS_SNEAKING).orElse(false);
+    }
 
-        if (player.supports(Keys.IS_SNEAKING)) {
-            Optional<Boolean> result = player.get(Keys.IS_SNEAKING);
-            if (result.isPresent()) {
-                return result.get();
-            }
-        }
+    @Override
+    public void setSneaking(boolean sneaking) {
+        getSpongePlayer().offer(Keys.IS_SNEAKING, sneaking);
+    }
 
-        return false;
+    @Override
+    public boolean isSprinting() {
+        org.spongepowered.api.entity.living.player.Player player = getSpongePlayer();
+        return player.get(Keys.IS_SPRINTING).orElse(false);
+    }
+
+    @Override
+    public void setSprinting(boolean sprinting) {
+        getSpongePlayer().offer(Keys.IS_SPRINTING, sprinting);
     }
 
     @Override

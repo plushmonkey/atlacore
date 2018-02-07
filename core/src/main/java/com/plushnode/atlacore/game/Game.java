@@ -5,10 +5,7 @@ import com.plushnode.atlacore.CorePlugin;
 import com.plushnode.atlacore.collision.CollisionService;
 import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.game.ability.*;
-import com.plushnode.atlacore.game.ability.air.AirBlast;
-import com.plushnode.atlacore.game.ability.air.AirScooter;
-import com.plushnode.atlacore.game.ability.air.AirShield;
-import com.plushnode.atlacore.game.ability.air.AirSwipe;
+import com.plushnode.atlacore.game.ability.air.*;
 import com.plushnode.atlacore.game.ability.air.passives.AirAgility;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.*;
@@ -164,6 +161,10 @@ public class Game {
                 Elements.AIR, 500,
                 Arrays.asList(ActivationMethod.Sneak), AirShield.class, false);
 
+        AbilityDescription airSpoutDesc = new GenericAbilityDescription<>("AirSpout", "air spout",
+                Elements.AIR, 500,
+                Arrays.asList(ActivationMethod.Punch), AirSpout.class, true);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 Elements.FIRE, 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -203,6 +204,7 @@ public class Game {
         abilityRegistry.registerAbility(combustionDesc);
         abilityRegistry.registerAbility(fireBurstDesc);
         abilityRegistry.registerAbility(airShieldDesc);
+        abilityRegistry.registerAbility(airSpoutDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);

@@ -3,6 +3,7 @@ package com.plushnode.atlacore.listeners;
 import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.board.BendingBoard;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.air.AirSpout;
 import com.plushnode.atlacore.game.ability.fire.Combustion;
 import com.plushnode.atlacore.game.ability.fire.FireBurst;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
@@ -18,8 +19,10 @@ import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
 import com.plushnode.atlacore.util.Flight;
+import com.plushnode.atlacore.util.SpongeTypeUtil;
 import com.plushnode.atlacore.util.Task;
 import com.plushnode.atlacore.util.WorldUtil;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
@@ -29,6 +32,7 @@ import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.AnimateHandEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -111,6 +115,18 @@ public class PlayerListener {
         boards.remove(player.getName());
 
         Game.getAbilityInstanceManager().clearPassives(player);
+    }
+
+    @Listener
+    public void onPlayerMove(MoveEntityEvent event) {
+        if (!(event.getTargetEntity() instanceof Player)) return;
+
+        User user = Game.getPlayerService().getPlayerByName(((Player) event.getTargetEntity()).getName());
+        if (user == null) return;
+
+        Vector3D velocity = SpongeTypeUtil.adapt(event.getToTransform().getPosition().sub(event.getFromTransform().getPosition()));
+
+        AirSpout.handleMovement(user, velocity);
     }
 
     @Listener

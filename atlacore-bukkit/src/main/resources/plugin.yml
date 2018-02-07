@@ -32,6 +32,7 @@ permissions:
       atla.ability.AirBlast: true
       atla.ability.AirScooter: true
       atla.ability.AirShield: true
+      atla.ability.AirSpout: true
       atla.ability.AirSwipe: true
   atla.earth:
     children:

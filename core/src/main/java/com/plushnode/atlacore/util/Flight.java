@@ -52,8 +52,8 @@ public class Flight {
 
     public void setFlying(boolean flying) {
         this.isFlying = flying;
-        user.setFlying(flying);
         user.setAllowFlight(flying);
+        user.setFlying(flying);
     }
 
     public boolean isFlying() {
@@ -75,8 +75,8 @@ public class Flight {
         Flight flight = instances.get(user);
 
         if (flight != null) {
-            user.setFlying(flight.wasFlying);
             user.setAllowFlight(flight.couldFly);
+            user.setFlying(flight.wasFlying);
         }
 
         instances.remove(user);
@@ -87,8 +87,8 @@ public class Flight {
             User user = entry.getKey();
             Flight flight = entry.getValue();
 
-            user.setFlying(flight.wasFlying);
             user.setAllowFlight(flight.couldFly);
+            user.setFlying(flight.wasFlying);
         }
 
         instances.clear();

@@ -35,6 +35,21 @@ public class BukkitBendingPlayer extends BukkitBendingUser implements Player {
     }
 
     @Override
+    public void setSneaking(boolean sneaking) {
+        getBukkitPlayer().setSneaking(sneaking);
+    }
+
+    @Override
+    public boolean isSprinting() {
+        return getBukkitPlayer().isSprinting();
+    }
+
+    @Override
+    public void setSprinting(boolean sprinting) {
+        getBukkitPlayer().setSprinting(sprinting);
+    }
+
+    @Override
     public GameMode getGameMode() {
         return GameMode.values()[getBukkitPlayer().getGameMode().ordinal()];
     }

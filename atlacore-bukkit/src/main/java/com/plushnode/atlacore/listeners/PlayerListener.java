@@ -7,6 +7,7 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
+import com.plushnode.atlacore.game.ability.air.AirSpout;
 import com.plushnode.atlacore.game.ability.fire.Combustion;
 import com.plushnode.atlacore.game.ability.fire.FireBurst;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
@@ -18,7 +19,9 @@ import com.plushnode.atlacore.game.element.Elements;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.Task;
+import com.plushnode.atlacore.util.TypeUtil;
 import com.plushnode.atlacore.util.WorldUtil;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -138,6 +141,17 @@ public class PlayerListener implements Listener {
         if (!HeatControl.canBurn(user)) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        User user = Game.getPlayerService().getPlayerByName(event.getPlayer().getName());
+
+        if (user == null) return;
+
+        Vector3D velocity = TypeUtil.adapt(event.getTo().clone().subtract(event.getFrom()).toVector());
+
+        AirSpout.handleMovement(user, velocity);
     }
 
     @EventHandler(ignoreCancelled = true)
