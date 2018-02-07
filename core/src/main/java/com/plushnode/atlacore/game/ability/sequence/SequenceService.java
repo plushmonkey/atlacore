@@ -55,6 +55,7 @@ public class SequenceService {
             if (userSequence.matches(sequence)) {
                 if (user.isOnCooldown(sequenceDesc)) continue;
                 if (!sequenceDesc.isEnabled()) continue;
+                if (!user.hasPermission("atla.ability." + sequenceDesc.getName())) continue;
 
                 Ability ability = sequenceDesc.createAbility();
 

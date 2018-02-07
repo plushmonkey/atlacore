@@ -33,6 +33,7 @@ public class AbilityInstanceManager {
                     destroyInstanceType(user, passive);
 
                     if (!passive.isEnabled()) continue;
+                    if (!user.hasPermission("atla.ability." + passive.getName())) continue;
 
                     Ability ability = passive.createAbility();
                     if (ability.activate(user, ActivationMethod.Passive)) {

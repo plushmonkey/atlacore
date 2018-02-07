@@ -93,4 +93,9 @@ public class SpongeBendingPlayer extends SpongeBendingUser implements Player {
     public void setFlying(boolean flying) {
         getSpongePlayer().offer(Keys.IS_FLYING, flying);
     }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return getSpongePlayer().hasPermission(permission);
+    }
 }

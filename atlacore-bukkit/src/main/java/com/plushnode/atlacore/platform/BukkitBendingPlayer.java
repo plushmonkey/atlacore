@@ -79,4 +79,9 @@ public class BukkitBendingPlayer extends BukkitBendingUser implements Player {
     public void setFlying(boolean flying) {
         getBukkitPlayer().setFlying(flying);
     }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return getBukkitPlayer().hasPermission(permission);
+    }
 }

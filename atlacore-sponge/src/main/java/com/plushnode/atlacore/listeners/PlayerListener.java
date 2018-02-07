@@ -53,6 +53,10 @@ public class PlayerListener {
         if (user.isOnCooldown(abilityDescription)) return false;
         if (!abilityDescription.isEnabled()) return false;
 
+        String permission = "atla.ability." + abilityDescription.getName();
+
+        if (!user.hasPermission(permission)) return false;
+
         Ability ability = abilityDescription.createAbility();
 
         if (ability.activate(user, method)) {

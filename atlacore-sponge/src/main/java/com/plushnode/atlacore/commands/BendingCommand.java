@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class BendingCommand extends CommandRegistry implements CommandCallable {
-    private static final String COMMAND_NAME = "bending";
+    private static final String COMMAND_NAME = "atla";
 
     @Override
     public CommandResult process(CommandSource source, String arguments) throws CommandException {
@@ -63,6 +63,9 @@ public class BendingCommand extends CommandRegistry implements CommandCallable {
             String[] aliases = command.getAliases();
             if (aliases == null || aliases.length == 0)
                 continue;
+
+            // Hide any commands that the sender doesn't have permission for.
+            if (!commandSender.hasPermission(command.getPermission())) continue;
 
             String name = aliases[0];
 

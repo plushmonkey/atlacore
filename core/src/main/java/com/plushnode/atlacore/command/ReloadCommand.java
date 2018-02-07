@@ -22,7 +22,7 @@ public class ReloadCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "bending.command.reload";
+        return "atla.command.reload";
     }
 
     @Override

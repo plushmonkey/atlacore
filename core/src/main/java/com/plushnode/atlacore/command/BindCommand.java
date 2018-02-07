@@ -64,6 +64,11 @@ public class BindCommand implements CoreCommand {
             return true;
         }
 
+        if (!player.hasPermission("atla.ability." + abilityDesc.getName())) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to bind " + abilityDesc.toString() + ".");
+            return true;
+        }
+
         Element element = abilityDesc.getElement();
         if (!player.hasElement(element)) {
             sender.sendMessage(ChatColor.RED + abilityDesc.getName() + " requires element " + element.toString() + ChatColor.RED + ".");
@@ -84,7 +89,7 @@ public class BindCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "bending.command.bind";
+        return "atla.command.bind";
     }
 
     @Override

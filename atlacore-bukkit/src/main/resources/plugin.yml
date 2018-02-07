@@ -8,35 +8,50 @@ commands:
     aliases: [b, bending]
     usage: /<command>
 permissions:
-  bending.admin:
+  atla.admin:
     default: op
     children:
-      bending.player: true
-      bending.command.reload: true
-      bending.command.add: true
-  bending.player:
+      atla.player: true
+      atla.command.reload: true
+      atla.command.add: true
+  atla.player:
     default: true
     children:
-      bending.command.bind: true
-      bending.command.choose: true
-      bending.command.display: true
-      bending.air: true
-      bending.chi: true
-      bending.earth: true
-      bending.fire: true
-      bending.water: true
-  bending.air:
+      atla.command.bind: true
+      atla.command.choose: true
+      atla.command.display: true
+      atla.air: true
+      atla.chi: true
+      atla.earth: true
+      atla.fire: true
+      atla.water: true
+  atla.air:
     children:
-      bending.ability.AirBlast: true
-      bending.ability.AirScooter: true
-      bending.ability.AirSwipe: true
-  bending.earth:
+      atla.command.choose.Air: true
+      atla.ability.AirAgility: true
+      atla.ability.AirBlast: true
+      atla.ability.AirScooter: true
+      atla.ability.AirShield: true
+      atla.ability.AirSwipe: true
+  atla.earth:
     children:
-      bending.ability.Shockwave: true
-  bending.fire:
+      atla.command.choose.Earth: true
+      atla.ability.Shockwave: true
+  atla.fire:
     children:
-      bending.ability.Blaze: true
-      bending.ability.FireBlast: true
-      bending.ability.FireBlastCharged: true
-      bending.ability.FireJet: true
-      bending.ability.FireKick: true
+      atla.command.choose.Fire: true
+      atla.ability.Blaze: true
+      atla.ability.Combustion: true
+      atla.ability.FireBlast: true
+      atla.ability.FireBlastCharged: true
+      atla.ability.FireBurst: true
+      atla.ability.FireJet: true
+      atla.ability.FireShield: true
+      atla.ability.HeatControl: true
+      atla.ability.Lightning: true
+      atla.ability.WallOfFire: true
+      atla.ability.FireKick: true
+      atla.ability.FireSpin: true
+      atla.ability.FireWheel: true
+      atla.ability.JetBlast: true
+      atla.ability.JetBlaze: true

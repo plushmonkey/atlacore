@@ -29,6 +29,11 @@ public class ChooseCommand implements CoreCommand {
             return true;
         }
 
+        if (!sender.hasPermission("atla.command.choose." + element.getName())) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to choose " + element.toString() + ChatColor.RED + ".");
+            return true;
+        }
+
         User user = (User)sender;
 
         user.getElements().clear();
@@ -55,7 +60,7 @@ public class ChooseCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "bending.command.choose";
+        return "atla.command.choose";
     }
 
     @Override

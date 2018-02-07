@@ -57,7 +57,7 @@ public class AddCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "bending.command.add";
+        return "atla.command.add";
     }
 
     @Override

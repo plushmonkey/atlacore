@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class CoreExecutor extends CommandRegistry implements CommandExecutor {
-    private static final String COMMAND_NAME = "bending";
+    private static final String COMMAND_NAME = "atla";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -56,6 +56,9 @@ public class CoreExecutor extends CommandRegistry implements CommandExecutor {
             String[] aliases = command.getAliases();
             if (aliases == null || aliases.length == 0)
                 continue;
+
+            // Hide any commands that the sender doesn't have permission for.
+            if (!commandSender.hasPermission(command.getPermission())) continue;
 
             String name = aliases[0];
             String usage = ChatColor.GREEN + "/" + COMMAND_NAME + " " + name + ChatColor.GOLD + ": " + command.getDescription();

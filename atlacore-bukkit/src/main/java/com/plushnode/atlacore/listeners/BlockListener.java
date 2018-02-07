@@ -8,10 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 
 public class BlockListener implements Listener {
     private AtlaCorePlugin plugin;
@@ -28,6 +25,14 @@ public class BlockListener implements Listener {
             if (Game.getTempBlockService().isTempBlock(bw)) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockBurn(BlockBurnEvent event) {
+        BlockWrapper bw = new BlockWrapper(event.getIgnitingBlock());
+        if (Game.getTempBlockService().isTempBlock(bw)) {
+            event.setCancelled(true);
         }
     }
 

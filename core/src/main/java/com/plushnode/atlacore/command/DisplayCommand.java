@@ -4,6 +4,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.ChatColor;
 
 import java.util.ArrayList;
@@ -27,23 +28,22 @@ public class DisplayCommand implements CoreCommand {
             return true;
         }
 
-
         List<String> outputs = new ArrayList<>();
-        List<String> normals = getNormalAbilities(element);
+        List<String> normals = getNormalAbilities(sender, element);
 
         if (!normals.isEmpty()) {
             outputs.add(ChatColor.GOLD + "Abilities:");
             outputs.addAll(normals);
         }
 
-        List<String> sequences = getActivatedAbilities(element, ActivationMethod.Sequence);
+        List<String> sequences = getActivatedAbilities(sender, element, ActivationMethod.Sequence);
 
         if (!sequences.isEmpty()) {
             outputs.add(ChatColor.GOLD + "Sequences: ");
             outputs.addAll(sequences);
         }
 
-        List<String> passives = getActivatedAbilities(element, ActivationMethod.Passive);
+        List<String> passives = getActivatedAbilities(sender, element, ActivationMethod.Passive);
 
         if (!passives.isEmpty()) {
             outputs.add(ChatColor.GOLD + "Passives: ");
@@ -62,12 +62,13 @@ public class DisplayCommand implements CoreCommand {
         return true;
     }
 
-    private List<String> getNormalAbilities(Element element) {
+    private List<String> getNormalAbilities(CommandSender sender, Element element) {
         List<String> outputs = new ArrayList<>();
 
         for (AbilityDescription desc : Game.getAbilityRegistry().getAbilities()) {
             if (desc.isActivatedBy(ActivationMethod.Sequence)) continue;
             if (desc.isActivatedBy(ActivationMethod.Passive)) continue;
+            if (!sender.hasPermission("atla.ability." + desc.getName())) continue;
 
             if (desc.getElement() == element && !desc.isHidden()) {
                 outputs.add(desc.toString());
@@ -79,11 +80,12 @@ public class DisplayCommand implements CoreCommand {
         return outputs;
     }
 
-    private List<String> getActivatedAbilities(Element element, ActivationMethod method) {
+    private List<String> getActivatedAbilities(CommandSender sender, Element element, ActivationMethod method) {
         List<String> outputs = new ArrayList<>();
 
         for (AbilityDescription desc : Game.getAbilityRegistry().getAbilities()) {
             if (!desc.isActivatedBy(method)) continue;
+            if (!sender.hasPermission("atla.ability." + desc.getName())) continue;
 
             if (desc.getElement() == element) {
                 outputs.add(desc.toString());
@@ -114,7 +116,7 @@ public class DisplayCommand implements CoreCommand {
 
     @Override
     public String getPermission() {
-        return "bending.command.display";
+        return "atla.command.display";
     }
 
     @Override

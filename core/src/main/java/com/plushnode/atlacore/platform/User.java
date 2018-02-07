@@ -69,4 +69,6 @@ public interface User extends LivingEntity {
             }
         }
     }
+
+    boolean hasPermission(String permission);
 }

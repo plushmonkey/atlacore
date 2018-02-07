@@ -113,4 +113,9 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
     public Map<AbilityDescription, Long> getCooldowns() {
         return cooldowns;
     }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return true;
+    }
 }

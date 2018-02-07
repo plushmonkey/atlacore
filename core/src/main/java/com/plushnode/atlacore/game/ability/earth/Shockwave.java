@@ -430,7 +430,7 @@ public class Shockwave implements Ability {
         return nearbyEntities;
     }
 
-    private boolean isCharging() {
+    public boolean isCharging() {
         return !this.charged;
     }
 
