@@ -87,7 +87,7 @@ public class AirSweep implements Ability {
             }
         }
 
-        return (streams.isEmpty() && launchCount < config.streamCount) ? UpdateResult.Remove : UpdateResult.Continue;
+        return (streams.isEmpty() && launchCount >= config.streamCount) ? UpdateResult.Remove : UpdateResult.Continue;
     }
 
     @Override
