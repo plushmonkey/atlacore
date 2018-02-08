@@ -14,7 +14,6 @@ import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
-import com.plushnode.atlacore.game.element.BasicElement;
 import com.plushnode.atlacore.game.element.ElementRegistry;
 import com.plushnode.atlacore.game.element.Elements;
 import com.plushnode.atlacore.platform.Player;
@@ -22,7 +21,6 @@ import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.store.sql.DatabaseManager;
-import com.plushnode.atlacore.util.ChatColor;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.block.TempBlockService;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -165,6 +163,10 @@ public class Game {
                 Elements.AIR, 500,
                 Arrays.asList(ActivationMethod.Punch), AirSpout.class, true);
 
+        AbilityDescription airBurstDesc = new GenericAbilityDescription<>("AirBurst", "air burst",
+                Elements.AIR, 500,
+                Arrays.asList(ActivationMethod.Sneak, ActivationMethod.Fall), AirBurst.class, false);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 Elements.FIRE, 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -205,6 +207,7 @@ public class Game {
         abilityRegistry.registerAbility(fireBurstDesc);
         abilityRegistry.registerAbility(airShieldDesc);
         abilityRegistry.registerAbility(airSpoutDesc);
+        abilityRegistry.registerAbility(airBurstDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);

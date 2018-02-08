@@ -1,4 +1,4 @@
-package com.plushnode.atlacore.game.ability.fire;
+package com.plushnode.atlacore.game.ability.air;
 
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.config.Configurable;
@@ -12,7 +12,7 @@ import com.plushnode.atlacore.platform.User;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-public class FireBurst extends BurstAbility {
+public class AirBurst extends BurstAbility {
     public static Config config = new Config();
 
     private User user;
@@ -24,6 +24,14 @@ public class FireBurst extends BurstAbility {
         this.user = user;
         this.startTime = System.currentTimeMillis();
         this.released = false;
+
+        if (method == ActivationMethod.Fall) {
+            if (user.getFallDistance() < config.fallThreshold) {
+                return false;
+            }
+
+            releaseFall();
+        }
 
         return true;
     }
@@ -45,7 +53,7 @@ public class FireBurst extends BurstAbility {
                 location = location.subtract(side.scalarMultiply(0.5));
 
                 // Display air particles to the left of the player.
-                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
             }
 
             if (sphereCharged) {
@@ -56,12 +64,12 @@ public class FireBurst extends BurstAbility {
                 location = location.add(side.scalarMultiply(0.5));
 
                 // Display air particles to the right of the player.
-                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
             }
 
             if (!user.isSneaking()) {
                 if (sphereCharged) {
-                    createBurst(user, 0.0, Math.PI, Math.toRadians(10), 0, Math.PI * 2, Math.toRadians(10), FireBlast.class);
+                    createBurst(user, 0.0, Math.PI, Math.toRadians(10), 0, Math.PI * 2, Math.toRadians(10), AirBlast.class);
                     setRenderInterval(config.sphereRenderInterval);
                     setRenderParticleCount(config.sphereParticlesPerBlast);
                     this.released = true;
@@ -95,7 +103,7 @@ public class FireBurst extends BurstAbility {
 
     @Override
     public String getName() {
-        return "FireBurst";
+        return "AirBurst";
     }
 
     @Override
@@ -112,7 +120,7 @@ public class FireBurst extends BurstAbility {
     }
 
     public static void activateCone(User user) {
-        for (FireBurst burst : Game.getAbilityInstanceManager().getPlayerInstances(user, FireBurst.class)) {
+        for (AirBurst burst : Game.getAbilityInstanceManager().getPlayerInstances(user, AirBurst.class)) {
             if (burst.released) continue;
 
             if (burst.isConeCharged()) {
@@ -122,7 +130,7 @@ public class FireBurst extends BurstAbility {
     }
 
     private void releaseCone() {
-        createCone(user, FireBlast.class);
+        createCone(user, AirBlast.class);
         setRenderInterval(config.coneRenderInterval);
         setRenderParticleCount(config.coneParticlesPerBlast);
         this.released = true;
@@ -130,8 +138,19 @@ public class FireBurst extends BurstAbility {
         user.setCooldown(this, config.coneCooldown);
     }
 
+    private void releaseFall() {
+        createBurst(user, Math.toRadians(75), Math.toRadians(105), Math.toRadians(10), 0, Math.PI * 2, Math.toRadians(10), AirBlast.class);
+
+        setRenderInterval(config.fallRenderInterval);
+        setRenderParticleCount(config.fallParticlesPerBlast);
+        this.released = true;
+
+        user.setCooldown(this, config.fallCooldown);
+    }
+
     private static class Config extends Configurable {
         boolean enabled;
+        long cooldown;
 
         int sphereParticlesPerBlast;
         int sphereRenderInterval;
@@ -143,23 +162,34 @@ public class FireBurst extends BurstAbility {
         int coneChargeTime;
         long coneCooldown;
 
+        int fallParticlesPerBlast;
+        int fallRenderInterval;
+        long fallCooldown;
+        int fallThreshold;
+
         @Override
         public void onConfigReload() {
-            CommentedConfigurationNode abilityNode = config.getNode("abilities", "fire", "fireburst");
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "air", "airburst");
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
 
             CommentedConfigurationNode sphereNode = abilityNode.getNode("sphere");
-            sphereRenderInterval = sphereNode.getNode("render-interval").getInt(100);
+            sphereRenderInterval = sphereNode.getNode("render-interval").getInt(0);
             sphereParticlesPerBlast = sphereNode.getNode("particles-per-blast").getInt(1);
-            sphereChargeTime = sphereNode.getNode("charge-time").getInt(3500);
+            sphereChargeTime = sphereNode.getNode("charge-time").getInt(1750);
             sphereCooldown = sphereNode.getNode("cooldown").getLong(0);
 
             CommentedConfigurationNode coneNode = abilityNode.getNode("cone");
-            coneRenderInterval = coneNode.getNode("render-interval").getInt(100);
+            coneRenderInterval = coneNode.getNode("render-interval").getInt(0);
             coneParticlesPerBlast = coneNode.getNode("particles-per-blast").getInt(1);
-            coneChargeTime = coneNode.getNode("charge-time").getInt(1750);
+            coneChargeTime = coneNode.getNode("charge-time").getInt(875);
             coneCooldown = coneNode.getNode("cooldown").getLong(0);
+
+            CommentedConfigurationNode fallNode = abilityNode.getNode("fall");
+            fallRenderInterval = fallNode.getNode("render-interval").getInt(0);
+            fallParticlesPerBlast = fallNode.getNode("particles-per-blast").getInt(1);
+            fallCooldown = fallNode.getNode("cooldown").getLong(6000);
+            fallThreshold = fallNode.getNode("fall-threshold").getInt(10);
         }
     }
 }

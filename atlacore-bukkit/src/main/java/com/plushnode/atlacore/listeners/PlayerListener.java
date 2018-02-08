@@ -6,6 +6,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
+import com.plushnode.atlacore.game.ability.air.AirBurst;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.game.ability.air.AirSpout;
 import com.plushnode.atlacore.game.ability.fire.Combustion;
@@ -216,7 +217,8 @@ public class PlayerListener implements Listener {
         }
 
         Combustion.combust(user);
-        FireBurst.activateConalBurst(user);
+        FireBurst.activateCone(user);
+        AirBurst.activateCone(user);
 
         if (WorldUtil.getTargetEntity(user, 4) != null) {
             Game.getSequenceService().registerAction(user, Action.PunchEntity);

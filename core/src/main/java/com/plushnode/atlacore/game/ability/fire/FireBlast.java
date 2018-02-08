@@ -12,12 +12,12 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.ability.common.Burstable;
 import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
-import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
@@ -30,7 +30,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import java.util.Collection;
 import java.util.Collections;
 
-public class FireBlast implements Ability {
+public class FireBlast implements Ability, Burstable {
     public static Config config = new Config();
 
     private User user;
@@ -38,10 +38,15 @@ public class FireBlast implements Ability {
     private Location location;
     private Vector3D direction;
     private CompositeRemovalPolicy removalPolicy;
+    private long nextRenderTime;
+    private long renderInterval;
+    private int particleCount;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+
+        this.particleCount = 6;
 
         if (!Game.getProtectionSystem().canBuild(user, user.getEyeLocation())) {
             return false;
@@ -83,6 +88,8 @@ public class FireBlast implements Ability {
 
     @Override
     public UpdateResult update() {
+        long time = System.currentTimeMillis();
+
         if (removalPolicy.shouldRemove()) {
             return UpdateResult.Remove;
         }
@@ -99,8 +106,12 @@ public class FireBlast implements Ability {
             return UpdateResult.Remove;
         }
 
-        Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.275f, 0.275f, 0.275f, 0.0f, 6, location, 257);
-        Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.3f, 0.3f, 0.3f, 0.0f, 3, location, 257);
+        if (time > this.nextRenderTime) {
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.275f, 0.275f, 0.275f, 0.0f, particleCount, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.3f, 0.3f, 0.3f, 0.0f, particleCount / 2, location, 257);
+
+            this.nextRenderTime = time + renderInterval;
+        }
 
         Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
 
@@ -137,6 +148,11 @@ public class FireBlast implements Ability {
             if (block.isLiquid()) continue;
 
             if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) {
+                continue;
+            }
+
+            // Don't create fire where the user that activated it is standing.
+            if (block.getLocation().add(0.5, 0.5, 0.5).distanceSquared(user.getLocation()) < 3 * 3) {
                 continue;
             }
 
@@ -202,6 +218,27 @@ public class FireBlast implements Ability {
     @Override
     public String getName() {
         return "FireBlast";
+    }
+
+    @Override
+    // Used to initialize the blast for bursts.
+    public void initialize(User user, Location location, Vector3D direction) {
+        this.user = user;
+        this.direction = direction;
+        this.origin = location;
+        this.location = location;
+
+        removalPolicy = new CompositeRemovalPolicy(getDescription());
+    }
+
+    @Override
+    public void setRenderInterval(long interval) {
+        this.renderInterval = interval;
+    }
+
+    @Override
+    public void setRenderParticleCount(int count) {
+        this.particleCount = count;
     }
 
     private static class Config extends Configurable {

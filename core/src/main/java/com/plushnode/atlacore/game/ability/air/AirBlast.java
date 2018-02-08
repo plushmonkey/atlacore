@@ -8,6 +8,7 @@ import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.ability.common.Burstable;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockSetter;
@@ -21,7 +22,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import java.util.Collection;
 import java.util.Collections;
 
-public class AirBlast implements Ability {
+public class AirBlast implements Ability, Burstable {
     private static final double BLOCK_COLLISION_RADIUS = 0.5;
 
     public static Config config = new Config();
@@ -31,7 +32,9 @@ public class AirBlast implements Ability {
     private Vector3D direction;
     private boolean launched;
     private boolean selectedOrigin;
-
+    private long nextRenderTime;
+    private long renderInterval;
+    private int particleCount;
     private CompositeRemovalPolicy removalPolicy;
 
     @Override
@@ -55,6 +58,7 @@ public class AirBlast implements Ability {
         this.user = user;
         this.launched = false;
         this.selectedOrigin = false;
+        this.particleCount = config.particles;
 
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
@@ -108,6 +112,8 @@ public class AirBlast implements Ability {
 
     @Override
     public UpdateResult update() {
+        long time = System.currentTimeMillis();
+
         if (removalPolicy.shouldRemove()) {
             return UpdateResult.Remove;
         }
@@ -121,9 +127,12 @@ public class AirBlast implements Ability {
 
             location = location.add(direction.scalarMultiply(config.speed));
 
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
-                    0.275f, 0.275f, 0.275f, 0.0f,
-                    config.particles, location, 257);
+            if (time > this.nextRenderTime) {
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
+                        0.275f, 0.275f, 0.275f, 0.0f,
+                        particleCount, location, 257);
+                this.nextRenderTime = time + this.renderInterval;
+            }
 
             if (location.distanceSquared(origin) >= config.range * config.range) {
                 return UpdateResult.Remove;
@@ -242,6 +251,29 @@ public class AirBlast implements Ability {
     @Override
     public String getName() {
         return "AirBlast";
+    }
+
+    @Override
+    // Used to initialize the blast for bursts.
+    public void initialize(User user, Location location, Vector3D direction) {
+        this.user = user;
+        this.selectedOrigin = false;
+        this.launched = true;
+        this.direction = direction;
+        this.origin = location;
+        this.location = location;
+
+        removalPolicy = new CompositeRemovalPolicy(getDescription());
+    }
+
+    @Override
+    public void setRenderInterval(long interval) {
+        this.renderInterval = interval;
+    }
+
+    @Override
+    public void setRenderParticleCount(int count) {
+        this.particleCount = count;
     }
 
     private static class Config extends Configurable {
