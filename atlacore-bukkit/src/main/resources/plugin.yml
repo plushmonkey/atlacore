@@ -30,9 +30,11 @@ permissions:
       atla.command.choose.Air: true
       atla.ability.AirAgility: true
       atla.ability.AirBlast: true
+      atla.ability.AirBurst: true
       atla.ability.AirScooter: true
       atla.ability.AirShield: true
       atla.ability.AirSpout: true
+      atla.ability.AirSweep: true
       atla.ability.AirSwipe: true
   atla.earth:
     children:
