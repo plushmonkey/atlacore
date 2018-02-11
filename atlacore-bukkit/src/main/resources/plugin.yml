@@ -34,6 +34,7 @@ permissions:
       atla.ability.AirScooter: true
       atla.ability.AirShield: true
       atla.ability.AirSpout: true
+      atla.ability.AirSuction: true
       atla.ability.AirSweep: true
       atla.ability.AirSwipe: true
       atla.ability.Tornado: true

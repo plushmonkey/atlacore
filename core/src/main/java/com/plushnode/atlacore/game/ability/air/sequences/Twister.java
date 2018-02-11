@@ -84,7 +84,7 @@ public class Twister implements Ability {
         colliders.clear();
         for (int i = 0; i < height - 1; ++i) {
             Location location = base.add(0, i, 0);
-            double r = config.proximity + config.radius * (i / height);
+            double r = config.proximity + config.radius * (i / config.height);
             AABB aabb = new AABB(new Vector3D(-r, 0, -r), new Vector3D(r, 1, r)).at(location);
 
             colliders.add(new Disc(new OBB(aabb), new Sphere(location.toVector(), r)));

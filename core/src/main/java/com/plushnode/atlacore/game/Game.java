@@ -173,6 +173,10 @@ public class Game {
                 Elements.AIR, 500,
                 Arrays.asList(ActivationMethod.Sneak), Tornado.class, false);
 
+        AbilityDescription airSuctionDesc = new GenericAbilityDescription<>("AirSuction", "air suction",
+                Elements.AIR, 500,
+                Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), AirSuction.class, false);
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 Elements.FIRE, 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -223,6 +227,7 @@ public class Game {
         abilityRegistry.registerAbility(airSpoutDesc);
         abilityRegistry.registerAbility(airBurstDesc);
         abilityRegistry.registerAbility(tornadoDesc);
+        abilityRegistry.registerAbility(airSuctionDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);
