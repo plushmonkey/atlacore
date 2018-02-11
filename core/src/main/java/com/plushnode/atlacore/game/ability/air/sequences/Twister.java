@@ -16,6 +16,7 @@ import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
+import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -41,6 +42,7 @@ public class Twister implements Ability {
         this.user = user;
         this.startTime = System.currentTimeMillis();
         this.direction = user.getDirection();
+        this.direction = VectorUtil.clearAxis(direction, 1).normalize();
 
         this.base = user.getLocation().add(direction.scalarMultiply(2));
         this.base = RayCaster.cast(user, new Ray(base.add(0, 3.5, 0).toVector(), Vector3D.MINUS_J), 7.0, true, false);

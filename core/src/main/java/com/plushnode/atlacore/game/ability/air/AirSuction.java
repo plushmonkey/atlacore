@@ -232,7 +232,9 @@ public class AirSuction implements Ability {
 
     @Override
     public void handleCollision(Collision collision) {
-
+        if (collision.shouldRemoveFirst()) {
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
     }
 
     private static class Config extends Configurable {
