@@ -50,7 +50,7 @@ public final class RayCaster {
             if (result.isPresent()) {
                 double distance = result.get();
 
-                if (distance < closestDistance) {
+                if (distance < closestDistance && distance >= 0) {
                     closestDistance = distance;
                 }
             }
@@ -80,7 +80,7 @@ public final class RayCaster {
                 Optional<Double> result = blockBounds.intersects(ray);
                 if (result.isPresent()) {
                     double distance = result.get();
-                    if (distance < closestDistance) {
+                    if (distance < closestDistance && distance >= 0) {
                         closestDistance = distance;
                     }
                 }

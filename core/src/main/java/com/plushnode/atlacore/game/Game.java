@@ -8,6 +8,7 @@ import com.plushnode.atlacore.game.ability.*;
 import com.plushnode.atlacore.game.ability.air.*;
 import com.plushnode.atlacore.game.ability.air.passives.AirAgility;
 import com.plushnode.atlacore.game.ability.air.sequences.AirSweep;
+import com.plushnode.atlacore.game.ability.air.sequences.Twister;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.*;
 import com.plushnode.atlacore.game.ability.fire.sequences.*;
@@ -196,6 +197,10 @@ public class Game {
                 Elements.AIR, 5000,
                 Arrays.asList(ActivationMethod.Sequence), AirSweep.class, false);
 
+        AbilityDescription twisterDesc = new GenericAbilityDescription<>("Twister", "twister",
+                Elements.AIR, 5000,
+                Arrays.asList(ActivationMethod.Sequence), Twister.class, false);
+
         AbilityDescription airAgilityDesc = new GenericAbilityDescription<>("AirAgility", "air agility",
                 Elements.AIR, 5000,
                 Arrays.asList(ActivationMethod.Passive), AirAgility.class, true);
@@ -225,6 +230,7 @@ public class Game {
         abilityRegistry.registerAbility(fireSpinDesc);
         abilityRegistry.registerAbility(fireWheelDesc);
         abilityRegistry.registerAbility(airSweepDesc);
+        abilityRegistry.registerAbility(twisterDesc);
 
         abilityRegistry.registerAbility(airAgilityDesc);
 
@@ -275,6 +281,13 @@ public class Game {
                 new AbilityAction(airSwipeDesc, Action.Punch),
                 new AbilityAction(airBurstDesc, Action.Sneak),
                 new AbilityAction(airBurstDesc, Action.Punch)
+        ));
+
+        sequenceService.registerSequence(twisterDesc, new Sequence(true,
+                new AbilityAction(airShieldDesc, Action.Sneak),
+                new AbilityAction(airShieldDesc, Action.SneakRelease),
+                new AbilityAction(tornadoDesc, Action.Sneak),
+                new AbilityAction(airBlastDesc, Action.Punch)
         ));
 
         collisionService.registerCollision(airBlastDesc, fireBlastDesc, true, true);

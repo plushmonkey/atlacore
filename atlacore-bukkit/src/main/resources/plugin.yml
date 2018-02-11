@@ -36,6 +36,8 @@ permissions:
       atla.ability.AirSpout: true
       atla.ability.AirSweep: true
       atla.ability.AirSwipe: true
+      atla.ability.Tornado: true
+      atla.ability.Twister: true
   atla.earth:
     children:
       atla.command.choose.Earth: true

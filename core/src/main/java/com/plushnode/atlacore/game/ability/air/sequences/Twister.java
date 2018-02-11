@@ -1,4 +1,4 @@
-package com.plushnode.atlacore.game.ability.air;
+package com.plushnode.atlacore.game.ability.air.sequences;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
@@ -10,66 +10,81 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
-import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class Tornado implements Ability {
+public class Twister implements Ability {
     public static Config config = new Config();
 
     private User user;
     private long startTime;
+    private Location base;
+    private Vector3D direction;
+    private Location origin;
     private List<Collider> colliders = new ArrayList<>();
+    private double height;
+    private Set<Entity> affected = new HashSet<>();
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
         this.startTime = System.currentTimeMillis();
+        this.direction = user.getDirection();
+
+        this.base = user.getLocation().add(direction.scalarMultiply(2));
+        this.base = RayCaster.cast(user, new Ray(base.add(0, 3.5, 0).toVector(), Vector3D.MINUS_J), 7.0, true, false);
+
+        if (!isAcceptableBase()) {
+            return false;
+        }
+
+        this.origin = base;
+        this.height = config.height;
 
         return true;
     }
 
     @Override
     public UpdateResult update() {
-        if (!user.isSneaking() || user.getEyeLocation().getBlock().isLiquid()) {
+        base = base.add(direction.scalarMultiply(config.speed));
+        base = RayCaster.cast(user, new Ray(base.add(0, 3.5, 0).toVector(), Vector3D.MINUS_J), 7.0, true, false);
+
+        if (!isAcceptableBase()) {
             return UpdateResult.Remove;
         }
 
-        long time = System.currentTimeMillis();
-
-        if (config.duration > 0 && time > startTime + config.duration) {
+        if (base.distanceSquared(origin) > config.range * config.range) {
             return UpdateResult.Remove;
         }
 
-        double t = Math.min(1.0, (time - startTime) / (double)config.growthTime);
-        double height = 2.0 + t * (config.height - 2.0);
-        double radius = 2.0 + t * (config.radius - 2.0);
-
-        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
-            return UpdateResult.Remove;
-        }
-
-        Location base = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), config.range, true, false);
         if (!Game.getProtectionSystem().canBuild(user, base)) {
             return UpdateResult.Remove;
         }
 
-        if (base.getBlock().getRelative(BlockFace.DOWN).getBounds().max() == null) {
-            colliders.clear();
-            return UpdateResult.Continue;
+        Location top = RayCaster.cast(user, new Ray(base.toVector(), Vector3D.PLUS_J), height, true, false);
+
+        height = top.getY() - base.getY();
+        if (height <= 0) {
+            return UpdateResult.Remove;
         }
+
+        render();
 
         colliders.clear();
         for (int i = 0; i < height - 1; ++i) {
             Location location = base.add(0, i, 0);
-            double r = 2.0 + (radius - 2.0) * (i / height);
+            double r = config.proximity + config.radius * (i / height);
             AABB aabb = new AABB(new Vector3D(-r, 0, -r), new Vector3D(r, 1, r)).at(location);
 
             colliders.add(new Disc(new OBB(aabb), new Sphere(location.toVector(), r)));
@@ -77,55 +92,42 @@ public class Tornado implements Ability {
 
         for (Collider collider : colliders) {
             CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
-                if (entity.equals(user)) {
-                    double dy = user.getLocation().getY() - base.getY();
-                    double velY = (1.0 - (dy / (config.height - base.getY()))) * 0.6;
-
-                    if (dy >= height * .95) {
-                        velY = 0;
-                    } else if (dy >= height * .85) {
-                        velY = 6.0 * (.95 - dy / height);
-                    } else {
-                        velY = .6;
-                    }
-
-                    Vector3D velocity = user.getDirection();
-                    velocity = VectorUtil.setY(velocity, velY);
-                    user.setVelocity(velocity.scalarMultiply(t));
-                } else {
-                    Vector3D position = collider.getPosition();
-                    Vector3D normal = entity.getLocation().subtract(position).toVector().normalize();
-
-                    entity.setVelocity(normal.scalarMultiply(t));
+                if (Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
+                    affected.add(entity);
                 }
-
                 return false;
-            }, true, true);
+            }, true);
         }
 
-        render(base, t, height, radius);
+        for (Entity entity : affected) {
+            Vector3D forceDirection = base.add(0, height, 0).subtract(entity.getLocation()).toVector().normalize();
+            Vector3D force = forceDirection.scalarMultiply(config.speed);
+            entity.setVelocity(force);
+        }
 
         return UpdateResult.Continue;
     }
 
-    private void render(Location base, double t, double height, double radius) {
+    private void render() {
         long time = System.currentTimeMillis();
-        int particleCount = (int)Math.ceil(t * config.particlesPerStream);
-
         double cycleMS = (1000.0 * config.height / config.renderSpeed);
 
         for (int j = 0; j < config.streams; ++j) {
             double thetaOffset = j * ((Math.PI * 2) / config.streams);
 
-            for (int i = 0; i < particleCount; ++i) {
-                double thisTime = time + (i / (double) particleCount) * cycleMS;
+            for (int i = 0; i < config.particlesPerStream; ++i) {
+                double thisTime = time + (i / (double) config.particlesPerStream) * cycleMS;
                 double f = (thisTime - startTime) / cycleMS % 1.0;
 
-                double y = f * height;
+                double y = f * config.height;
                 double theta = y + thetaOffset;
 
-                double x = (2.0 + ((radius - 2.0) * f)) * Math.cos(theta);
-                double z = (2.0 + ((radius - 2.0) * f)) * Math.sin(theta);
+                double x = config.radius * f * Math.cos(theta);
+                double z = config.radius * f * Math.sin(theta);
+
+                if (y > height) {
+                    continue;
+                }
 
                 Location current = base.add(x, y, z);
                 Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, current, 257);
@@ -133,9 +135,24 @@ public class Tornado implements Ability {
         }
     }
 
+    private boolean isAcceptableBase() {
+        // Remove if base couldn't be resolved to a non-solid block.
+        if (base.getBlock().getBounds().contains(base.toVector())) {
+            return false;
+        }
+
+        Block below = base.getBlock().getRelative(BlockFace.DOWN);
+        // Remove if base was resolved to being above a non-solid block.
+        if (below.getBounds().max() == null && !below.isLiquid()) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     public void destroy() {
-        user.setCooldown(this);
+
     }
 
     @Override
@@ -145,7 +162,7 @@ public class Tornado implements Ability {
 
     @Override
     public String getName() {
-        return "Tornado";
+        return "Twister";
     }
 
     @Override
@@ -166,29 +183,34 @@ public class Tornado implements Ability {
         long duration;
         double radius;
         double height;
-        double renderSpeed;
         double range;
-        long growthTime;
+        double speed;
+        double proximity;
+
+        double renderSpeed;
         int streams;
         int particlesPerStream;
 
         @Override
         public void onConfigReload() {
-            CommentedConfigurationNode abilityNode = config.getNode("abilities", "air", "tornado");
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "air", "sequences", "twister");
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
             cooldown = abilityNode.getNode("cooldown").getLong(4000);
             duration = abilityNode.getNode("duration").getLong(8000);
-            radius = abilityNode.getNode("radius").getDouble(10.0);
-            height = abilityNode.getNode("height").getDouble(15.0);
+            radius = abilityNode.getNode("radius").getDouble(3.5);
+            height = abilityNode.getNode("height").getDouble(8.0);
             range = abilityNode.getNode("range").getDouble(25.0);
-            growthTime = abilityNode.getNode("growth-time").getLong(2000);
+            speed = abilityNode.getNode("speed").getDouble(0.35);
+            proximity = abilityNode.getNode("proximity").getDouble(2.0);
 
             CommentedConfigurationNode renderNode = abilityNode.getNode("render");
 
-            renderSpeed = renderNode.getNode("speed").getDouble(4.0);
-            streams = renderNode.getNode("streams").getInt(3);
-            particlesPerStream = renderNode.getNode("particles-per-stream").getInt(10);
+            renderSpeed = renderNode.getNode("speed").getDouble(2.5);
+            streams = renderNode.getNode("streams").getInt(6);
+            particlesPerStream = renderNode.getNode("particles-per-stream").getInt(7);
+
+            abilityNode.getNode("proximity").setComment("The amount that gets added to the radius for entity collision detection.");
         }
     }
 }
