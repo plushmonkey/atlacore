@@ -27,7 +27,7 @@ public class TempBlock {
         this.applyPhysics = applyPhysics;
 
         BlockSetter.Flag flag = BlockSetter.Flag.FAST;
-        if (applyPhysics) {
+        if (applyPhysics || tempType == Material.FIRE) {
             flag = BlockSetter.Flag.LIGHTING;
         }
 
@@ -48,7 +48,7 @@ public class TempBlock {
         this.applyPhysics = false;
 
         BlockSetter.Flag flag = BlockSetter.Flag.FAST;
-        if (applyPhysics) {
+        if (applyPhysics || tempType == Material.FIRE) {
             flag = BlockSetter.Flag.LIGHTING;
         }
 
@@ -100,7 +100,7 @@ public class TempBlock {
             this.previousState.update(true);
         } else {
             Material previousType = this.previousState.getType();
-            setter.setBlock(previousState.getBlock(), previousType);
+            setter.setBlock(previousState.getBlock(), previousType, previousState.getRawData());
         }
     }
 

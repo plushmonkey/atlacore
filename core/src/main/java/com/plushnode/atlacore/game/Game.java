@@ -7,6 +7,7 @@ import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.game.ability.*;
 import com.plushnode.atlacore.game.ability.air.*;
 import com.plushnode.atlacore.game.ability.air.passives.AirAgility;
+import com.plushnode.atlacore.game.ability.air.passives.GracefulDescent;
 import com.plushnode.atlacore.game.ability.air.sequences.AirStream;
 import com.plushnode.atlacore.game.ability.air.sequences.AirSweep;
 import com.plushnode.atlacore.game.ability.air.sequences.Twister;
@@ -130,6 +131,11 @@ public class Game {
                 Elements.FIRE, 1500,
                 Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), FireBlast.class, false);
 
+        AbilityDescription fireBlastChargedDesc = new GenericAbilityDescription<>("FireBlastCharged", "fire blast charged",
+                Elements.FIRE, 1500,
+                Arrays.asList(ActivationMethod.Sneak), FireBlastCharged.class, false);
+        fireBlastChargedDesc.setHidden(true);
+
         AbilityDescription fireJetDesc = new GenericAbilityDescription<>("FireJet", "jet jet",
                 Elements.FIRE, 7000,
                 Arrays.asList(ActivationMethod.Punch), FireJet.class, true);
@@ -219,12 +225,18 @@ public class Game {
                 Arrays.asList(ActivationMethod.Passive), AirAgility.class, true);
         airAgilityDesc.setHidden(true);
 
+        AbilityDescription gracefulDescentDesc = new GenericAbilityDescription<>("GracefulDescent", "graceful descent",
+                Elements.AIR, 5000,
+                Arrays.asList(ActivationMethod.Passive), GracefulDescent.class, true);
+        gracefulDescentDesc.setHidden(true);
+
         abilityRegistry.registerAbility(blazeDesc);
         abilityRegistry.registerAbility(scooterDesc);
         abilityRegistry.registerAbility(shockwaveDesc);
         abilityRegistry.registerAbility(airSwipeDesc);
         abilityRegistry.registerAbility(airBlastDesc);
         abilityRegistry.registerAbility(fireBlastDesc);
+        abilityRegistry.registerAbility(fireBlastChargedDesc);
         abilityRegistry.registerAbility(fireJetDesc);
         abilityRegistry.registerAbility(fireShieldDesc);
         abilityRegistry.registerAbility(wallOfFireDesc);
@@ -249,6 +261,7 @@ public class Game {
         abilityRegistry.registerAbility(airStreamDesc);
 
         abilityRegistry.registerAbility(airAgilityDesc);
+        abilityRegistry.registerAbility(gracefulDescentDesc);
 
         sequenceService.registerSequence(fireKickDesc, new Sequence(true,
                 new AbilityAction(fireBlastDesc, Action.Punch),
@@ -314,16 +327,23 @@ public class Game {
 
         collisionService.registerCollision(airBlastDesc, fireBlastDesc, true, true);
         collisionService.registerCollision(airSwipeDesc, fireBlastDesc, false, true);
-        collisionService.registerCollision(fireShieldDesc, fireBlastDesc, false, true);
 
-        collisionService.registerCollision(airShieldDesc, fireBlastDesc, false, true);
         collisionService.registerCollision(airShieldDesc, airBlastDesc, false, true);
+        collisionService.registerCollision(airShieldDesc, airSuctionDesc, false, true);
+        collisionService.registerCollision(airShieldDesc, airStreamDesc, false, true);
+        collisionService.registerCollision(airShieldDesc, fireBlastDesc, false, true);
         collisionService.registerCollision(airShieldDesc, fireKickDesc, false, true);
         collisionService.registerCollision(airShieldDesc, fireSpinDesc, false, true);
         collisionService.registerCollision(airShieldDesc, fireWheelDesc, false, true);
 
+        collisionService.registerCollision(fireShieldDesc, airBlastDesc, false, true);
+        collisionService.registerCollision(fireShieldDesc, airSuctionDesc, false, true);
+        collisionService.registerCollision(fireShieldDesc, fireBlastDesc, false, true);
+        collisionService.registerCollision(fireShieldDesc, fireBlastChargedDesc, false, true);
+
         Elements.AIR.getPassives().clear();
         Elements.AIR.addPassive(Game.getAbilityRegistry().getAbilityByName("AirAgility"));
+        Elements.AIR.addPassive(Game.getAbilityRegistry().getAbilityByName("GracefulDescent"));
     }
 
     private static PlayerRepository loadPlayerRepository() {

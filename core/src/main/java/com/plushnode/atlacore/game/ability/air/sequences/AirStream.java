@@ -100,7 +100,7 @@ public class AirStream implements Ability {
             if (time > end) {
                 if (entity instanceof Player) {
                     flights.removeIf((flight) -> flight.getUser().equals(entity));
-                    new Flight.GroundRemovalTask(user, 1, 20000);
+                    new Flight.GroundRemovalTask((User)entity, 1, 20000);
                 }
                 immune.add(entity);
                 iterator.remove();

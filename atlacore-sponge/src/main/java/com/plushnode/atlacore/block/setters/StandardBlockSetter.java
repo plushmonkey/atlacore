@@ -25,4 +25,9 @@ public class StandardBlockSetter implements BlockSetter {
     public void setBlock(Block block, Material material) {
         setBlock(block.getLocation(), material);
     }
+
+    @Override
+    public void setBlock(Block block, Material material, byte data) {
+        setBlock(block.getLocation(), material.getId(), data);
+    }
 }

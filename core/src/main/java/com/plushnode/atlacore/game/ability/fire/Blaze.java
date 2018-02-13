@@ -14,6 +14,7 @@ import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.util.MaterialUtil;
+import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -49,15 +50,8 @@ public class Blaze implements Ability {
 
         for (double degrees = arcBegin; degrees < arcEnd; degrees += stepSize) {
             double angle = Math.toRadians(degrees);
-            Vector3D direction = user.getDirection();
-
-            double x, z, vx, vz;
-            x = direction.getX();
-            z = direction.getZ();
-            vx = x * Math.cos(angle) - z * Math.sin(angle);
-            vz = x * Math.sin(angle) + z * Math.cos(angle);
-
-            direction = new Vector3D(vx, direction.getY(), vz);
+            Vector3D direction = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
+            direction = VectorUtil.rotate(direction, Vector3D.PLUS_J, angle).normalize();
 
             fireStreams.add(new FireStream(direction, config.range));
         }

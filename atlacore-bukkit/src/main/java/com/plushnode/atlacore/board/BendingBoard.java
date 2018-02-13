@@ -21,6 +21,7 @@ public class BendingBoard {
     private Team team;
     private Objective objective;
     private Set<String> updatedScores = new HashSet<>();
+    private boolean enabled;
 
     public BendingBoard(com.plushnode.atlacore.platform.Player player) {
         this.bendingPlayer = (BukkitBendingPlayer)player;
@@ -30,11 +31,24 @@ public class BendingBoard {
         this.objective = scoreboard.registerNewObjective("Slots", "dummy");
         this.objective.setDisplayName(ChatColor.BOLD + "Slots");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        this.enabled = true;
 
         bukkitPlayer.setScoreboard(scoreboard);
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+
+        if (!enabled) {
+            if (bukkitPlayer.getScoreboard() == scoreboard) {
+                bukkitPlayer.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+            }
+        }
+    }
+
     public void update() {
+        if (!enabled) return;
+
         bendingPlayer = (BukkitBendingPlayer)Game.getPlayerService().getPlayerByName(bukkitPlayer.getName());
 
         if (bukkitPlayer.getScoreboard() != scoreboard) {

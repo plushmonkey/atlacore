@@ -25,7 +25,7 @@ public class AirAgility implements PassiveAbility {
 
     @Override
     public UpdateResult update() {
-        if (user.isDead()) {
+        if (user.isDead() || !user.canBend(getDescription())) {
             return UpdateResult.Continue;
         }
 

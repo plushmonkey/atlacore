@@ -82,6 +82,11 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     }
 
     @Override
+    public void onDisable() {
+        Game.getTempBlockService().resetAll();
+    }
+
+    @Override
     public void loadConfig() {
         File dataFolder = getDataFolder();
 

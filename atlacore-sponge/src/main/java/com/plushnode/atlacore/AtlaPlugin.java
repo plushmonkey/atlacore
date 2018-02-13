@@ -26,6 +26,7 @@ import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.IOException;
@@ -98,6 +99,11 @@ public class AtlaPlugin implements CorePlugin {
         cmd.registerCommand(new DisplayCommand());
 
         Sponge.getCommandManager().register(this, cmd, "bending", "b", "atla");
+    }
+
+    @Listener
+    public void onGameStoppingServer(GameStoppingServerEvent event) {
+        Game.getTempBlockService().resetAll();
     }
 
     @Override

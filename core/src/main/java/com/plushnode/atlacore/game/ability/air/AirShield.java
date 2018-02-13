@@ -93,7 +93,13 @@ public class AirShield implements Ability {
             }
 
             Vector3D toEntity = entity.getLocation().subtract(center).toVector();
-            Vector3D normal = VectorUtil.clearAxis(toEntity.normalize(), 1).normalize();
+            Vector3D normal = VectorUtil.clearAxis(toEntity.normalize(), 1);
+            if (normal.getNormSq() == 0) {
+                normal = Vector3D.PLUS_I;
+            }
+
+            normal.normalize();
+
             Vector3D velocity = entity.getVelocity();
 
             double dist = toEntity.getNorm();

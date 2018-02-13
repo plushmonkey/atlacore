@@ -5,6 +5,7 @@ import com.plushnode.atlacore.board.BendingBoard;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.air.AirBurst;
 import com.plushnode.atlacore.game.ability.air.AirSpout;
+import com.plushnode.atlacore.game.ability.air.passives.GracefulDescent;
 import com.plushnode.atlacore.game.ability.fire.Combustion;
 import com.plushnode.atlacore.game.ability.fire.FireBurst;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
@@ -166,7 +167,7 @@ public class PlayerListener {
 
         activateAbility(user, ActivationMethod.Fall);
 
-        if (user.hasElement(Elements.AIR)) {
+        if (user.hasElement(Elements.AIR) && GracefulDescent.isGraceful(user)) {
             event.setCancelled(true);
         }
 
