@@ -162,6 +162,8 @@ public class Suffocate implements Ability {
 
     @Override
     public void destroy() {
+        user.setCooldown(this);
+
         if (this.started && target instanceof User) {
             // Allow the user to bend again.
             ((User) target).getBendingConditional().remove(conditional);

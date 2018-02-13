@@ -12,6 +12,7 @@ import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -24,6 +25,7 @@ public class AirShield implements Ability {
 
     private User user;
     private long startTime;
+    private CompositeRemovalPolicy removalPolicy;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -34,6 +36,13 @@ public class AirShield implements Ability {
             return false;
         }
 
+        this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
+                new IsDeadRemovalPolicy(user),
+                new SwappedSlotsRemovalPolicy<>(user, AirShield.class),
+                new OutOfWorldRemovalPolicy(user),
+                new SneakingRemovalPolicy(user, true)
+        );
+
         return true;
     }
 
@@ -41,7 +50,11 @@ public class AirShield implements Ability {
     public UpdateResult update() {
         long time = System.currentTimeMillis();
 
-        if (!user.isSneaking() || (config.duration > 0 && (time > startTime + config.duration))) {
+        if (removalPolicy.shouldRemove()) {
+            return UpdateResult.Remove;
+        }
+
+        if (config.duration > 0 && (time > startTime + config.duration)) {
             return UpdateResult.Remove;
         }
 

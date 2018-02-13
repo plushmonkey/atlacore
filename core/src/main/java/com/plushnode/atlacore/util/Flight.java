@@ -60,6 +60,10 @@ public class Flight {
         return this.isFlying;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     // Decrements the user's flight counter. If this goes below 1 then the user loses flight.
     public Flight release() {
         if (--references <= 0) {

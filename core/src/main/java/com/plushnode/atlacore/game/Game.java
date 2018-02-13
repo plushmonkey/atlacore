@@ -7,6 +7,7 @@ import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.game.ability.*;
 import com.plushnode.atlacore.game.ability.air.*;
 import com.plushnode.atlacore.game.ability.air.passives.AirAgility;
+import com.plushnode.atlacore.game.ability.air.sequences.AirStream;
 import com.plushnode.atlacore.game.ability.air.sequences.AirSweep;
 import com.plushnode.atlacore.game.ability.air.sequences.Twister;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
@@ -209,6 +210,10 @@ public class Game {
                 Elements.AIR, 5000,
                 Arrays.asList(ActivationMethod.Sequence), Twister.class, false);
 
+        AbilityDescription airStreamDesc = new GenericAbilityDescription<>("AirStream", "air stream",
+                Elements.AIR, 5000,
+                Arrays.asList(ActivationMethod.Sequence), AirStream.class, false);
+
         AbilityDescription airAgilityDesc = new GenericAbilityDescription<>("AirAgility", "air agility",
                 Elements.AIR, 5000,
                 Arrays.asList(ActivationMethod.Passive), AirAgility.class, true);
@@ -241,6 +246,7 @@ public class Game {
         abilityRegistry.registerAbility(fireWheelDesc);
         abilityRegistry.registerAbility(airSweepDesc);
         abilityRegistry.registerAbility(twisterDesc);
+        abilityRegistry.registerAbility(airStreamDesc);
 
         abilityRegistry.registerAbility(airAgilityDesc);
 
@@ -297,6 +303,12 @@ public class Game {
                 new AbilityAction(airShieldDesc, Action.Sneak),
                 new AbilityAction(airShieldDesc, Action.SneakRelease),
                 new AbilityAction(tornadoDesc, Action.Sneak),
+                new AbilityAction(airBlastDesc, Action.Punch)
+        ));
+
+        sequenceService.registerSequence(airStreamDesc, new Sequence(true,
+                new AbilityAction(airShieldDesc, Action.Sneak),
+                new AbilityAction(airSuctionDesc, Action.Punch),
                 new AbilityAction(airBlastDesc, Action.Punch)
         ));
 

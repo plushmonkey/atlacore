@@ -12,7 +12,9 @@ public class IsDeadRemovalPolicy implements RemovalPolicy {
 
     @Override
     public boolean shouldRemove() {
-        if (!(user instanceof Player)) return false;
+        if (!(user instanceof Player)) {
+            return !user.isValid();
+        }
 
         Player player = (Player) user;
 
