@@ -49,13 +49,7 @@ public class PlayerListener implements Listener {
 
         if (abilityDescription == null) return false;
         if (!abilityDescription.isActivatedBy(method)) return false;
-        if (user.isOnCooldown(abilityDescription)) return false;
-        if (!abilityDescription.isEnabled()) return false;
-        if (!user.hasElement(abilityDescription.getElement())) return false;
-
-        String permission = "atla.ability." + abilityDescription.getName();
-
-        if (!user.hasPermission(permission)) return false;
+        if (!user.canBend(abilityDescription)) return false;
 
         Ability ability = abilityDescription.createAbility();
 

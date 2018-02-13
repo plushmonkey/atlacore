@@ -2,6 +2,7 @@ package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.platform.Location;
+import com.plushnode.atlacore.util.VectorUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Optional;
@@ -28,6 +29,28 @@ public class AABB implements Collider {
         if (min == null || max == null) return new AABB(null, null);
 
         return at(location.toVector());
+    }
+
+    public AABB grow(double x, double y, double z) {
+        Vector3D change = new Vector3D(x, y, z);
+
+        return new AABB(min.subtract(change), max.add(change));
+    }
+
+    public AABB scale(double x, double y, double z) {
+        Vector3D extents = getHalfExtents();
+        Vector3D newExtents = VectorUtil.hadamard(extents, new Vector3D(x, y, z));
+        Vector3D diff = newExtents.subtract(extents);
+
+        return grow(diff.getX(), diff.getY(), diff.getZ());
+    }
+
+    public AABB scale(double amount) {
+        Vector3D extents = getHalfExtents();
+        Vector3D newExtents = extents.scalarMultiply(amount);
+        Vector3D diff = newExtents.subtract(extents);
+
+        return grow(diff.getX(), diff.getY(), diff.getZ());
     }
 
     public Vector3D min() {

@@ -2,10 +2,13 @@ package com.plushnode.atlacore.platform;
 
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
+import com.plushnode.atlacore.game.conditionals.BendingConditional;
+import com.plushnode.atlacore.game.conditionals.CompositeBendingConditional;
 import com.plushnode.atlacore.game.element.Element;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public interface User extends LivingEntity {
     void addElement(Element element);
@@ -83,4 +86,7 @@ public interface User extends LivingEntity {
     }
 
     boolean hasPermission(String permission);
+
+    boolean canBend(AbilityDescription abilityDescription);
+    CompositeBendingConditional getBendingConditional();
 }

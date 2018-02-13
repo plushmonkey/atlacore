@@ -2,6 +2,7 @@ package com.plushnode.atlacore.platform;
 
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
+import com.plushnode.atlacore.game.conditionals.*;
 import com.plushnode.atlacore.game.element.Element;
 
 import java.util.*;
@@ -10,9 +11,17 @@ public class SpongeBendingUser extends LivingEntityWrapper implements User {
     private AbilityDescription[] boundAbilities = new AbilityDescription[9];
     private List<Element> elements = new ArrayList<>();
     private Map<AbilityDescription, Long> cooldowns = new HashMap<>();
+    private CompositeBendingConditional bendingConditional = new CompositeBendingConditional();
 
     public SpongeBendingUser(org.spongepowered.api.entity.living.Living entity) {
         super(entity);
+
+        bendingConditional.add(
+                new CooldownBendingConditional(),
+                new ElementBendingConditional(),
+                new EnabledBendingConditional(),
+                new PermissionBendingConditional()
+        );
     }
 
     @Override
@@ -104,5 +113,15 @@ public class SpongeBendingUser extends LivingEntityWrapper implements User {
     @Override
     public boolean hasPermission(String permission) {
         return true;
+    }
+
+    @Override
+    public boolean canBend(AbilityDescription abilityDescription) {
+        return bendingConditional.canBend(this, abilityDescription);
+    }
+
+    @Override
+    public CompositeBendingConditional getBendingConditional() {
+        return bendingConditional;
     }
 }

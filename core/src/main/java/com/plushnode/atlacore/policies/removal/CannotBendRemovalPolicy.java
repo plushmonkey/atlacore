@@ -1,8 +1,13 @@
 package com.plushnode.atlacore.policies.removal;
 
-import com.plushnode.atlacore.platform.Player;
+import com.plushnode.atlacore.game.conditionals.BendingConditional;
+import com.plushnode.atlacore.game.conditionals.CompositeBendingConditional;
+import com.plushnode.atlacore.game.conditionals.CooldownBendingConditional;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CannotBendRemovalPolicy implements RemovalPolicy {
     private User user;
@@ -23,11 +28,20 @@ public class CannotBendRemovalPolicy implements RemovalPolicy {
 
     @Override
     public boolean shouldRemove() {
-        if (!(user instanceof Player)) return false;
+        CompositeBendingConditional cond = user.getBendingConditional();
 
-        // todo: implementation
+        List<BendingConditional> removed = new ArrayList<>();
 
-        return false;
+        if (ignoreCooldowns) {
+            // Remove the cooldown check and add it again after.
+            removed = cond.removeType(CooldownBendingConditional.class);
+        }
+
+        boolean result = user.canBend(abilityDesc);
+
+        cond.add(removed);
+
+        return !result;
     }
 
     @Override

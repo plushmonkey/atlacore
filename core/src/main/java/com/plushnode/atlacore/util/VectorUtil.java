@@ -7,6 +7,10 @@ public final class VectorUtil {
 
     }
 
+    public static Vector3D hadamard(Vector3D a, Vector3D b) {
+        return new Vector3D(a.getX() * b.getX(), a.getY() * b.getY(), a.getZ() * b.getZ());
+    }
+
     public static double component(Vector3D vec, int axis) {
         return vec.toArray()[axis];
     }

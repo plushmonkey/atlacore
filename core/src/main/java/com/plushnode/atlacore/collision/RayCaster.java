@@ -30,6 +30,34 @@ public final class RayCaster {
 
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends Entity> T entityCast(User user, Ray ray, double maxRange, double scale, Class<? extends T> type) {
+        // Cast a ray out to find the farthest location. Don't select entities through blocks.
+        Location maxLocation = cast(user, ray, maxRange, false, false);
+        int radius = (int)maxLocation.distance(user.getEyeLocation());
+        Location start = user.getWorld().getLocation(ray.origin);
+        double closestDistance = Double.MAX_VALUE;
+        Entity closest = null;
+
+        for (Entity entity : user.getWorld().getNearbyEntities(start, radius, radius, radius)) {
+            if (entity.equals(user)) continue;
+            if (!type.isAssignableFrom(entity.getClass())) continue;
+
+            AABB entityBounds = entity.getBounds().scale(scale).at(entity.getLocation());
+            Optional<Double> result = entityBounds.intersects(ray);
+            if (result.isPresent()) {
+                double distance = result.get();
+
+                if (distance < closestDistance && distance >= 0) {
+                    closestDistance = distance;
+                    closest = entity;
+                }
+            }
+        }
+
+        return (T)closest;
+    }
+
     public static Location cast(User user, Ray ray, double maxRange, boolean liquidCollision, boolean entityCollision) {
         World world = user.getWorld();
         Location location = cast(world, ray, maxRange, liquidCollision);
