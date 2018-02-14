@@ -89,4 +89,5 @@ public interface User extends LivingEntity {
 
     boolean canBend(AbilityDescription abilityDescription);
     CompositeBendingConditional getBendingConditional();
+    void setBendingConditional(CompositeBendingConditional cond);
 }

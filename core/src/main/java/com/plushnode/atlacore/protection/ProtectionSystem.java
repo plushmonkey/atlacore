@@ -51,7 +51,7 @@ public class ProtectionSystem extends Configurable {
     }
 
     private boolean canBuildPostCache(User user, AbilityDescription abilityDescription, Location loc) {
-        if (loc == user.getLocation()) {
+        if (loc.equals(user.getLocation())) {
             return canBuildInRegions(user, abilityDescription, loc);
         }
 
@@ -87,8 +87,9 @@ public class ProtectionSystem extends Configurable {
         globalProtection.clearProtectMethods();
         worldProtections = new HashMap<>();
 
+        addProtection(globalProtection, Arrays.asList("Towny", "Factions", "WorldGuard", "LWC"));
+
         RegionProtection worldProtection = new RegionProtection();
-        addProtection(worldProtection, Arrays.asList("Towny", "Factions", "WorldGuard", "LWC"));
         worldProtections.put("world", worldProtection);
     }
 

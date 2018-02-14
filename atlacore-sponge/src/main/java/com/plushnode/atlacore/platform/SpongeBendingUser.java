@@ -124,4 +124,9 @@ public class SpongeBendingUser extends LivingEntityWrapper implements User {
     public CompositeBendingConditional getBendingConditional() {
         return bendingConditional;
     }
+
+    @Override
+    public void setBendingConditional(CompositeBendingConditional cond) {
+        this.bendingConditional = cond;
+    }
 }

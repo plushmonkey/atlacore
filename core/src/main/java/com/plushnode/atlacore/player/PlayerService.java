@@ -26,7 +26,9 @@ public class PlayerService {
         // Clear cache and reload all of them back into cache.
         playerCache.clear();
         for (Player player : players) {
-            getPlayerByUUID(player.getUniqueId());
+            Player newPlayer = getPlayerByUUID(player.getUniqueId());
+            // Copy over previous conditionals for this player.
+            newPlayer.setBendingConditional(player.getBendingConditional());
         }
     }
 
