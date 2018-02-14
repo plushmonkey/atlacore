@@ -21,7 +21,8 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
                 new CooldownBendingConditional(),
                 new ElementBendingConditional(),
                 new EnabledBendingConditional(),
-                new PermissionBendingConditional()
+                new PermissionBendingConditional(),
+                new GameModeBendingConditional(GameMode.SPECTATOR)
         );
     }
 
