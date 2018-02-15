@@ -389,4 +389,9 @@ public class EntityWrapper implements Entity {
 
         return new com.plushnode.atlacore.collision.geometry.AABB(null, null);
     }
+
+    @Override
+    public boolean hasBounds() {
+        return getBounds().max() != null;
+    }
 }

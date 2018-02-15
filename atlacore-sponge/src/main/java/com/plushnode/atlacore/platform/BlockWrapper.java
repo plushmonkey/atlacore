@@ -156,4 +156,9 @@ public class BlockWrapper implements Block {
 
         return new AABB(new Vector3D(0, 0, 0), new Vector3D(1, 1, 1));
     }
+
+    @Override
+    public boolean hasBounds() {
+        return getBounds().max() != null;
+    }
 }

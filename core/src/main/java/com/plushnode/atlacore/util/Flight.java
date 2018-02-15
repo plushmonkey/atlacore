@@ -103,7 +103,9 @@ public class Flight {
             User user = entry.getKey();
             Flight flight = entry.getValue();
 
-            user.setFlying(flight.isFlying);
+            if (user.isFlying() != flight.isFlying) {
+                user.setFlying(flight.isFlying);
+            }
         }
     }
 

@@ -11,6 +11,7 @@ import com.plushnode.atlacore.game.ability.air.passives.GracefulDescent;
 import com.plushnode.atlacore.game.ability.air.sequences.AirStream;
 import com.plushnode.atlacore.game.ability.air.sequences.AirSweep;
 import com.plushnode.atlacore.game.ability.air.sequences.Twister;
+import com.plushnode.atlacore.game.ability.earth.EarthBlast;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
 import com.plushnode.atlacore.game.ability.fire.*;
 import com.plushnode.atlacore.game.ability.fire.sequences.*;
@@ -188,6 +189,11 @@ public class Game {
                 Elements.AIR, 500,
                 Arrays.asList(ActivationMethod.Sneak), Suffocate.class, false);
 
+        AbilityDescription earthBlastDesc = new GenericAbilityDescription<>("EarthBlast", "earth blast",
+                Elements.EARTH, 500,
+                Arrays.asList(ActivationMethod.Punch, ActivationMethod.Sneak), EarthBlast.class, false);
+
+
         AbilityDescription fireKickDesc = new GenericAbilityDescription<>("FireKick", "kick kick",
                 Elements.FIRE, 1500,
                 Arrays.asList(ActivationMethod.Sequence), FireKick.class, false);
@@ -250,6 +256,7 @@ public class Game {
         abilityRegistry.registerAbility(tornadoDesc);
         abilityRegistry.registerAbility(airSuctionDesc);
         abilityRegistry.registerAbility(suffocateDesc);
+        abilityRegistry.registerAbility(earthBlastDesc);
 
         abilityRegistry.registerAbility(fireKickDesc);
         abilityRegistry.registerAbility(jetBlastDesc);

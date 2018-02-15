@@ -133,4 +133,9 @@ public class BlockWrapper implements Block {
     public AABB getBounds() {
         return BukkitAABB.getBlockBounds(block);
     }
+
+    @Override
+    public boolean hasBounds() {
+        return getBounds().max() != null;
+    }
 }

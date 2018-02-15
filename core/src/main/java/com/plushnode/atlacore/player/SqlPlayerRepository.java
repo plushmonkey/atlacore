@@ -135,7 +135,7 @@ public class SqlPlayerRepository implements PlayerRepository {
 
                         AbilityDescription desc = Game.getAbilityRegistry().getAbilityByName(abilityName);
 
-                        if (player.hasPermission("atla.ability." + desc.getName())) {
+                        if (desc != null && player.hasPermission("atla.ability." + desc.getName())) {
                             player.setSlotAbility(slot, desc);
                         }
                     }

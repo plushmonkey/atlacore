@@ -4,7 +4,6 @@ import com.plushnode.atlacore.AtlaCorePlugin;
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.BlockWrapper;
-import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -44,6 +43,17 @@ public class BlockListener implements Listener {
         if (tempBlock != null) {
             // Stop tracking it, but don't reset it.
             Game.getTempBlockService().remove(tempBlock);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent event) {
+        BlockWrapper bw = new BlockWrapper(event.getBlock());
+
+        TempBlock tempBlock = Game.getTempBlockService().getTempBlock(bw);
+        if (tempBlock != null) {
+            Game.getTempBlockService().reset(tempBlock);
+            event.setCancelled(true);
         }
     }
 

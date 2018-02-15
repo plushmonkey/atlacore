@@ -2,11 +2,9 @@ package com.plushnode.atlacore.collision;
 
 import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.collision.geometry.Ray;
-import com.plushnode.atlacore.platform.Entity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.User;
-import com.plushnode.atlacore.platform.World;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.util.VectorUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.*;
@@ -72,11 +70,48 @@ public final class RayCaster {
 
         for (Entity entity : world.getNearbyEntities(start, radius, radius, radius)) {
             if (entity.equals(user)) continue;
+            if (!(entity instanceof LivingEntity)) continue;
 
             AABB entityBounds = entity.getBounds().at(entity.getLocation());
+
             Optional<Double> result = entityBounds.intersects(ray);
             if (result.isPresent()) {
                 double distance = result.get();
+                distance += VectorUtil.getMaxComponent(entity.getBounds().getHalfExtents());
+
+                if (distance < closestDistance && distance >= 0) {
+                    closestDistance = distance;
+                }
+            }
+        }
+
+        return start.add(ray.direction.scalarMultiply(closestDistance));
+    }
+
+    public static Location cast(User user, Ray ray, double maxRange, boolean liquidCollision, boolean entityCollision, double selectRadius) {
+        World world = user.getWorld();
+        Location location = cast(world, ray, maxRange, liquidCollision);
+
+        if (!entityCollision) {
+            return location;
+        }
+
+        int radius = (int)maxRange + 3;
+        Location start = world.getLocation(ray.origin);
+        double closestDistance = location.subtract(start).length();
+
+        for (Entity entity : world.getNearbyEntities(start, radius, radius, radius)) {
+            if (entity.equals(user)) continue;
+            if (!(entity instanceof LivingEntity)) continue;
+
+            AABB entityBounds = entity.getBounds()
+                    .scale(selectRadius)
+                    .at(entity.getLocation().add(0, entity.getBounds().getHalfExtents().getY(), 0));
+
+            Optional<Double> result = entityBounds.intersects(ray);
+            if (result.isPresent()) {
+                Location hit = ((LivingEntity) entity).getEyeLocation();
+                double distance = hit.toVector().distance(ray.origin) + 1.0;
 
                 if (distance < closestDistance && distance >= 0) {
                     closestDistance = distance;
@@ -122,5 +157,43 @@ public final class RayCaster {
 
         closestDistance = Math.min(closestDistance, maxRange);
         return origin.add(ray.direction.scalarMultiply(closestDistance));
+    }
+
+    public static Block blockCast(World world, Ray ray, double maxRange, boolean liquidCollision) {
+        Location origin = world.getLocation(ray.origin);
+        double closestDistance = Double.MAX_VALUE;
+        Block closestBlock = null;
+
+        // Progress through each block and check all neighbors for ray intersection.
+        for (double i = 0; i < maxRange + 1; ++i) {
+            Location current = origin.add(ray.direction.scalarMultiply(i));
+            for (Vector3D direction : DIRECTIONS) {
+                Location check = current.add(direction);
+                Block block = check.getBlock();
+                AABB localBounds = block.getBounds();
+
+                if (liquidCollision && block.isLiquid()) {
+                    localBounds = AABB.BLOCK_BOUNDS;
+                }
+
+                AABB blockBounds = localBounds.at(block.getLocation());
+
+                Optional<Double> result = blockBounds.intersects(ray);
+                if (result.isPresent()) {
+                    double distance = result.get();
+                    if (distance < closestDistance && distance >= 0) {
+                        closestDistance = distance;
+                        closestBlock = block;
+                    }
+                }
+            }
+
+            // Break early after checking all neighbors for intersection.
+            if (closestDistance < maxRange) {
+                break;
+            }
+        }
+
+        return closestBlock;
     }
 }

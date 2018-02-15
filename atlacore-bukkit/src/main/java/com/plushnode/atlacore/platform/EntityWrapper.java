@@ -260,4 +260,9 @@ public class EntityWrapper implements Entity {
     public AABB getBounds() {
         return BukkitAABB.getEntityBounds(entity);
     }
+
+    @Override
+    public boolean hasBounds() {
+        return getBounds().max() != null;
+    }
 }

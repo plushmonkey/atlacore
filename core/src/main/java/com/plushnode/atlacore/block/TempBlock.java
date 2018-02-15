@@ -33,6 +33,7 @@ public class TempBlock {
 
         TempBlock previous = Game.getTempBlockService().getTempBlock(block);
         if (previous != null) {
+            previous.reset();
             this.previousState = previous.previousState;
         }
 
@@ -54,6 +55,7 @@ public class TempBlock {
 
         TempBlock previous = Game.getTempBlockService().getTempBlock(blockState.getLocation());
         if (previous != null) {
+            previous.reset();
             this.previousState = previous.previousState;
         }
 
