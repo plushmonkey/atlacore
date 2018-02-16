@@ -12,11 +12,13 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.ability.air.AirBlast;
 import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.MaterialUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -38,11 +40,17 @@ public class EarthBlast implements Ability {
     private TempBlock tempBlock;
     private Location location;
     private Location target;
+    private CompositeRemovalPolicy removalPolicy;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
         this.launched = false;
+        this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
+                new IsDeadRemovalPolicy(user),
+                new OutOfRangeRemovalPolicy(user, config.sourceSelectRange, () -> sourceBlock.getLocation().add(0.5, 0.5, 0.5)),
+                new OutOfWorldRemovalPolicy(user)
+        );
 
         if (method == ActivationMethod.Sneak) {
             sourceBlock = getSource();
@@ -81,6 +89,10 @@ public class EarthBlast implements Ability {
 
     @Override
     public UpdateResult update() {
+        if (removalPolicy.shouldRemove()) {
+            return UpdateResult.Remove;
+        }
+
         if (!launched) {
             return UpdateResult.Continue;
         }
@@ -125,7 +137,10 @@ public class EarthBlast implements Ability {
 
         AABB collider = AABB.BLOCK_BOUNDS.scale(config.entityCollisionRadius).at(location);
         boolean hit = CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
-            ((LivingEntity)entity).damage(config.damage, user);
+            if (Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
+                ((LivingEntity) entity).damage(config.damage, user);
+            }
+
             return true;
         }, true);
 
@@ -169,7 +184,7 @@ public class EarthBlast implements Ability {
     }
 
     private Block getSource() {
-        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), 8.0, true);
+        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.sourceSelectRange, true);
 
         if (block == null || !MaterialUtil.isEarthbendable(block)) return null;
         if (Game.getTempBlockService().isTempBlock(block)) return null;
@@ -202,11 +217,15 @@ public class EarthBlast implements Ability {
         this.location = sourceBlock.getLocation().add(0.5, 0.5, 0.5);
         this.tempBlock = new TempBlock(sourceBlock, Material.AIR);
 
+        removalPolicy.removePolicyType(OutOfRangeRemovalPolicy.class);
+
         redirect();
     }
 
     private void redirect() {
-        this.target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), 30.0, true, true, config.entitySelectRadius);
+        this.target = RayCaster.cast(user, new Ray(user.getEyeLocation(),
+                user.getDirection()), 30.0, true, true, config.entitySelectRadius,
+                Collections.singletonList(location.getBlock()));
     }
 
     @Override
@@ -239,6 +258,7 @@ public class EarthBlast implements Ability {
         double speed;
         double entitySelectRadius;
         double range;
+        double sourceSelectRange;
 
         double entityCollisionRadius;
         double abilityCollisionRadius;
@@ -250,12 +270,13 @@ public class EarthBlast implements Ability {
             enabled = abilityNode.getNode("enabled").getBoolean(true);
             cooldown = abilityNode.getNode("cooldown").getLong(500);
             damage = abilityNode.getNode("damage").getDouble(3.0);
-            speed = abilityNode.getNode("speed").getDouble(1.75);
+            speed = abilityNode.getNode("speed").getDouble(1.0);
             range = abilityNode.getNode("range").getDouble(30.0);
+            sourceSelectRange = abilityNode.getNode("source-select-range").getDouble(6.0);
             entitySelectRadius = abilityNode.getNode("entity-select-radius").getDouble(3.0);
 
-            entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(1.5);
-            abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(1.5);
+            entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(2.5);
+            abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(2.0);
         }
     }
 }

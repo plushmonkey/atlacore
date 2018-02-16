@@ -88,9 +88,9 @@ public final class RayCaster {
         return start.add(ray.direction.scalarMultiply(closestDistance));
     }
 
-    public static Location cast(User user, Ray ray, double maxRange, boolean liquidCollision, boolean entityCollision, double selectRadius) {
+    public static Location cast(User user, Ray ray, double maxRange, boolean liquidCollision, boolean entityCollision, double selectRadius, List<Block> ignoreBlocks) {
         World world = user.getWorld();
-        Location location = cast(world, ray, maxRange, liquidCollision);
+        Location location = cast(world, ray, maxRange, liquidCollision, ignoreBlocks);
 
         if (!entityCollision) {
             return location;
@@ -123,6 +123,10 @@ public final class RayCaster {
     }
 
     public static Location cast(World world, Ray ray, double maxRange, boolean liquidCollision) {
+        return cast(world, ray, maxRange, liquidCollision, Collections.emptyList());
+    }
+
+    public static Location cast(World world, Ray ray, double maxRange, boolean liquidCollision, List<Block> ignoreBlocks) {
         Location origin = world.getLocation(ray.origin);
         double closestDistance = Double.MAX_VALUE;
 
@@ -132,6 +136,11 @@ public final class RayCaster {
             for (Vector3D direction : DIRECTIONS) {
                 Location check = current.add(direction);
                 Block block = check.getBlock();
+
+                if (ignoreBlocks.contains(block)) {
+                    continue;
+                }
+
                 AABB localBounds = block.getBounds();
 
                 if (liquidCollision && block.isLiquid()) {

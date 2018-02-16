@@ -310,6 +310,9 @@ public class AirBlast implements Ability, Burstable {
             selectOutOfRange = abilityNode.getNode("select").getNode("out-of-range").getDouble(35.0);
             selectParticles = abilityNode.getNode("select").getNode("particles").getInt(4);
 
+            abilityNode.getNode("description").getString("Test AirBlast description");
+            abilityNode.getNode("instructions").getString("Punch to shoot a blast of air that knocks entities back. \nSneak to select an origin.");
+
             abilityNode.getNode("speed").setComment("How many meters the blast advances with each tick.");
         }
     }

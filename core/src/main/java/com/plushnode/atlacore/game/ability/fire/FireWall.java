@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-public class WallOfFire implements Ability {
+public class FireWall implements Ability {
     public static Config config = new Config();
 
     private User user;
@@ -120,7 +120,7 @@ public class WallOfFire implements Ability {
 
     @Override
     public String getName() {
-        return "WallOfFire";
+        return "FireWall";
     }
 
     @Override
@@ -150,7 +150,7 @@ public class WallOfFire implements Ability {
 
         @Override
         public void onConfigReload() {
-            CommentedConfigurationNode abilityNode = config.getNode("abilities", "fire", "walloffire");
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "fire", "firewall");
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
             cooldown = abilityNode.getNode("cooldown").getLong(11000);

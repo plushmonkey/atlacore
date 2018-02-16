@@ -3,11 +3,13 @@ package com.plushnode.atlacore.game.ability;
 import com.plushnode.atlacore.game.element.Element;
 import com.plushnode.atlacore.util.ChatColor;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class GenericAbilityDescription<T extends Ability> implements AbilityDescription {
     private String name;
     private String description;
+    private String instructions;
     private long cooldown;
     private Element element;
     private List<ActivationMethod> activationMethods;
@@ -16,15 +18,16 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     private boolean harmless;
     private boolean hidden;
 
-    public GenericAbilityDescription(String name, String desc, Element element, int cooldown, List<ActivationMethod> activation, Class<T> type, boolean harmless) {
+    public GenericAbilityDescription(String name, Element element, int cooldown, Class<T> type, ActivationMethod... activations) {
         super();
         this.name = name;
-        this.description = desc;
+        this.description = "";
+        this.instructions = "";
         this.cooldown = cooldown;
         this.element = element;
-        this.activationMethods = activation;
+        this.activationMethods = Arrays.asList(activations);
         this.type = type;
-        this.harmless = harmless;
+        this.harmless = false;
         this.enabled = true;
         this.hidden = false;
     }
@@ -35,8 +38,25 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     }
 
     @Override
+    public AbilityDescription setDescription(String desc) {
+        this.description = desc;
+        return this;
+    }
+
+    @Override
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String getInstructions() {
+        return instructions;
+    }
+
+    @Override
+    public AbilityDescription setInstructions(String instructions) {
+        this.instructions = instructions;
+        return this;
     }
 
     @Override
@@ -45,8 +65,9 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
+    public AbilityDescription setEnabled(boolean enabled) {
         this.enabled = enabled;
+        return this;
     }
 
     @Override
@@ -55,8 +76,15 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     }
 
     @Override
-    public void setHidden(boolean hidden) {
+    public AbilityDescription setHidden(boolean hidden) {
         this.hidden = hidden;
+        return this;
+    }
+
+    @Override
+    public AbilityDescription setHarmless(boolean harmless) {
+        this.harmless = harmless;
+        return this;
     }
 
     @Override
@@ -70,8 +98,9 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     }
 
     @Override
-    public void setCooldown(long milliseconds) {
+    public AbilityDescription setCooldown(long milliseconds) {
         this.cooldown = milliseconds;
+        return this;
     }
 
     @Override

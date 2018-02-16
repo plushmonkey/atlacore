@@ -30,9 +30,17 @@ public class AbilityRegistry extends Configurable {
 
             long cooldownMS = node.getNode("cooldown").getLong();
             boolean enabled = node.getNode("enabled").getBoolean();
+            String description = node.getNode("description").getString();
+            String instructions = node.getNode("instructions").getString();
 
             abilityDesc.setCooldown(cooldownMS);
             abilityDesc.setEnabled(enabled);
+            if (description != null) {
+                abilityDesc.setDescription(description);
+            }
+            if (instructions != null) {
+                abilityDesc.setInstructions(instructions);
+            }
 
             Game.info(abilityDesc.getName() + " cooldown set to " + cooldownMS);
         }

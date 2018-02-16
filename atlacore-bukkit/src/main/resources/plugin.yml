@@ -20,6 +20,7 @@ permissions:
       atla.command.bind: true
       atla.command.choose: true
       atla.command.display: true
+      atla.command.help: true
       atla.air: true
       atla.chi: true
       atla.earth: true
@@ -45,6 +46,7 @@ permissions:
   atla.earth:
     children:
       atla.command.choose.Earth: true
+      atla.ability.EarthBlast: true
       atla.ability.Shockwave: true
   atla.fire:
     children:

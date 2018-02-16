@@ -4,18 +4,24 @@ import com.plushnode.atlacore.game.element.Element;
 
 public interface AbilityDescription {
     String getName();
+
     String getDescription();
+    AbilityDescription setDescription(String desc);
+
+    String getInstructions();
+    AbilityDescription setInstructions(String instructions);
 
     long getCooldown();
-    void setCooldown(long milliseconds);
+    AbilityDescription setCooldown(long milliseconds);
 
     boolean isEnabled();
-    void setEnabled(boolean enabled);
+    AbilityDescription setEnabled(boolean enabled);
     
     boolean isHidden();
-    void setHidden(boolean hidden);
+    AbilityDescription setHidden(boolean hidden);
 
     boolean isHarmless();
+    AbilityDescription setHarmless(boolean harmless);
 
     boolean isActivatedBy(ActivationMethod method);
     boolean isAbility(Ability ability);

@@ -55,4 +55,8 @@ public class Sequence {
     public int size() {
         return actions.size();
     }
+
+    public List<AbilityAction> getActions() {
+        return actions;
+    }
 }

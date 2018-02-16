@@ -38,6 +38,10 @@ public class SequenceService {
         abilitySequences.put(description, sequence);
     }
 
+    public Sequence getSequence(AbilityDescription desc) {
+        return abilitySequences.get(desc);
+    }
+
     public void registerAction(User user, Action action) {
         AbilityDescription desc = user.getSelectedAbility();
         if (desc == null) return;
