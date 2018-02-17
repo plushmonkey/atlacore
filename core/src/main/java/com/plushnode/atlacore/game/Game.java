@@ -11,8 +11,10 @@ import com.plushnode.atlacore.game.ability.air.passives.GracefulDescent;
 import com.plushnode.atlacore.game.ability.air.sequences.AirStream;
 import com.plushnode.atlacore.game.ability.air.sequences.AirSweep;
 import com.plushnode.atlacore.game.ability.air.sequences.Twister;
+import com.plushnode.atlacore.game.ability.earth.Catapult;
 import com.plushnode.atlacore.game.ability.earth.EarthBlast;
 import com.plushnode.atlacore.game.ability.earth.Shockwave;
+import com.plushnode.atlacore.game.ability.earth.passives.DensityShift;
 import com.plushnode.atlacore.game.ability.fire.*;
 import com.plushnode.atlacore.game.ability.fire.sequences.*;
 import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
@@ -141,7 +143,8 @@ public class Game {
 
         registerAbility("Shockwave", Shockwave.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak, ActivationMethod.Fall);
         registerAbility("EarthBlast", EarthBlast.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
-
+        registerAbility("Catapult", Catapult.class, Elements.EARTH, ActivationMethod.Punch).setHarmless(true);
+        registerAbility("DensityShift", DensityShift.class, Elements.EARTH, ActivationMethod.Passive).setHarmless(true).setHidden(true);
 
         sequenceService.registerSequence(fireKick, new Sequence(true,
                 new AbilityAction(fireBlast, Action.Punch),
@@ -222,8 +225,14 @@ public class Game {
         collisionService.registerCollision(fireShield, fireBlastCharged, false, true);
 
         Elements.AIR.getPassives().clear();
+        Elements.EARTH.getPassives().clear();
+        Elements.FIRE.getPassives().clear();
+        Elements.WATER.getPassives().clear();
+
         Elements.AIR.addPassive(Game.getAbilityRegistry().getAbilityByName("AirAgility"));
         Elements.AIR.addPassive(Game.getAbilityRegistry().getAbilityByName("GracefulDescent"));
+
+        Elements.EARTH.addPassive(Game.getAbilityRegistry().getAbilityByName("DensityShift"));
     }
 
     private static AbilityDescription registerAbility(String abilityName, Class<? extends Ability> type, Element element, ActivationMethod... activations) {

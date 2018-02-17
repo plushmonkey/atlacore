@@ -41,8 +41,6 @@ public class AbilityRegistry extends Configurable {
             if (instructions != null) {
                 abilityDesc.setInstructions(instructions);
             }
-
-            Game.info(abilityDesc.getName() + " cooldown set to " + cooldownMS);
         }
     }
 
