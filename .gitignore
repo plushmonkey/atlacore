@@ -10,6 +10,5 @@ eclipse
 bin
 build
 target
-gradle
 .gradle
 out
