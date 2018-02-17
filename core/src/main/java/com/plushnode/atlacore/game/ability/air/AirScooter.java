@@ -222,7 +222,7 @@ public class AirScooter implements Ability {
         public boolean isColliding(User user) {
             // The location in front of the player, where the player will be in one second.
             Location front = user.getEyeLocation().subtract(0.0, 0.5, 0.0);
-            Vector3D direction = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
+            Vector3D direction = VectorUtil.normalizeOrElse(VectorUtil.clearAxis(user.getDirection(), 1), Vector3D.ZERO);
 
             double playerSpeed = VectorUtil.clearAxis(user.getVelocity(), 1).getNorm();
 

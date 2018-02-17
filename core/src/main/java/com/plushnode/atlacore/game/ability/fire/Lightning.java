@@ -16,6 +16,7 @@ import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -141,7 +142,7 @@ public class Lightning implements Ability {
             // TODO: Come up with better charge animation
             double t = Math.cos(time * 0.0075);
 
-            Vector3D side = Vector3D.PLUS_J.crossProduct(user.getDirection()).normalize();
+            Vector3D side = VectorUtil.normalizeOrElse(Vector3D.PLUS_J.crossProduct(user.getDirection()), Vector3D.PLUS_I);
 
             Location location = user.getEyeLocation().add(side.scalarMultiply(t));
             displayParticle(location, 0.3);

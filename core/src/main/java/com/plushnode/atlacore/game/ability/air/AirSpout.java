@@ -52,6 +52,10 @@ public class AirSpout implements Ability {
     public UpdateResult update() {
         double maxHeight = config.height + config.heightBuffer;
 
+        if (!user.canBend(getDescription())) {
+            return UpdateResult.Remove;
+        }
+
         if (user.getEyeLocation().getBlock().isLiquid()) {
             return UpdateResult.Remove;
         }

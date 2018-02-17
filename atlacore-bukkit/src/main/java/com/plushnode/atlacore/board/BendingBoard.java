@@ -18,7 +18,6 @@ public class BendingBoard {
     private Player bukkitPlayer;
     private BukkitBendingPlayer bendingPlayer;
     private org.bukkit.scoreboard.Scoreboard scoreboard;
-    private Team team;
     private Objective objective;
     private Set<String> updatedScores = new HashSet<>();
     private boolean enabled;
@@ -27,7 +26,6 @@ public class BendingBoard {
         this.bendingPlayer = (BukkitBendingPlayer)player;
         this.bukkitPlayer = bendingPlayer.getBukkitPlayer();
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        this.team = scoreboard.registerNewTeam(player.getName() + "-team");
         this.objective = scoreboard.registerNewObjective("Slots", "dummy");
         this.objective.setDisplayName(ChatColor.BOLD + "Slots");
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);

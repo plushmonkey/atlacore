@@ -28,7 +28,6 @@ public class BendingBoard {
         this.bendingPlayer = (SpongeBendingPlayer)player;
         this.spongePlayer = bendingPlayer.getSpongePlayer();
         this.scoreboard = Scoreboard.builder().build();
-        this.scoreboard.registerTeam(Team.builder().name(player.getName() + "-team").build());
         this.objective = Objective.builder().name("Slots").criterion(Criteria.DUMMY).build();
 
         scoreboard.addObjective(this.objective);

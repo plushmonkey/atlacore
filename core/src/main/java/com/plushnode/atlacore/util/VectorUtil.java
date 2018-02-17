@@ -7,6 +7,13 @@ public final class VectorUtil {
 
     }
 
+    public static Vector3D normalizeOrElse(Vector3D vector, Vector3D otherwise) {
+        if (vector.getNormSq() == 0) {
+            return otherwise;
+        }
+        return vector.normalize();
+    }
+
     public static Vector3D hadamard(Vector3D a, Vector3D b) {
         return new Vector3D(a.getX() * b.getX(), a.getY() * b.getY(), a.getZ() * b.getZ());
     }
