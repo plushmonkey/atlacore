@@ -71,7 +71,7 @@ public class PlayerListener implements Listener {
         // Create the player on the next tick so createPlayer can find the Bukkit player.
         plugin.createTask(() -> {
             Game.getPlayerService().createPlayer(player.getUniqueId(), player.getName(), (p) -> {
-                if (p == null) {
+                if (p == null || !p.isOnline()) {
                     // This can happen if the player logs off before the player is created.
                     return;
                 }
@@ -95,6 +95,8 @@ public class PlayerListener implements Listener {
     public void onPlayerLogout(PlayerQuitEvent event) {
         com.plushnode.atlacore.platform.Player player =
                 Game.getPlayerService().getPlayerByName(event.getPlayer().getName());
+
+        if (player == null) return;
 
         Game.getPlayerService().savePlayer(player, (p) -> {
             Game.info(p.getName() + " saved to database.");

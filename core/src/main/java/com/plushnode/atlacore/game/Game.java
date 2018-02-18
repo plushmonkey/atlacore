@@ -219,6 +219,8 @@ public class Game {
         collisionService.registerCollision(airShield, fireSpin, false, true);
         collisionService.registerCollision(airShield, fireWheel, false, true);
 
+        collisionService.registerCollision(fireBlast, fireBlast, true, true);
+
         collisionService.registerCollision(fireShield, airBlast, false, true);
         collisionService.registerCollision(fireShield, airSuction, false, true);
         collisionService.registerCollision(fireShield, fireBlast, false, true);

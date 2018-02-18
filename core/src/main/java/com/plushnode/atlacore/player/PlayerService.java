@@ -27,8 +27,10 @@ public class PlayerService {
         playerCache.clear();
         for (Player player : players) {
             Player newPlayer = getPlayerByUUID(player.getUniqueId());
-            // Copy over previous conditionals for this player.
-            newPlayer.setBendingConditional(player.getBendingConditional());
+            if (newPlayer != null) {
+                // Copy over previous conditionals for this player.
+                newPlayer.setBendingConditional(player.getBendingConditional());
+            }
         }
     }
 
@@ -50,7 +52,9 @@ public class PlayerService {
 
         if (player == null) {
             player = repository.getPlayerByName(name);
-            playerCache.put(name.toLowerCase(), player);
+            if (player != null) {
+                playerCache.put(name.toLowerCase(), player);
+            }
         }
 
         return player;
@@ -74,7 +78,9 @@ public class PlayerService {
     public void createPlayer(UUID uuid, String name, Consumer<Player> callback) {
         executor.execute(() -> {
             Player player = repository.createPlayer(uuid, name);
-            playerCache.put(name.toLowerCase(), player);
+            if (player != null) {
+                playerCache.put(name.toLowerCase(), player);
+            }
             Game.plugin.createTask(() -> callback.accept(player), 0);
         });
     }
