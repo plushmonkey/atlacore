@@ -19,7 +19,8 @@ public final class MaterialUtil {
     private static final List<Material> EARTH_MATERIALS = Arrays.asList(
             Material.DIRT, Material.MYCEL, Material.GRASS, Material.STONE, Material.GRAVEL, Material.CLAY,
             Material.COAL_ORE, Material.IRON_ORE, Material.GOLD_ORE, Material.REDSTONE_ORE, Material.LAPIS_ORE,
-            Material.DIAMOND_ORE, Material.NETHERRACK, Material.QUARTZ_ORE, Material.COBBLESTONE, Material.STEP
+            Material.DIAMOND_ORE, Material.NETHERRACK, Material.QUARTZ_ORE, Material.COBBLESTONE, Material.STEP,
+            Material.SAND, Material.SANDSTONE, Material.RED_SANDSTONE, Material.GRASS_PATH
     );
 
     // These are materials that must be attached to a block.

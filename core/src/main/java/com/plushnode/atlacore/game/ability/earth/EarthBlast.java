@@ -187,7 +187,6 @@ public class EarthBlast implements Ability {
         Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.sourceSelectRange, true);
 
         if (block == null || !MaterialUtil.isEarthbendable(block)) return null;
-        if (Game.getTempBlockService().isTempBlock(block)) return null;
         if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) return null;
 
         // Destroy any existing blasts that haven't been launched.
