@@ -90,7 +90,7 @@ public class HeatControl implements Ability {
     }
 
     public static boolean canBurn(User user) {
-        if (!user.hasElement(Elements.FIRE)) return true;
+        if (!user.canBend(Game.getAbilityRegistry().getAbilityByName("HeatControl"))) return true;
 
         AbilityDescription current = user.getSelectedAbility();
 
