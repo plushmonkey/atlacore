@@ -80,6 +80,7 @@ public class PlayerService {
             Player player = repository.createPlayer(uuid, name);
             if (player != null) {
                 playerCache.put(name.toLowerCase(), player);
+                Game.plugin.getEventBus().postBendingPlayerCreateEvent(player);
             }
             Game.plugin.createTask(() -> callback.accept(player), 0);
         });

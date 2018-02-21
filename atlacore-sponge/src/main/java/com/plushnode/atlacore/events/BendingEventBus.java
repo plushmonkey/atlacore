@@ -2,11 +2,18 @@ package com.plushnode.atlacore.events;
 
 import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
+import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.cause.Cause;
 
 public class BendingEventBus implements EventBus {
+    @Override
+    public void postBendingPlayerCreateEvent(Player player) {
+        BendingPlayerCreateEvent event = new BendingPlayerCreateEvent(player);
+        Sponge.getEventManager().post(event);
+    }
+
     @Override
     public void postCooldownAddEvent(User user, AbilityDescription ability) {
         CooldownAddEvent event = new CooldownAddEvent(user, ability, null);
