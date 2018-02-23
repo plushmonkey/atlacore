@@ -236,7 +236,7 @@ public class RaiseEarth implements Ability {
                 finished = true;
             }
 
-            if (++currentHeight >= maxHeight) {
+            if (++currentHeight >= this.height) {
                 finished = true;
             }
 
