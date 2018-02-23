@@ -128,8 +128,8 @@ public class AirSuction implements Ability {
 
             CollisionUtil.handleEntityCollisions(user, collider, this::affect, false, false);
 
-            boolean collision = CollisionUtil.handleBlockCollisions(user.getWorld(),
-                    new Sphere(location.toVector(), BLOCK_COLLISION_RADIUS), previous, location, true);
+            Sphere blockCollider = new Sphere(location.toVector(), BLOCK_COLLISION_RADIUS);
+            boolean collision = CollisionUtil.handleBlockCollisions(blockCollider, previous, location, true).getFirst();
 
             if (collision && doBlockCollision(previous)) {
                 return UpdateResult.Remove;

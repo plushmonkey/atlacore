@@ -26,6 +26,7 @@ import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.util.Pair;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -129,22 +130,24 @@ public class FireBlast implements Ability, Burstable {
             return UpdateResult.Remove;
         }
 
-        boolean collision = CollisionUtil.handleBlockCollisions(user.getWorld(),
-                new Sphere(location.toVector(), 1.0), previous, location, true);
+        Sphere blockCollider = new Sphere(location.toVector(), 0.5);
+        Pair<Boolean, Location> collisionResult = CollisionUtil.handleBlockCollisions(blockCollider, previous, location, true);
 
-        if (collision) {
-            // Ignite right before where the collision happened.
-            igniteBlocks(this.user, location.subtract(direction.scalarMultiply(config.speed)));
+        if (collisionResult.getFirst()) {
+            // Ignite right where the collision happened.
+            igniteBlocks(this.user, collisionResult.getSecond());
         }
 
-        return collision ? UpdateResult.Remove : UpdateResult.Continue;
+        return collisionResult.getFirst() ? UpdateResult.Remove : UpdateResult.Continue;
     }
 
     public static void igniteBlocks(User user, Location location) {
         // The top is used so the ray casted won't collide when going down a layer.
         Location top = location.getBlock().getLocation().add(0.5, 0.95, 0.5);
+        Location center = location.getBlock().getLocation().add(0.5, 0.5, 0.5);
+        final double NearbyDistSq = 1.5;
 
-        for (Block block : WorldUtil.getNearbyBlocks(location, config.igniteRadius)) {
+        for (Block block : WorldUtil.getNearbyBlocks(center, config.igniteRadius)) {
             if (block.isLiquid()) continue;
 
             if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) {
@@ -152,7 +155,7 @@ public class FireBlast implements Ability, Burstable {
             }
 
             // Don't create fire where the user that activated it is standing.
-            if (block.getLocation().add(0.5, 0.5, 0.5).distanceSquared(user.getLocation()) < 3 * 3) {
+            if (block.getLocation().add(0.5, 0.5, 0.5).distanceSquared(user.getLocation()) < NearbyDistSq) {
                 continue;
             }
 
@@ -163,7 +166,7 @@ public class FireBlast implements Ability, Burstable {
                     // Cast a ray to see if there's line of sight of the target block to ignite.
                     // This stops it from igniting blocks through walls.
                     Ray ray = new Ray(top.toVector(), checkTop.subtract(top).toVector().normalize());
-                    Location rayLocation = RayCaster.cast(location.getWorld(), ray, config.igniteRadius, true);
+                    Location rayLocation = RayCaster.cast(location.getWorld(), ray, config.igniteRadius + 2.0, true);
 
                     if (rayLocation.distanceSquared(top) < checkTop.distanceSquared(top)) {
                         // The casted ray collided with something before it reached the target ignite block.

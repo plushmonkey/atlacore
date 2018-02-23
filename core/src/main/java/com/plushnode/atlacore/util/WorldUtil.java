@@ -22,20 +22,20 @@ public final class WorldUtil {
     }
 
     public static Collection<Block> getNearbyBlocks(Location location, double radius, List<Material> ignoreMaterials) {
-        int r = (int)radius + 1;
+        int r = (int)radius + 2;
 
-        int originX = (int)Math.floor(location.getX());
-        int originY = (int)Math.floor(location.getY());
-        int originZ = (int)Math.floor(location.getZ());
+        double originX = location.getX();
+        double originY = location.getY();
+        double originZ = location.getZ();
 
-        Set<Block> blocks = new HashSet<>();
+        List<Block> blocks = new ArrayList<>();
         Vector3D pos = location.toVector();
 
-        for (int x = originX - r; x < originX + r; ++x) {
-            for (int y = originY - r; y < originY + r; ++y) {
-                for (int z = originZ - r; z < originZ + r; ++z) {
+        for (double x = originX - r; x <= originX + r; ++x) {
+            for (double y = originY - r; y <= originY + r; ++y) {
+                for (double z = originZ - r; z <= originZ + r; ++z) {
                     if (pos.distanceSq(new Vector3D(x, y, z)) <= radius * radius) {
-                        Block block = location.getWorld().getBlockAt(x, y, z);
+                        Block block = location.getWorld().getBlockAt((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 
                         if (!ignoreMaterials.contains(block.getType())) {
                             blocks.add(block);

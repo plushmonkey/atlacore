@@ -208,8 +208,7 @@ public class AirSwipe implements Ability {
                 }
             }
 
-            return !CollisionUtil.handleBlockCollisions(user.getWorld(),
-                    new Sphere(location.toVector(), 0.5), previous, location, true);
+            return !CollisionUtil.handleBlockCollisions(new Sphere(location.toVector(), 0.5), previous, location, true).getFirst();
         }
 
         private boolean handleBlockInteractions(Block block) {

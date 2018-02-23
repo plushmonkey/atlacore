@@ -8,6 +8,7 @@ import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.util.Pair;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public final class CollisionUtil {
         return hit;
     }
 
-    public static boolean handleBlockCollisions(World world, Collider collider, Location begin, Location end, boolean liquids) {
+    public static Pair<Boolean, Location> handleBlockCollisions(Collider collider, Location begin, Location end, boolean liquids) {
         double maxExtent = VectorUtil.getMaxComponent(collider.getHalfExtents());
         double distance = begin.distance(end);
 
@@ -86,11 +87,11 @@ public final class CollisionUtil {
             if (result.isPresent()) {
                 double d = result.get();
                 if (d < distance) {
-                    return true;
+                    return new Pair<>(true, begin.add(toEnd.scalarMultiply(d)));
                 }
             }
         }
 
-        return false;
+        return new Pair<>(false, null);
     }
 }

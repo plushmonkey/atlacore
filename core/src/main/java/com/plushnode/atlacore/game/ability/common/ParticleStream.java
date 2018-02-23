@@ -61,8 +61,8 @@ public abstract class ParticleStream {
 
         if (previous.equals(origin)) return true;
 
-        return !CollisionUtil.handleBlockCollisions(user.getWorld(),
-                new Sphere(location.toVector(), 0.01), previous, location, true);
+        Sphere blockCollider = new Sphere(location.toVector(), 0.01);
+        return !CollisionUtil.handleBlockCollisions(blockCollider, previous, location, true).getFirst();
     }
 
     public abstract void render();

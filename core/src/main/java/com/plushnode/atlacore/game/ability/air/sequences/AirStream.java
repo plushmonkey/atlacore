@@ -68,7 +68,7 @@ public class AirStream implements Ability {
             return UpdateResult.Remove;
         }
 
-        if (CollisionUtil.handleBlockCollisions(user.getWorld(), collider, previous, location, true)) {
+        if (CollisionUtil.handleBlockCollisions(collider, previous, location, true).getFirst()) {
             location = previous;
         }
 

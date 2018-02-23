@@ -240,7 +240,8 @@ public class Combustion implements Ability {
 
                 render();
 
-                if (CollisionUtil.handleBlockCollisions(user.getWorld(), new Sphere(location.toVector(), 0.5), previous, location, true)) {
+                Sphere blockCollider = new Sphere(location.toVector(), 0.5);
+                if (CollisionUtil.handleBlockCollisions(blockCollider, previous, location, true).getFirst()) {
                     state = new CombustState(previous);
                     return;
                 }

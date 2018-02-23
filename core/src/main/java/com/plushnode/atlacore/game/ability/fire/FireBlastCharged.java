@@ -22,6 +22,7 @@ import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.util.Pair;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -132,15 +133,15 @@ public class FireBlastCharged implements Ability {
             return false;
         }, true);
 
-        boolean collision = CollisionUtil.handleBlockCollisions(user.getWorld(),
-                new Sphere(location.toVector(), 1.0), previous, location, true);
+        Sphere blockCollider = new Sphere(location.toVector(), 0.5);
+        Pair<Boolean, Location> collisionResult = CollisionUtil.handleBlockCollisions(blockCollider, previous, location, true);
 
-        if (collision) {
-            // Ignite right before where the collision happened.
-            FireBlast.igniteBlocks(this.user, location.subtract(direction.scalarMultiply(config.speed)));
+        if (collisionResult.getFirst()) {
+            // Ignite right where the collision happened.
+            FireBlast.igniteBlocks(this.user, collisionResult.getSecond());
         }
 
-        return collision ? UpdateResult.Remove : UpdateResult.Continue;
+        return collisionResult.getFirst() ? UpdateResult.Remove : UpdateResult.Continue;
     }
 
     public boolean isCharging() {
