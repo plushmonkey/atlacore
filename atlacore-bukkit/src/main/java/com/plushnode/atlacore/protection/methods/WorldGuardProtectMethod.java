@@ -1,13 +1,14 @@
 package com.plushnode.atlacore.protection.methods;
 
-import com.plushnode.atlacore.platform.BukkitBendingPlayer;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.protection.PluginNotFoundException;
 import com.plushnode.atlacore.protection.ProtectMethod;
-import com.plushnode.atlacore.platform.LocationWrapper;
+import com.sk89q.worldguard.bukkit.RegionContainer;
+import com.sk89q.worldguard.bukkit.RegionQuery;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.domains.Association;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -23,11 +24,19 @@ public class WorldGuardProtectMethod implements ProtectMethod {
 
     @Override
     public boolean canBuild(User user, AbilityDescription abilityDescription, Location location) {
-        if (!(user instanceof BukkitBendingPlayer)) return true;
-        Player player = ((BukkitBendingPlayer)user).getBukkitPlayer();
         org.bukkit.Location bukkitLocation = ((LocationWrapper)location).getBukkitLocation();
 
-        return worldGuard.canBuild(player, bukkitLocation);
+        if (user instanceof com.plushnode.atlacore.platform.Player) {
+            Player player = ((BukkitBendingPlayer)user).getBukkitPlayer();
+
+            return worldGuard.canBuild(player, bukkitLocation);
+        }
+
+        RegionContainer container = worldGuard.getRegionContainer();
+        RegionQuery query = container.createQuery();
+
+        // Query WorldGuard to see if a non-member (entity) can build in a region.
+        return query.testState(bukkitLocation, (list) -> Association.NON_MEMBER, DefaultFlag.BUILD);
     }
 
     @Override

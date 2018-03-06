@@ -3,7 +3,6 @@ package com.plushnode.atlacore.protection.cache;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.platform.block.Block;
-import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.util.Task;
@@ -14,12 +13,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
-public class PerPlayerProtectionCache implements ProtectionCache {
-    private Map<Player, Map<Block, BlockCacheElement>> blockCache = new HashMap<>();
+public class PerUserProtectionCache implements ProtectionCache {
+    private Map<User, Map<Block, BlockCacheElement>> blockCache = new HashMap<>();
     private Task runnable = null;
     private double period;
 
-    public PerPlayerProtectionCache() {
+    public PerUserProtectionCache() {
         reload();
     }
 
@@ -51,11 +50,7 @@ public class PerPlayerProtectionCache implements ProtectionCache {
 
     @Override
     public Optional<Boolean> canBuild(User user, AbilityDescription abilityDescription, Location location) {
-        if (!(user instanceof Player)) return Optional.empty();
-
-        Player player = (Player) user;
-
-        Map<Block, BlockCacheElement> blockMap = getBlockMap(player);
+        Map<Block, BlockCacheElement> blockMap = getBlockMap(user);
 
         Block block = location.getBlock();
         BlockCacheElement cacheElement = blockMap.get(block);
@@ -69,22 +64,18 @@ public class PerPlayerProtectionCache implements ProtectionCache {
 
     @Override
     public void store(User user, AbilityDescription abilityDescription, Location location, boolean allowed) {
-        if (!(user instanceof Player)) return;
-
-        Player player = (Player) user;
-
-        Map<Block, BlockCacheElement> blockMap = getBlockMap(player);
+        Map<Block, BlockCacheElement> blockMap = getBlockMap(user);
 
         Block block = location.getBlock();
         blockMap.put(block, new BlockCacheElement(allowed, System.currentTimeMillis()));
     }
 
-    private Map<Block, BlockCacheElement> getBlockMap(Player player) {
-        Map<Block, BlockCacheElement> blockMap = blockCache.get(player);
+    private Map<Block, BlockCacheElement> getBlockMap(User user) {
+        Map<Block, BlockCacheElement> blockMap = blockCache.get(user);
 
         if (blockMap == null) {
             blockMap = new HashMap<>();
-            blockCache.put(player, blockMap);
+            blockCache.put(user, blockMap);
         }
 
         return blockMap;

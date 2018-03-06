@@ -3,10 +3,9 @@ package com.plushnode.atlacore.protection;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
-import com.plushnode.atlacore.protection.cache.PerPlayerProtectionCache;
+import com.plushnode.atlacore.protection.cache.PerUserProtectionCache;
 import com.plushnode.atlacore.protection.cache.ProtectionCache;
 
 import java.util.*;
@@ -16,7 +15,7 @@ public class ProtectionSystem extends Configurable {
     private RegionProtection globalProtection = new RegionProtection();
     private ProtectionFactory protectionFactory = new ProtectionFactory();
     private boolean allowHarmless;
-    private ProtectionCache cache = new PerPlayerProtectionCache();
+    private ProtectionCache cache = new PerUserProtectionCache();
 
     public void setCache(ProtectionCache cache) {
         this.cache = cache;
@@ -27,8 +26,6 @@ public class ProtectionSystem extends Configurable {
     }
 
     public boolean canBuild(User user, AbilityDescription abilityDescription, Location location) {
-        if (!(user instanceof Player)) return true;
-
         boolean isHarmless = false;
 
         if (abilityDescription != null) {

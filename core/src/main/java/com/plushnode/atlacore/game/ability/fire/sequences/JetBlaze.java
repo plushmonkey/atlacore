@@ -47,6 +47,10 @@ public class JetBlaze implements Ability {
 
     @Override
     public UpdateResult update() {
+        if (!Game.getProtectionSystem().canBuild(getUser(), getUser().getLocation())) {
+            return UpdateResult.Remove;
+        }
+
         Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE,
                 0.6f, 0.6f, 0.6f, 0.0f, 20,
                 getUser().getLocation(), 257);
