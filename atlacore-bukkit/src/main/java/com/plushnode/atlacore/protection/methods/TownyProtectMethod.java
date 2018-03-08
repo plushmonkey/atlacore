@@ -1,7 +1,6 @@
 package com.plushnode.atlacore.protection.methods;
 
 import com.palmergames.bukkit.towny.Towny;
-import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.*;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import com.palmergames.bukkit.towny.war.flagwar.TownyWar;
@@ -88,7 +87,7 @@ public class TownyProtectMethod implements ProtectMethod {
         TownyWorld world;
         try {
             world = TownyUniverse.getDataSource().getWorld(location.getWorld().getName());
-        } catch (NotRegisteredException e) {
+        } catch (Exception e) {
             return true;
         }
 
