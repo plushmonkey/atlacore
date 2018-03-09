@@ -46,6 +46,12 @@ public class BendingBoard {
 
     public void update() {
         if (!enabled) return;
+        if (!bukkitPlayer.hasPermission("atla.board.display")) {
+            if (bukkitPlayer.getScoreboard() == scoreboard) {
+                bukkitPlayer.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+            }
+            return;
+        }
 
         bendingPlayer = (BukkitBendingPlayer)Game.getPlayerService().getPlayerByName(bukkitPlayer.getName());
 

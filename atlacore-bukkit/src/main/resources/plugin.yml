@@ -2,7 +2,7 @@ name: ${name}
 author: plushmonkey
 version: ${version}
 main: com.plushnode.atlacore.AtlaCorePlugin
-softdepend: [Factions, GriefPrevention, LWC, Towny, WorldGuard]
+softdepend: [ProjectKorra, Factions, GriefPrevention, LWC, Towny, WorldGuard]
 commands:
   atla:
     aliases: [b, bending]
@@ -21,6 +21,7 @@ permissions:
       atla.command.choose: true
       atla.command.display: true
       atla.command.help: true
+      atla.board.display: true
       atla.air: true
       atla.chi: true
       atla.earth: true
