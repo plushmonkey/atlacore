@@ -131,7 +131,7 @@ public class AirStream implements Ability {
         tailIndex = ++tailIndex % config.tailCount;
 
         for (TailData data : tail) {
-            Vector3D side = Vector3D.PLUS_J.crossProduct(data.direction);
+            Vector3D side = VectorUtil.normalizeOrElse(Vector3D.PLUS_J.crossProduct(data.direction), Vector3D.PLUS_I);
 
             if (side.getNormSq() > 0) {
                 side = side.normalize();

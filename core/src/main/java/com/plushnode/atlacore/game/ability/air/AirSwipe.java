@@ -97,7 +97,7 @@ public class AirSwipe implements Ability {
                 Vector3D direction = user.getDirection();
                 Location location = user.getEyeLocation().add(direction);
 
-                Vector3D side = direction.crossProduct(Vector3D.PLUS_J).normalize();
+                Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 location = location.add(side.scalarMultiply(0.5));
 
                 // Display air particles to the right of the player.
@@ -134,7 +134,7 @@ public class AirSwipe implements Ability {
 
         Vector3D up = Vector3D.PLUS_J;
         Vector3D lookingDir = user.getDirection();
-        Vector3D right = lookingDir.crossProduct(up).normalize();
+        Vector3D right = VectorUtil.normalizeOrElse(lookingDir.crossProduct(up), Vector3D.PLUS_I);
         Vector3D rotateAxis = right.crossProduct(lookingDir);
 
         double halfArc = config.arc / 2;

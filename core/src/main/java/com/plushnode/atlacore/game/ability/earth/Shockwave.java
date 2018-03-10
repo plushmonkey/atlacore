@@ -141,7 +141,7 @@ public class Shockwave implements Ability {
                 Vector3D direction = user.getDirection();
                 Location location = user.getEyeLocation().add(direction);
 
-                Vector3D side = direction.crossProduct(Vector3D.PLUS_J).normalize();
+                Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 location = location.add(side.scalarMultiply(0.5));
 
                 Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);

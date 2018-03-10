@@ -9,6 +9,7 @@ import com.plushnode.atlacore.game.ability.common.BurstAbility;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -49,7 +50,7 @@ public class AirBurst extends BurstAbility {
                 Vector3D direction = user.getDirection();
                 Location location = user.getEyeLocation().add(direction);
 
-                Vector3D side = direction.crossProduct(Vector3D.PLUS_J).normalize();
+                Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 location = location.subtract(side.scalarMultiply(0.5));
 
                 // Display air particles to the left of the player.
@@ -60,7 +61,7 @@ public class AirBurst extends BurstAbility {
                 Vector3D direction = user.getDirection();
                 Location location = user.getEyeLocation().add(direction);
 
-                Vector3D side = direction.crossProduct(Vector3D.PLUS_J).normalize();
+                Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 location = location.add(side.scalarMultiply(0.5));
 
                 // Display air particles to the right of the player.

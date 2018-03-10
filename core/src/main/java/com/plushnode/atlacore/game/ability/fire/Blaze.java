@@ -50,7 +50,7 @@ public class Blaze implements Ability {
 
         for (double degrees = arcBegin; degrees < arcEnd; degrees += stepSize) {
             double angle = Math.toRadians(degrees);
-            Vector3D direction = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
+            Vector3D direction = VectorUtil.normalizeOrElse(VectorUtil.clearAxis(user.getDirection(), 1), Vector3D.PLUS_I);
             direction = VectorUtil.rotate(direction, Vector3D.PLUS_J, angle).normalize();
 
             fireStreams.add(new FireStream(direction, config.range));

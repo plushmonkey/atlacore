@@ -50,7 +50,7 @@ public class FireWall implements Ability {
 
         AABB aabb = new AABB(new Vector3D(-hw, -hh, -ht), new Vector3D(hw, hh, ht));
 
-        Vector3D right = user.getDirection().crossProduct(Vector3D.PLUS_J).normalize();
+        Vector3D right = VectorUtil.normalizeOrElse(user.getDirection().crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
 
         Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.range));
 

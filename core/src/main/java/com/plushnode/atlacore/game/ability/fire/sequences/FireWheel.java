@@ -96,7 +96,7 @@ public class FireWheel implements Ability {
             return UpdateResult.Remove;
         }
 
-        Vector3D rotationAxis = Vector3D.PLUS_J.crossProduct(direction).normalize();
+        Vector3D rotationAxis = VectorUtil.normalizeOrElse(Vector3D.PLUS_J.crossProduct(direction), Vector3D.PLUS_I);
 
         for (double angle = 0; angle < 360; ++angle) {
             Vector3D offset = VectorUtil.rotate(direction, rotationAxis, Math.toRadians(angle)).scalarMultiply(config.radius);

@@ -144,7 +144,7 @@ public class FireShield implements Ability {
 
             AABB aabb = new AABB(new Vector3D(-r, -r, -ht), new Vector3D(r, r, ht));
 
-            Vector3D right = user.getDirection().crossProduct(Vector3D.PLUS_J).normalize();
+            Vector3D right = VectorUtil.normalizeOrElse(user.getDirection().crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
 
             // rotate the bounding box so it's lined up with player's view
             Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
@@ -159,7 +159,7 @@ public class FireShield implements Ability {
         public void render() {
             Location center = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.discExtension));
             for (double angle = 0; angle < 360; angle += 20) {
-                Vector3D side = Vector3D.PLUS_J.crossProduct(user.getDirection()).normalize();
+                Vector3D side = VectorUtil.normalizeOrElse(Vector3D.PLUS_J.crossProduct(user.getDirection()), Vector3D.PLUS_I);
                 // Rotate it circularly around the user's direction
                 Vector3D direction = VectorUtil.rotate(side, user.getDirection(), Math.toRadians(angle));
 

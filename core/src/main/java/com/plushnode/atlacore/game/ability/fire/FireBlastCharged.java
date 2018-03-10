@@ -19,6 +19,7 @@ import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.OutOfWorldRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.SwappedSlotsRemovalPolicy;
+import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -89,7 +90,7 @@ public class FireBlastCharged implements Ability {
                 Vector3D direction = user.getDirection();
                 Location displayLocation = user.getEyeLocation().add(direction);
 
-                Vector3D side = direction.crossProduct(Vector3D.PLUS_J).normalize();
+                Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 displayLocation = displayLocation.add(side.scalarMultiply(0.5));
 
                 Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.25f, 0.25f, 0.25f, 0.0f, 3, displayLocation, 257);

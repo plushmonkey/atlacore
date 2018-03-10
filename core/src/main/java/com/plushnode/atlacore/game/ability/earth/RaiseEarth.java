@@ -99,7 +99,7 @@ public class RaiseEarth implements Ability {
     private void addWallColumns(Block selection, int width) {
         int firstSideSize = (int)Math.ceil((width - 1) / 2.0);
         int secondSideSize = (int)Math.floor((width - 1) / 2.0);
-        Vector3D side = user.getDirection().crossProduct(Vector3D.PLUS_J).normalize();
+        Vector3D side = VectorUtil.normalizeOrElse(user.getDirection().crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
 
         Location location = selection.getLocation().add(0.5, 0.5, 0.5);
         for (int i = 0; i < firstSideSize; ++i) {

@@ -42,7 +42,7 @@ public class FireKick implements Ability {
 
         Vector3D up = Vector3D.PLUS_J;
         Vector3D lookingDir = user.getDirection();
-        Vector3D right = lookingDir.crossProduct(up).normalize();
+        Vector3D right = VectorUtil.normalizeOrElse(lookingDir.crossProduct(up), Vector3D.PLUS_I);
         Vector3D rotateAxis = right.crossProduct(lookingDir);
 
         Vector3D target = user.getEyeLocation().toVector().add(user.getDirection().scalarMultiply(config.range));
