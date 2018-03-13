@@ -2,31 +2,38 @@ package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.platform.Location;
+import com.plushnode.atlacore.platform.World;
 import com.plushnode.atlacore.util.VectorUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Optional;
 
 public class AABB implements Collider {
-    public static final AABB PLAYER_BOUNDS = new AABB(new Vector3D(-0.3, 0.0, -0.3), new Vector3D(0.3, 1.8, 0.3));
-    public static final AABB BLOCK_BOUNDS = new AABB(new Vector3D(0.0, 0.0, 0.0), new Vector3D(1.0, 1.0, 1.0));
+    public static final AABB PLAYER_BOUNDS = new AABB(new Vector3D(-0.3, 0.0, -0.3), new Vector3D(0.3, 1.8, 0.3), null);
+    public static final AABB BLOCK_BOUNDS = new AABB(new Vector3D(0.0, 0.0, 0.0), new Vector3D(1.0, 1.0, 1.0), null);
 
     private Vector3D min;
     private Vector3D max;
+    private World world;
 
     public AABB(Vector3D min, Vector3D max) {
+        this(min, max, null);
+    }
+
+    public AABB(Vector3D min, Vector3D max, World world) {
         this.min = min;
         this.max = max;
+        this.world = world;
     }
 
     public AABB at(Vector3D pos) {
-        if (min == null || max == null) return new AABB(null, null);
+        if (min == null || max == null) return new AABB(null, null, world);
 
-        return new AABB(min.add(pos), max.add(pos));
+        return new AABB(min.add(pos), max.add(pos), world);
     }
 
     public AABB at(Location location) {
-        if (min == null || max == null) return new AABB(null, null);
+        if (min == null || max == null) return new AABB(null, null, location.getWorld());
 
         return at(location.toVector());
     }
@@ -34,7 +41,7 @@ public class AABB implements Collider {
     public AABB grow(double x, double y, double z) {
         Vector3D change = new Vector3D(x, y, z);
 
-        return new AABB(min.subtract(change), max.add(change));
+        return new AABB(min.subtract(change), max.add(change), this.world);
     }
 
     public AABB scale(double x, double y, double z) {
@@ -96,6 +103,10 @@ public class AABB implements Collider {
     }
 
     public boolean intersects(AABB other) {
+        if (this.world != null && other.getWorld() != null && !other.getWorld().equals(this.world)) {
+            return false;
+        }
+
         if (min == null || max == null || other.min == null || other.max == null) {
             return false;
         }
@@ -109,11 +120,19 @@ public class AABB implements Collider {
     }
 
     public boolean intersects(Sphere sphere) {
+        if (this.world != null && sphere.getWorld() != null && !sphere.getWorld().equals(this.world)) {
+            return false;
+        }
+
         return sphere.intersects(this);
     }
 
     @Override
     public boolean intersects(Collider collider) {
+        if (this.world != null && collider.getWorld() != null && !collider.getWorld().equals(this.world)) {
+            return false;
+        }
+
         if (collider instanceof Sphere) {
             return intersects((Sphere) collider);
         } else if (collider instanceof AABB) {
@@ -138,6 +157,11 @@ public class AABB implements Collider {
 
         Vector3D half = max.subtract(min).scalarMultiply(0.5);
         return new Vector3D(Math.abs(half.getX()), Math.abs(half.getY()), Math.abs(half.getZ()));
+    }
+
+    @Override
+    public World getWorld() {
+        return world;
     }
 
     @Override

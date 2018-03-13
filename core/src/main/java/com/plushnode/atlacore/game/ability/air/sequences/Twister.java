@@ -10,10 +10,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.platform.Entity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.util.VectorUtil;
@@ -29,6 +26,7 @@ public class Twister implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private World world;
     private long startTime;
     private Location base;
     private Vector3D direction;
@@ -40,6 +38,7 @@ public class Twister implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.world = user.getWorld();
         this.startTime = System.currentTimeMillis();
         this.direction = user.getDirection();
         this.direction = VectorUtil.clearAxis(direction, 1).normalize();
@@ -89,7 +88,7 @@ public class Twister implements Ability {
             double r = config.proximity + config.radius * (i / config.height);
             AABB aabb = new AABB(new Vector3D(-r, 0, -r), new Vector3D(r, 1, r)).at(location);
 
-            colliders.add(new Disc(new OBB(aabb), new Sphere(location.toVector(), r)));
+            colliders.add(new Disc(new OBB(aabb, world), new Sphere(location.toVector(), r, world)));
         }
 
         for (Collider collider : colliders) {

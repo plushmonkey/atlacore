@@ -10,10 +10,7 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.platform.LivingEntity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
@@ -32,6 +29,7 @@ public class FireBlastCharged implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private World world;
     private long startTime;
     private boolean launched;
     private Location origin;
@@ -46,6 +44,7 @@ public class FireBlastCharged implements Ability {
         }
 
         this.user = user;
+        this.world = user.getWorld();
         this.launched = false;
         this.startTime = System.currentTimeMillis();
 
@@ -182,7 +181,7 @@ public class FireBlastCharged implements Ability {
             return Collections.emptyList();
         }
 
-        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
     }
 
     @Override

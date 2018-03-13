@@ -4,14 +4,12 @@ import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.game.Game;
-import com.plushnode.atlacore.platform.Entity;
-import com.plushnode.atlacore.platform.LivingEntity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 public abstract class ParticleStream {
     private User user;
+    private World world;
     protected Location origin;
     protected Location location;
     protected Vector3D direction;
@@ -27,6 +25,7 @@ public abstract class ParticleStream {
                           double damage)
     {
         this.user = user;
+        this.world = user.getWorld();
         this.origin = origin;
         this.location = origin;
         this.direction = direction;
@@ -36,7 +35,7 @@ public abstract class ParticleStream {
         this.abilityCollisionRadius = abilityCollisionRadius;
         this.damage = damage;
 
-        this.collider = new Sphere(location.toVector(), abilityCollisionRadius);
+        this.collider = new Sphere(location.toVector(), abilityCollisionRadius, world);
     }
 
     // Return false to destroy this stream
@@ -50,7 +49,7 @@ public abstract class ParticleStream {
 
         render();
 
-        this.collider = new Sphere(location.toVector(), abilityCollisionRadius);
+        this.collider = new Sphere(location.toVector(), abilityCollisionRadius, world);
 
         Sphere entityCollider = new Sphere(location.toVector(), entityCollisionRadius);
         boolean hit = CollisionUtil.handleEntityCollisions(user, entityCollider, this::onEntityHit, true);
@@ -86,5 +85,9 @@ public abstract class ParticleStream {
 
     public Collider getCollider() {
         return collider;
+    }
+
+    public World getWorld() {
+        return world;
     }
 }

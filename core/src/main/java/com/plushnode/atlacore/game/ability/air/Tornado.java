@@ -72,7 +72,7 @@ public class Tornado implements Ability {
             double r = 2.0 + (radius - 2.0) * (i / height);
             AABB aabb = new AABB(new Vector3D(-r, 0, -r), new Vector3D(r, 1, r)).at(location);
 
-            colliders.add(new Disc(new OBB(aabb), new Sphere(location.toVector(), r)));
+            colliders.add(new Disc(new OBB(aabb, user.getWorld()), new Sphere(location.toVector(), r, user.getWorld())));
         }
 
         for (Collider collider : colliders) {

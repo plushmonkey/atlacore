@@ -12,10 +12,7 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.math.LineSegment;
-import com.plushnode.atlacore.platform.LivingEntity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -25,6 +22,7 @@ import java.util.*;
 public class Lightning implements Ability {
     public static Config config = new Config();
     private User user;
+    private World world;
     private Random rand;
     private State state;
     private List<Collider> colliders = new ArrayList<>();
@@ -32,6 +30,7 @@ public class Lightning implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.world = user.getWorld();
         this.rand = new Random();
         this.state = new ChargeState();
 
@@ -194,7 +193,7 @@ public class Lightning implements Ability {
                     return false;
                 }
 
-                colliders.add(new Sphere(current.toVector(), config.collisionRadius));
+                colliders.add(new Sphere(current.toVector(), config.collisionRadius, world));
             }
 
             return t < 1.0;

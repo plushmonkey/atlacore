@@ -13,10 +13,7 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.Burstable;
-import com.plushnode.atlacore.platform.LivingEntity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
@@ -35,6 +32,7 @@ public class FireBlast implements Ability, Burstable {
     public static Config config = new Config();
 
     private User user;
+    private World world;
     private Location origin;
     private Location location;
     private Vector3D direction;
@@ -46,7 +44,7 @@ public class FireBlast implements Ability, Burstable {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
-
+        this.world = user.getWorld();
         this.particleCount = 6;
 
         if (!Game.getProtectionSystem().canBuild(user, user.getEyeLocation())) {
@@ -203,7 +201,7 @@ public class FireBlast implements Ability, Burstable {
 
     @Override
     public Collection<Collider> getColliders() {
-        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
     }
 
     @Override

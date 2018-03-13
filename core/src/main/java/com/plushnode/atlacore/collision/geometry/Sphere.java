@@ -1,22 +1,33 @@
 package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.platform.World;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 public class Sphere implements Collider {
     public Vector3D center;
     public double radius;
+    public World world;
 
     public Sphere(Vector3D center, double radius) {
+        this(center, radius, null);
+    }
+
+    public Sphere(Vector3D center, double radius, World world) {
         this.center = center;
         this.radius = radius;
+        this.world = world;
     }
 
     public Sphere at(Vector3D newCenter) {
-        return new Sphere(newCenter, radius);
+        return new Sphere(newCenter, radius, world);
     }
 
     public boolean intersects(AABB aabb) {
+        if (this.world != null && aabb.getWorld() != null && !aabb.getWorld().equals(this.world)) {
+            return false;
+        }
+
         Vector3D min = aabb.min();
         Vector3D max = aabb.max();
 
@@ -32,6 +43,10 @@ public class Sphere implements Collider {
     }
 
     public boolean intersects(OBB obb) {
+        if (this.world != null && obb.getWorld() != null && !obb.getWorld().equals(this.world)) {
+            return false;
+        }
+
         Vector3D closest = obb.getClosestPosition(center);
         Vector3D v = center.subtract(closest);
 
@@ -39,6 +54,10 @@ public class Sphere implements Collider {
     }
 
     public boolean intersects(Sphere other) {
+        if (this.world != null && other.getWorld() != null && !other.getWorld().equals(this.world)) {
+            return false;
+        }
+
         double distSq = other.center.distanceSq(center);
         double rsum = radius + other.radius;
 
@@ -48,6 +67,10 @@ public class Sphere implements Collider {
 
     @Override
     public boolean intersects(Collider collider) {
+        if (this.world != null && collider.getWorld() != null && !collider.getWorld().equals(this.world)) {
+            return false;
+        }
+
         if (collider instanceof Sphere) {
             return intersects((Sphere)collider);
         } else if (collider instanceof AABB) {
@@ -69,6 +92,11 @@ public class Sphere implements Collider {
     @Override
     public Vector3D getHalfExtents() {
         return new Vector3D(radius, radius, radius);
+    }
+
+    @Override
+    public World getWorld() {
+        return world;
     }
 
     public boolean contains(Vector3D point) {

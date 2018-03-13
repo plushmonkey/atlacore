@@ -10,10 +10,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.platform.LivingEntity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.*;
@@ -29,6 +26,7 @@ public class Combustion implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private World world;
     private State state;
     private Location location;
     private CompositeRemovalPolicy removalPolicy;
@@ -36,6 +34,7 @@ public class Combustion implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.world = user.getWorld();
         this.state = new ChargeState();
 
         if (!Game.getAbilityInstanceManager().getPlayerInstances(user, Combustion.class).isEmpty()) {
@@ -84,7 +83,7 @@ public class Combustion implements Ability {
     @Override
     public Collection<Collider> getColliders() {
         if (state instanceof TravelState) {
-            return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+            return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
         }
         return Collections.emptyList();
     }

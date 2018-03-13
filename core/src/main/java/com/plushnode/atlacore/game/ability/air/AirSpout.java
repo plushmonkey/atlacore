@@ -79,7 +79,7 @@ public class AirSpout implements Ability {
         Location mid = ground.add(Vector3D.PLUS_J.scalarMultiply(distance / 2.0));
 
         // Create a bounding box for collision that extends through the spout from the ground to the player.
-        collider = new AABB(new Vector3D(-0.5, -distance / 2.0, -0.5), new Vector3D(0.5, distance / 2.0, 0.5)).at(mid);
+        collider = new AABB(new Vector3D(-0.5, -distance / 2.0, -0.5), new Vector3D(0.5, distance / 2.0, 0.5), user.getWorld()).at(mid);
 
         render(ground);
 

@@ -2,6 +2,7 @@ package com.plushnode.atlacore.collision;
 
 import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.platform.WorldWrapper;
 import com.plushnode.atlacore.util.TypeUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.Bukkit;
@@ -20,9 +21,6 @@ public final class BukkitAABB {
     private static Class<?> CraftWorld, CraftEntity, World, AxisAlignedBB, Block, BlockPosition, IBlockData, Entity;
     private static Method getHandle, getEntityHandle, getType, getBlock, getBlockBoundingBox, getBoundingBox;
     private static Field aField, bField, cField, dField, eField, fField;
-
-    private Vector min = null;
-    private Vector max = null;
 
     static {
         int serverVersion = 9;
@@ -46,7 +44,7 @@ public final class BukkitAABB {
         Vector3D min = TypeUtil.adapt(getBlockMin(block));
         Vector3D max = TypeUtil.adapt(getBlockMax(block));
 
-        return new AABB(min, max);
+        return new AABB(min, max, new WorldWrapper(block.getWorld()));
     }
 
     public static AABB getEntityBounds(Entity entity) {
@@ -61,7 +59,7 @@ public final class BukkitAABB {
             max = max.subtract(TypeUtil.adapt(entity.getLocation().toVector()));
         }
 
-        return new AABB(min, max);
+        return new AABB(min, max, new WorldWrapper(entity.getLocation().getWorld()));
     }
 
     private static Vector getEntityMin(Entity entity) {

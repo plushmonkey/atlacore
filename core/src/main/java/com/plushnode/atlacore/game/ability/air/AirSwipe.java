@@ -6,6 +6,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.policies.removal.OutOfWorldRemovalPolicy;
 import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
@@ -14,11 +15,6 @@ import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
-import com.plushnode.atlacore.platform.User;
-import com.plushnode.atlacore.platform.Entity;
-import com.plushnode.atlacore.platform.LivingEntity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
@@ -33,6 +29,7 @@ public class AirSwipe implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private World world;
     private Location origin;
     private List<AirStream> streams = new ArrayList<>();
     private CompositeRemovalPolicy removalPolicy;
@@ -44,7 +41,7 @@ public class AirSwipe implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
-
+        this.world = user.getWorld();
         this.origin = user.getEyeLocation();
         this.startTime = System.currentTimeMillis();
         this.charging = true;
@@ -159,7 +156,7 @@ public class AirSwipe implements Ability {
     @Override
     public Collection<Collider> getColliders() {
         return streams.stream()
-                .map((stream) -> new Sphere(stream.location.toVector(), config.abilityCollisionRadius))
+                .map((stream) -> new Sphere(stream.location.toVector(), config.abilityCollisionRadius, world))
                 .collect(Collectors.toList());
     }
 

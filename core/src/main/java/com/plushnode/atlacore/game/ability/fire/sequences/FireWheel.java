@@ -12,10 +12,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.platform.LivingEntity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
@@ -52,9 +49,11 @@ public class FireWheel implements Ability {
             return false;
         }
 
+        World world = user.getWorld();
+
         AABB bounds = new AABB(new Vector3D(-0.1, -config.radius, -config.radius), new Vector3D(0.1, config.radius, config.radius));
-        OBB obb = new OBB(bounds, new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw())));
-        Sphere sphere = new Sphere(this.location.toVector(), config.radius);
+        OBB obb = new OBB(bounds, new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw())), world);
+        Sphere sphere = new Sphere(this.location.toVector(), config.radius, world);
         this.collider = new Disc(obb, sphere);
 
         CollisionResolution resolution = resolveInitialCollisions(WorldUtil.getNearbyBlocks(location, config.radius * 5), config.radius * 2);
@@ -67,8 +66,8 @@ public class FireWheel implements Ability {
 
         // Create a separate collider for colliding with entities.
         AABB entityBounds = new AABB(new Vector3D(-config.entityCollisionRadius, -config.radius, -config.radius), new Vector3D(config.entityCollisionRadius, config.radius, config.radius));
-        OBB entityOBB = new OBB(entityBounds, new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw())));
-        Sphere entitySphere = new Sphere(this.location.toVector(), Math.max(config.radius, config.entityCollisionRadius));
+        OBB entityOBB = new OBB(entityBounds, new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw())), world);
+        Sphere entitySphere = new Sphere(this.location.toVector(), Math.max(config.radius, config.entityCollisionRadius), world);
         this.entityCollider = new Disc(entityOBB, entitySphere);
 
         user.setCooldown(this);

@@ -2,6 +2,7 @@ package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.platform.Location;
+import com.plushnode.atlacore.platform.World;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.linear.MatrixUtils;
@@ -14,48 +15,73 @@ public class OBB implements Collider {
     private RealMatrix basis;
     // Half extents in local space.
     private Vector3D e;
+    private World world;
 
     public OBB(Vector3D center, Vector3D halfExtents, Vector3D axis0, Vector3D axis1, Vector3D axis2) {
+        this(center, halfExtents, axis0, axis1, axis2, null);
+    }
+
+    public OBB(Vector3D center, Vector3D halfExtents, Vector3D axis0, Vector3D axis1, Vector3D axis2, World world) {
         this.center = center;
         this.e = halfExtents;
         this.basis = MatrixUtils.createRealMatrix(3, 3);
         this.basis.setRow(0, axis0.toArray());
         this.basis.setRow(1, axis1.toArray());
         this.basis.setRow(2, axis2.toArray());
+        this.world = world;
     }
 
     public OBB(Vector3D center, RealMatrix basis, Vector3D halfExtents) {
+        this(center, basis, halfExtents, null);
+    }
+
+    public OBB(Vector3D center, RealMatrix basis, Vector3D halfExtents, World world) {
         this.center = center;
         this.basis = basis;
         this.e = halfExtents;
+        this.world = world;
     }
 
     public OBB(AABB aabb) {
+        this(aabb, (World)null);
+    }
+
+    public OBB(AABB aabb, World world) {
         this.center = aabb.getPosition();
         this.basis = MatrixUtils.createRealIdentityMatrix(3);
         this.e = aabb.getHalfExtents();
+        this.world = world;
     }
 
     public OBB(AABB aabb, Rotation rotation) {
+        this(aabb, rotation, null);
+    }
+
+    public OBB(AABB aabb, Rotation rotation, World world) {
         this.center = rotation.applyTo(aabb.getPosition());
         this.basis = MatrixUtils.createRealMatrix(rotation.getMatrix());
         this.e = aabb.getHalfExtents();
+        this.world = world;
     }
 
     public OBB at(Vector3D position) {
-        return new OBB(center.add(position), basis, e);
+        return new OBB(center.add(position), basis, e, world);
     }
 
     public OBB at(Location location) {
-        return new OBB(center.add(location.toVector()), basis, e);
+        return new OBB(center.add(location.toVector()), basis, e, location.getWorld());
     }
 
     @Override
     public boolean intersects(Collider collider) {
+        if (this.world != null && collider.getWorld() != null && !collider.getWorld().equals(this.world)) {
+            return false;
+        }
+
         if (collider instanceof Sphere) {
             return ((Sphere)collider).intersects(this);
         } else if (collider instanceof AABB) {
-            return intersects(new OBB((AABB)collider));
+            return intersects(new OBB((AABB)collider, collider.getWorld()));
         } else if (collider instanceof OBB) {
             return intersects((OBB)collider);
         } else if (collider instanceof Disc) {
@@ -66,6 +92,10 @@ public class OBB implements Collider {
     }
 
     public boolean intersects(OBB other) {
+        if (this.world != null && other.getWorld() != null && !other.getWorld().equals(this.world)) {
+            return false;
+        }
+
         final double epsilon = 0.000001;
         double ra, rb;
 
@@ -218,6 +248,11 @@ public class OBB implements Collider {
         double z = e.dotProduct(Vector3D.PLUS_K);
 
         return new Vector3D(x, y, z);
+    }
+
+    @Override
+    public World getWorld() {
+        return world;
     }
 
     @Override

@@ -27,6 +27,7 @@ public class AirBlast implements Ability, Burstable {
 
     public static Config config = new Config();
     private User user;
+    private World world;
     private Location origin;
     private Location location;
     private Vector3D direction;
@@ -56,6 +57,7 @@ public class AirBlast implements Ability, Burstable {
         }
 
         this.user = user;
+        this.world = user.getWorld();
         this.launched = false;
         this.selectedOrigin = false;
         this.particleCount = config.particles;
@@ -240,7 +242,7 @@ public class AirBlast implements Ability, Burstable {
             return Collections.emptyList();
         }
 
-        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
     }
 
     @Override

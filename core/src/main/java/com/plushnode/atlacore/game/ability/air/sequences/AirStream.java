@@ -46,7 +46,7 @@ public class AirStream implements Ability {
                 new SneakingRemovalPolicy(user, true)
         );
 
-        this.collider = new Sphere(location.toVector(), config.radius);
+        this.collider = new Sphere(location.toVector(), config.radius, user.getWorld());
 
         return true;
     }
@@ -62,7 +62,7 @@ public class AirStream implements Ability {
         Location previous = location;
         Vector3D direction = getDirection();
         location = location.add(direction.scalarMultiply(config.speed));
-        collider = new Sphere(location.toVector(), config.radius);
+        collider = new Sphere(location.toVector(), config.radius, user.getWorld());
 
         if (!Game.getProtectionSystem().canBuild(user, location)) {
             return UpdateResult.Remove;

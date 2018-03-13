@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.platform.World;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 // Combines an OBB and Sphere to create a disc-like collider.
@@ -30,6 +31,11 @@ public class Disc implements Collider {
     @Override
     public Vector3D getHalfExtents() {
         return obb.getHalfExtents();
+    }
+
+    @Override
+    public World getWorld() {
+        return obb.getWorld();
     }
 
     @Override

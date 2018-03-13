@@ -72,6 +72,12 @@ public final class CollisionService {
 
                     for (Collider firstCollider : firstColliders) {
                         for (Collider secondCollider : secondColliders) {
+                            if (firstCollider.getWorld() != null && secondCollider.getWorld() != null &&
+                                !firstCollider.getWorld().equals(secondCollider.getWorld()))
+                            {
+                                continue;
+                            }
+
                             if (firstCollider.intersects(secondCollider)) {
                                 handleCollision(first, second, firstCollider, secondCollider, registeredCollision);
                             }

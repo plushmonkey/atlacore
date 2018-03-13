@@ -11,10 +11,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.platform.Entity;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.WorldUtil;
@@ -30,6 +27,7 @@ public class AirSuction implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private World world;
     private Location origin;
     private Location start;
     private Location location;
@@ -60,6 +58,7 @@ public class AirSuction implements Ability {
         }
 
         this.user = user;
+        this.world = user.getWorld();
         this.launched = false;
         this.selectedOrigin = false;
 
@@ -217,7 +216,7 @@ public class AirSuction implements Ability {
             return Collections.emptyList();
         }
 
-        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius));
+        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
     }
 
     @Override

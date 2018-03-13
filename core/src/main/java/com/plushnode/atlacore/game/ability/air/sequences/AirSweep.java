@@ -1,6 +1,8 @@
 package com.plushnode.atlacore.game.ability.air.sequences;
 
+import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -13,8 +15,10 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AirSweep implements Ability {
     public static Config config = new Config();
@@ -107,7 +111,16 @@ public class AirSweep implements Ability {
 
     @Override
     public void handleCollision(Collision collision) {
+        if (collision.shouldRemoveFirst()) {
+            Game.getAbilityInstanceManager().destroyInstance(user, this);
+        }
+    }
 
+    @Override
+    public Collection<Collider> getColliders() {
+        return streams.stream()
+                .map(ParticleStream::getCollider)
+                .collect(Collectors.toList());
     }
 
     private class SweepStream extends ParticleStream {

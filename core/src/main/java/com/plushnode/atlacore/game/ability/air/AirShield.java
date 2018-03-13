@@ -12,6 +12,7 @@ import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.World;
 import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -136,7 +137,7 @@ public class AirShield implements Ability {
 
     @Override
     public Collection<Collider> getColliders() {
-        return Collections.singletonList(new Sphere(getCenter().toVector(), config.radius));
+        return Collections.singletonList(new Sphere(getCenter().toVector(), config.radius, user.getWorld()));
     }
 
     @Override

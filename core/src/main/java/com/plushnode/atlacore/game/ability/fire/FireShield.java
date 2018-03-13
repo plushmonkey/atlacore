@@ -150,7 +150,7 @@ public class FireShield implements Ability {
             Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
             rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
 
-            this.disc = new Disc(new OBB(aabb, rot).at(location), new Sphere(location.toVector(), config.discRadius));
+            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).at(location), new Sphere(location.toVector(), config.discRadius, user.getWorld()));
 
             return System.currentTimeMillis() >= startTime + config.discDuration;
         }
@@ -201,7 +201,7 @@ public class FireShield implements Ability {
 
         @Override
         public boolean update() {
-            this.sphere = new Sphere(user.getEyeLocation().toVector(), config.shieldRadius);
+            this.sphere = new Sphere(user.getEyeLocation().toVector(), config.shieldRadius, user.getWorld());
 
             return !user.isSneaking();
         }

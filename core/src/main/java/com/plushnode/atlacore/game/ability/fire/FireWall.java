@@ -61,7 +61,7 @@ public class FireWall implements Ability {
         Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
         rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
 
-        this.collider = new OBB(aabb, rot).at(location.toVector());
+        this.collider = new OBB(aabb, rot, user.getWorld()).at(location.toVector());
 
         blocks = WorldUtil.getNearbyBlocks(location, VectorUtil.getMaxComponent(collider.getHalfExtents()) + 1.0);
 
