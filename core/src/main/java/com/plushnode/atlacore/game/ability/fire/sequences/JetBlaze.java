@@ -9,16 +9,21 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
+import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.FireTick;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class JetBlaze implements Ability {
     public static Config config = new Config();
 
     private FireJet jet;
+    private List<Entity> affected = new ArrayList<>();
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -58,11 +63,11 @@ public class JetBlaze implements Ability {
         Sphere collider = new Sphere(getUser().getLocation().toVector(), config.entityCollisionRadius);
         
         CollisionUtil.handleEntityCollisions(getUser(), collider, (entity) -> {
-            if (entity instanceof LivingEntity) {
+            if (entity instanceof LivingEntity && !affected.contains(entity)) {
+                affected.add(entity);
                 ((LivingEntity) entity).damage(config.damage, getUser());
+                FireTick.set(entity, config.fireTicks);
             }
-
-            FireTick.set(entity, config.fireTicks);
 
             return false;
         }, true);

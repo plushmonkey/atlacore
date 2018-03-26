@@ -161,13 +161,18 @@ public class Lightning implements Ability {
         public TravelState() {
             location = user.getEyeLocation();
             this.origin = location;
-            target = RayCaster.cast(user, new Ray(location, user.getDirection()), config.range, true, true);
-            // Make sure the bolt goes through the entity
-            target = target.add(user.getDirection());
+
+            target = RayCaster.cast(user, new Ray(location, user.getDirection()), config.range, true, false);
+            Location entityTarget = RayCaster.cast(user, new Ray(location, user.getDirection()), config.range, true, true);
+
+            // Don't add a mid point if there was no entity intersection.
+            if (user.getLocation().distanceSquared(entityTarget) >= user.getLocation().distanceSquared(target)) {
+                entityTarget = null;
+            }
 
             this.distance = target.distance(location);
             this.startTime = System.currentTimeMillis();
-            this.bolt = new Bolt(origin, target);
+            this.bolt = new Bolt(origin, target, entityTarget);
 
             user.setCooldown(Lightning.this);
         }
@@ -206,12 +211,12 @@ public class Lightning implements Ability {
         private Location end;
         private double distance;
 
-        public Bolt(Location start, Location end) {
+        public Bolt(Location start, Location end, Location midTarget) {
             this.start = start;
             this.end = end;
             this.distance = end.distance(start);
 
-            generateSegments(config.boltGenerations);
+            generateSegments(config.boltGenerations, midTarget);
         }
 
         public List<Location> interpolate(double t) {
@@ -235,10 +240,15 @@ public class Lightning implements Ability {
         }
 
         // Generates segments along the main line and offsets them create some wiggle.
-        private void generateSegments(int generations) {
+        private void generateSegments(int generations, Location midTarget) {
             double maxOffset = config.boltMaxOffset;
 
-            segments.add(new LineSegment(start, end));
+            if (midTarget != null) {
+                segments.add(new LineSegment(start, midTarget));
+                segments.add(new LineSegment(midTarget, end));
+            } else {
+                segments.add(new LineSegment(start, end));
+            }
 
             for (int i = 0; i < generations; ++i) {
                 List<LineSegment> previousSegments = new ArrayList<>(segments);
