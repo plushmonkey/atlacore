@@ -12,6 +12,7 @@ import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.FireTick;
@@ -380,7 +381,7 @@ public class Combustion implements Ability {
             return count;
         }
 
-        protected void placeRandomFire(Location location) {
+        protected void placeRandomFire(Location location, long duration) {
             int chance = rand.nextInt(3);
 
             Block block = location.getWorld().getBlockAt(location.getBlockX(), location.getBlockY() - 1, location.getBlockZ());
@@ -388,20 +389,28 @@ public class Combustion implements Ability {
             if (chance != 0) return;
 
             if (MaterialUtil.isIgnitable(block)) {
-                new TempBlock(block, Material.FIRE);
+                if (duration <= 0) {
+                    block.setType(Material.FIRE);
+                } else {
+                    new TempBlock(block, Material.FIRE, duration);
+                }
             }
         }
 
-        protected void placeRandomBlock(Location location) {
+        protected void placeRandomBlock(Location location, long duration) {
             int chance = rand.nextInt(3);
 
             if (chance != 0) return;
 
-            Block block = location.getWorld().getBlockAt(location.getBlockX(), location.getBlockY() - 1, location.getBlockZ());
-            if (MaterialUtil.isSolid(block)) {
-                Material type = block.getType();
+            Block belowBlock = location.getBlock().getRelative(BlockFace.DOWN);
+            if (MaterialUtil.isSolid(belowBlock)) {
+                Material belowType = belowBlock.getType();
 
-                location.getBlock().setType(type);
+                if (duration <= 0) {
+                    location.getBlock().setType(belowType);
+                } else {
+                    new TempBlock(location.getBlock(), belowType, duration);
+                }
             }
         }
 
@@ -428,8 +437,8 @@ public class Combustion implements Ability {
 
             if (!MaterialUtil.isTransparent(block) && !blocks.contains(block.getType())) {
                 new TempBlock(block, Material.AIR, regenTime);
-                placeRandomBlock(l);
-                placeRandomFire(l);
+                placeRandomBlock(l, regenTime);
+                placeRandomFire(l, regenTime);
 
                 return true;
             }
@@ -450,8 +459,8 @@ public class Combustion implements Ability {
             if (!MaterialUtil.isTransparent(block) && !blocks.contains(block.getType())) {
                 Block newBlock = l.getWorld().getBlockAt(l);
                 newBlock.setType(Material.AIR);
-                placeRandomBlock(l);
-                placeRandomFire(l);
+                placeRandomBlock(l, 0);
+                placeRandomFire(l, 0);
 
                 return true;
             }
