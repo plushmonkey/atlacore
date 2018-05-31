@@ -39,7 +39,7 @@ public class BendingBoard {
 
         if (!enabled) {
             if (bukkitPlayer.getScoreboard() == scoreboard) {
-                bukkitPlayer.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                bukkitPlayer.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
             }
         }
     }
@@ -48,7 +48,7 @@ public class BendingBoard {
         if (!enabled) return;
         if (!bukkitPlayer.hasPermission("atla.board.display")) {
             if (bukkitPlayer.getScoreboard() == scoreboard) {
-                bukkitPlayer.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                bukkitPlayer.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
             }
             return;
         }
