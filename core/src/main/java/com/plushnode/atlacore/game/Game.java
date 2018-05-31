@@ -11,10 +11,7 @@ import com.plushnode.atlacore.game.ability.air.passives.GracefulDescent;
 import com.plushnode.atlacore.game.ability.air.sequences.AirStream;
 import com.plushnode.atlacore.game.ability.air.sequences.AirSweep;
 import com.plushnode.atlacore.game.ability.air.sequences.Twister;
-import com.plushnode.atlacore.game.ability.earth.Catapult;
-import com.plushnode.atlacore.game.ability.earth.EarthBlast;
-import com.plushnode.atlacore.game.ability.earth.RaiseEarth;
-import com.plushnode.atlacore.game.ability.earth.Shockwave;
+import com.plushnode.atlacore.game.ability.earth.*;
 import com.plushnode.atlacore.game.ability.earth.passives.DensityShift;
 import com.plushnode.atlacore.game.ability.fire.*;
 import com.plushnode.atlacore.game.ability.fire.sequences.*;
@@ -145,6 +142,7 @@ public class Game {
         registerAbility("Shockwave", Shockwave.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak, ActivationMethod.Fall);
         registerAbility("EarthBlast", EarthBlast.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("Catapult", Catapult.class, Elements.EARTH, ActivationMethod.Punch).setHarmless(true);
+        registerAbility("Collapse", Collapse.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("RaiseEarth", RaiseEarth.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("DensityShift", DensityShift.class, Elements.EARTH, ActivationMethod.Passive).setHarmless(true).setHidden(true);
 
