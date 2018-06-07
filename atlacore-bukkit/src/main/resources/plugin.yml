@@ -48,6 +48,7 @@ permissions:
     children:
       atla.command.choose.Earth: true
       atla.ability.Catapult: true
+      atla.ability.Collapse: true
       atla.ability.EarthBlast: true
       atla.ability.Shockwave: true
       atla.ability.DensityShift: true

@@ -94,7 +94,12 @@ public class Tornado implements Ability {
                     user.setVelocity(velocity.scalarMultiply(t));
                 } else {
                     Vector3D position = collider.getPosition();
-                    Vector3D normal = entity.getLocation().subtract(position).toVector().normalize();
+                    Vector3D normal = VectorUtil.normalizeOrElse(entity.getLocation().subtract(position).toVector(), Vector3D.PLUS_I);
+                    // Get the orthogonal vector so the entity is pushed in the direction of the swirl.
+                    Vector3D ortho = VectorUtil.normalizeOrElse(normal.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
+
+                    // Take a combination of the two so they are pushed out at an angle.
+                    normal = VectorUtil.normalizeOrElse(ortho.add(normal), Vector3D.PLUS_I);
 
                     entity.setVelocity(normal.scalarMultiply(t));
                 }
