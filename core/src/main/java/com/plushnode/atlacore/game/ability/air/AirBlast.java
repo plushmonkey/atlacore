@@ -15,6 +15,7 @@ import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.Flight;
+import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -103,7 +104,7 @@ public class AirBlast implements Ability, Burstable {
         this.location = origin;
 
         Location target = RayCaster.cast(user, new Ray(origin.toVector(), user.getDirection()), config.range, true, true);
-        this.direction = target.subtract(origin).toVector().normalize();
+        this.direction = VectorUtil.normalizeOrElse(target.subtract(origin).toVector(), Vector3D.PLUS_I);
 
         removalPolicy.removePolicyType(IsDeadRemovalPolicy.class);
         removalPolicy.removePolicyType(OutOfRangeRemovalPolicy.class);

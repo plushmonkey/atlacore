@@ -119,7 +119,11 @@ public class AirSpout implements Ability {
 
     @Override
     public Collection<Collider> getColliders() {
-        return Collections.singletonList(this.collider);
+        if (this.collider != null) {
+            return Collections.singletonList(this.collider);
+        }
+
+        return Collections.emptyList();
     }
 
     @Override

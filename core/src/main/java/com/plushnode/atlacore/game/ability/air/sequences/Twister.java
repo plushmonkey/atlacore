@@ -41,7 +41,7 @@ public class Twister implements Ability {
         this.world = user.getWorld();
         this.startTime = System.currentTimeMillis();
         this.direction = user.getDirection();
-        this.direction = VectorUtil.clearAxis(direction, 1).normalize();
+        this.direction = VectorUtil.normalizeOrElse(VectorUtil.clearAxis(direction, 1), Vector3D.PLUS_I);
 
         this.base = user.getLocation().add(direction.scalarMultiply(2));
         this.base = RayCaster.cast(user, new Ray(base.add(0, 3.5, 0).toVector(), Vector3D.MINUS_J), 7.0, true, false);
@@ -52,6 +52,8 @@ public class Twister implements Ability {
 
         this.origin = base;
         this.height = config.height;
+
+        user.setCooldown(this);
 
         return true;
     }

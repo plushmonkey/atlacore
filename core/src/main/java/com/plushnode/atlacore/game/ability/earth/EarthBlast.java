@@ -12,7 +12,6 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.game.ability.air.AirBlast;
 import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
@@ -239,8 +238,15 @@ public class EarthBlast implements Ability {
 
     @Override
     public Collection<Collider> getColliders() {
-        AABB bounds = location.getBlock().getBounds().scale(config.abilityCollisionRadius).at(location.getBlock().getLocation());
-        return Collections.singletonList(bounds);
+        if (location != null) {
+            AABB bounds = new AABB(Vector3D.ZERO, new Vector3D(1, 1, 1), location.getWorld())
+                    .scale(config.abilityCollisionRadius)
+                    .at(location.getBlock().getLocation());
+
+            return Collections.singletonList(bounds);
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
