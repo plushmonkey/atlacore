@@ -9,7 +9,6 @@ import com.plushnode.atlacore.util.ChatColor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scoreboard.Score;
 import org.spongepowered.api.scoreboard.Scoreboard;
-import org.spongepowered.api.scoreboard.Team;
 import org.spongepowered.api.scoreboard.critieria.Criteria;
 import org.spongepowered.api.scoreboard.displayslot.DisplaySlots;
 import org.spongepowered.api.scoreboard.objective.Objective;
@@ -40,6 +39,7 @@ public class BendingBoard {
 
     public void update() {
         bendingPlayer = (SpongeBendingPlayer)Game.getPlayerService().getPlayerByName(spongePlayer.getName());
+        spongePlayer = bendingPlayer.getSpongePlayer();
 
         if (spongePlayer.getScoreboard() != scoreboard) {
             spongePlayer.setScoreboard(scoreboard);

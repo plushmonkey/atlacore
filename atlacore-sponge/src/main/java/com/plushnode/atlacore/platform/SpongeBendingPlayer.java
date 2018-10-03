@@ -6,15 +6,26 @@ import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
 import org.spongepowered.api.text.Text;
 
-import java.util.Optional;
-
 public class SpongeBendingPlayer extends SpongeBendingUser implements Player {
-    public SpongeBendingPlayer(org.spongepowered.api.entity.living.player.Player player) {
-        super(player);
+    private org.spongepowered.api.entity.living.player.User spongeUser;
+
+    public SpongeBendingPlayer(org.spongepowered.api.entity.living.player.User spongeUser) {
+        super(spongeUser.getPlayer().orElse(null));
+
+        this.spongeUser = spongeUser;
     }
 
     public org.spongepowered.api.entity.living.player.Player getSpongePlayer() {
-        return (org.spongepowered.api.entity.living.player.Player)entity;
+        return (org.spongepowered.api.entity.living.player.Player)this.getSpongeEntity();
+    }
+
+    @Override
+    public org.spongepowered.api.entity.Entity getSpongeEntity() {
+        org.spongepowered.api.entity.Entity newEntity = spongeUser.getPlayer()
+                .orElse((org.spongepowered.api.entity.living.player.Player)super.getSpongeEntity());
+
+        setSpongeEntity(newEntity);
+        return newEntity;
     }
 
     @Override

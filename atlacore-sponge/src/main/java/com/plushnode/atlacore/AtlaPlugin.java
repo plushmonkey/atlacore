@@ -28,6 +28,7 @@ import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.service.user.UserStorageService;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -203,22 +204,36 @@ public class AtlaPlugin implements CorePlugin {
         return new PlayerFactory() {
             @Override
             public Player createPlayer(String name) {
-                Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(name);
-                if (!result.isPresent()) {
+                Optional<UserStorageService> userStorage = Sponge.getServiceManager()
+                        .provide(UserStorageService.class);
+
+                if (!userStorage.isPresent()) {
                     return null;
                 }
 
-                return new SpongeBendingPlayer(result.get());
+                Optional<org.spongepowered.api.entity.living.player.User> user = userStorage.get().get(name);
+                if (!user.isPresent()) {
+                    return null;
+                }
+
+                return new SpongeBendingPlayer(user.get());
             }
 
             @Override
             public Player createPlayer(UUID uuid) {
-                Optional<org.spongepowered.api.entity.living.player.Player> result = Sponge.getServer().getPlayer(uuid);
-                if (!result.isPresent()) {
+                Optional<UserStorageService> userStorage = Sponge.getServiceManager()
+                        .provide(UserStorageService.class);
+
+                if (!userStorage.isPresent()) {
                     return null;
                 }
 
-                return new SpongeBendingPlayer(result.get());
+                Optional<org.spongepowered.api.entity.living.player.User> user = userStorage.get().get(uuid);
+                if (!user.isPresent()) {
+                    return null;
+                }
+
+                return new SpongeBendingPlayer(user.get());
             }
         };
     }

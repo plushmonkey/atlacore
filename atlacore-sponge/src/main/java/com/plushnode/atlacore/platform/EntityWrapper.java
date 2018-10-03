@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class EntityWrapper implements Entity {
-    protected org.spongepowered.api.entity.Entity entity;
+    private org.spongepowered.api.entity.Entity entity;
 
     public EntityWrapper(org.spongepowered.api.entity.Entity entity) {
         this.entity = entity;
@@ -23,38 +23,54 @@ public class EntityWrapper implements Entity {
         return entity;
     }
 
+    protected void setSpongeEntity(org.spongepowered.api.entity.Entity entity) {
+        this.entity = entity;
+    }
+
     @Override
     public boolean equals(Object obj) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
+
         if (obj instanceof EntityWrapper) {
             return entity.equals(((EntityWrapper)obj).entity);
         }
+
         return entity.equals(obj);
     }
 
     @Override
     public int hashCode() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
+
         return entity.hashCode();
     }
 
     @Override
     public String toString() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
+
         return entity.toString();
     }
 
     @Override
     public boolean addPassenger(Entity passenger) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
+
         EntityWrapper wrapper = (EntityWrapper)passenger;
         return entity.addPassenger(wrapper.getSpongeEntity());
     }
 
     @Override
     public boolean eject() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
+
         entity.clearPassengers();
         return true;
     }
 
     @Override
     public float getFallDistance() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         float fallDistance = 0.0f;
 
         if (entity.supports(Keys.FALL_DISTANCE)) {
@@ -69,6 +85,7 @@ public class EntityWrapper implements Entity {
 
     @Override
     public int getFireTicks() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         int fireTicks = 0;
 
         if (entity.supports(Keys.FIRE_TICKS)) {
@@ -83,6 +100,7 @@ public class EntityWrapper implements Entity {
 
     @Override
     public double getHeight() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         double height = 0.0;
 
         if (entity.supports(Keys.HEIGHT)) {
@@ -97,11 +115,13 @@ public class EntityWrapper implements Entity {
 
     @Override
     public Location getLocation() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return new LocationWrapper(entity.getLocation());
     }
 
     @Override
     public int getMaxFireTicks() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         int maxFireTicks = 0;
 
         if (entity.supports(Keys.MAX_BURN_TIME)) {
@@ -116,24 +136,30 @@ public class EntityWrapper implements Entity {
 
     @Override
     public List<Entity> getNearbyEntities(double x, double y, double z) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         double radius = Math.max(x, Math.max(y, z));
         Collection<org.spongepowered.api.entity.Entity> entities = entity.getNearbyEntities(radius);
+
         return entities.stream().map(EntityWrapper::new).collect(Collectors.toList());
     }
 
     @Override
     public List<Entity> getPassengers() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         List<org.spongepowered.api.entity.Entity> entities = entity.getPassengers();
+
         return entities.stream().map(EntityWrapper::new).collect(Collectors.toList());
     }
 
     @Override
     public UUID getUniqueId() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return entity.getUniqueId();
     }
 
     @Override
     public Entity getVehicle() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         Optional<org.spongepowered.api.entity.Entity> vehicle = entity.getVehicle();
 
         if (vehicle.isPresent()) {
@@ -145,12 +171,14 @@ public class EntityWrapper implements Entity {
 
     @Override
     public Vector3D getVelocity() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         Vector3d v = entity.getVelocity();
         return new Vector3D(v.getX(), v.getY(), v.getZ());
     }
 
     @Override
     public double getWidth() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         Optional<AABB> result = entity.getBoundingBox();
 
         if (!result.isPresent()) {
@@ -163,11 +191,13 @@ public class EntityWrapper implements Entity {
 
     @Override
     public World getWorld() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return new WorldWrapper(entity.getWorld());
     }
 
     @Override
     public boolean hasGravity() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         boolean hasGravity = true;
 
         if (entity.supports(Keys.HAS_GRAVITY)) {
@@ -182,6 +212,7 @@ public class EntityWrapper implements Entity {
 
     @Override
     public boolean isDead() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         boolean isDead = false;
 
         if (entity.supports(Keys.HEALTH)) {
@@ -196,11 +227,13 @@ public class EntityWrapper implements Entity {
 
     @Override
     public boolean isEmpty() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return entity.getPassengers().isEmpty();
     }
 
     @Override
     public boolean isGlowing() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         boolean isGlowing = false;
 
         if (entity.supports(Keys.GLOWING)) {
@@ -215,11 +248,13 @@ public class EntityWrapper implements Entity {
 
     @Override
     public boolean isInsideVehicle() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return entity.getVehicle().isPresent();
     }
 
     @Override
     public boolean isInvulnerable() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         boolean isInvulnerable = false;
 
         if (entity.supports(Keys.INVULNERABILITY_TICKS)) {
@@ -234,11 +269,13 @@ public class EntityWrapper implements Entity {
 
     @Override
     public boolean isOnGround() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return entity.isOnGround();
     }
 
     @Override
     public boolean isSilent() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         boolean isSilent = false;
 
         if (entity.supports(Keys.IS_SILENT)) {
@@ -258,16 +295,19 @@ public class EntityWrapper implements Entity {
 
     @Override
     public boolean leaveVehicle() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return entity.setVehicle(null);
     }
 
     @Override
     public void remove() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         entity.remove();
     }
 
     @Override
     public boolean removePassenger(Entity passenger) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         EntityWrapper wrapper = (EntityWrapper)passenger;
         entity.removePassenger(wrapper.getSpongeEntity());
         return true;
@@ -275,31 +315,37 @@ public class EntityWrapper implements Entity {
 
     @Override
     public void setFallDistance(float distance) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         entity.offer(Keys.FALL_DISTANCE, distance);
     }
 
     @Override
     public void setFireTicks(int ticks) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         entity.offer(Keys.FIRE_TICKS, ticks);
     }
 
     @Override
     public void setGlowing(boolean glowing) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         entity.offer(Keys.GLOWING, glowing);
     }
 
     @Override
     public void setGravity(boolean gravity) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         entity.offer(Keys.HAS_GRAVITY, gravity);
     }
 
     @Override
     public void setInvulnerable(boolean flag) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         entity.offer(Keys.INVULNERABILITY_TICKS, 100);
     }
 
     @Override
     public void setSilent(boolean flag) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         entity.offer(Keys.IS_SILENT, flag);
     }
 
@@ -310,11 +356,13 @@ public class EntityWrapper implements Entity {
 
     @Override
     public void setVelocity(Vector3D velocity) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         entity.setVelocity(SpongeTypeUtil.adapt(velocity));
     }
 
     @Override
     public boolean teleport(Entity destination) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         EntityWrapper wrapper = (EntityWrapper)destination;
 
         return entity.setLocation(entity.getLocation());
@@ -322,12 +370,14 @@ public class EntityWrapper implements Entity {
 
     @Override
     public boolean teleport(Location location) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         LocationWrapper wrapper = (LocationWrapper)location;
         return entity.setLocation(wrapper.getSpongeLocation());
     }
 
     @Override
     public Vector3D getDirection() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         double pitch = Math.toRadians(entity.getRotation().getX());
         double yaw = Math.toRadians(entity.getRotation().getY());
 
@@ -355,16 +405,19 @@ public class EntityWrapper implements Entity {
 
     @Override
     public float getPitch() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return (float)entity.getRotation().getX();
     }
 
     @Override
     public float getYaw() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         return (float)entity.getRotation().getY();
     }
 
     @Override
     public void setPitch(float pitch) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         Vector3d rot = entity.getRotation();
         Vector3d newRot = new Vector3d(pitch, rot.getY(), rot.getZ());
         entity.setRotation(newRot);
@@ -372,6 +425,7 @@ public class EntityWrapper implements Entity {
 
     @Override
     public void setYaw(float yaw) {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         Vector3d rot = entity.getRotation();
         Vector3d newRot = new Vector3d(rot.getX(), yaw, rot.getZ());
         entity.setRotation(newRot);
@@ -379,6 +433,7 @@ public class EntityWrapper implements Entity {
 
     @Override
     public com.plushnode.atlacore.collision.geometry.AABB getBounds() {
+        org.spongepowered.api.entity.Entity entity = getSpongeEntity();
         Optional<org.spongepowered.api.util.AABB> result = entity.getBoundingBox();
 
         if (result.isPresent()) {

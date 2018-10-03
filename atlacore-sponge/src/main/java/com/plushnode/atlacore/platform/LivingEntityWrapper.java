@@ -38,7 +38,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
     @Override
     public Collection<PotionEffect> getActivePotionEffects() {
         List<PotionEffect> result = new ArrayList<>();
-        PotionEffectData effects = entity.getOrCreate(PotionEffectData.class).get();
+        PotionEffectData effects = getSpongeEntity().getOrCreate(PotionEffectData.class).get();
 
         for (org.spongepowered.api.effect.potion.PotionEffect effect : effects.asList()) {
             result.add(new PotionEffectWrapper(effect));
@@ -49,7 +49,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public boolean getCanPickupItems() {
-        return entity.get(Keys.PICKUP_RULE).orElse(PickupRules.ALLOWED) == PickupRules.ALLOWED;
+        return getSpongeEntity().get(Keys.PICKUP_RULE).orElse(PickupRules.ALLOWED) == PickupRules.ALLOWED;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public double getLastDamage() {
-        return entity.get(Keys.LAST_DAMAGE).orElse(Optional.of(0.0)).get();
+        return getSpongeEntity().get(Keys.LAST_DAMAGE).orElse(Optional.of(0.0)).get();
     }
 
     @Override
@@ -80,7 +80,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public int getMaximumAir() {
-        return entity.get(Keys.MAX_AIR).orElse(0);
+        return getSpongeEntity().get(Keys.MAX_AIR).orElse(0);
     }
 
     @Override
@@ -90,12 +90,12 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public int getNoDamageTicks() {
-        return entity.get(Keys.INVULNERABILITY_TICKS).orElse(0);
+        return getSpongeEntity().get(Keys.INVULNERABILITY_TICKS).orElse(0);
     }
 
     @Override
     public PotionEffect getPotionEffect(PotionEffectType type) {
-        PotionEffectData effects = entity.getOrCreate(PotionEffectData.class).get();
+        PotionEffectData effects = getSpongeEntity().getOrCreate(PotionEffectData.class).get();
 
         org.spongepowered.api.effect.potion.PotionEffect effect = effects.asList().stream()
                 .filter((pe) -> pe.getType().equals(PotionUtil.toSponge(type)))
@@ -110,7 +110,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public int getRemainingAir() {
-        return entity.get(Keys.REMAINING_AIR).orElse(0);
+        return getSpongeEntity().get(Keys.REMAINING_AIR).orElse(0);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public boolean hasAI() {
-        return entity.get(Keys.AI_ENABLED).orElse(false);
+        return getSpongeEntity().get(Keys.AI_ENABLED).orElse(false);
     }
 
     @Override
@@ -145,30 +145,30 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public void removePotionEffect(PotionEffectType type) {
-        PotionEffectData effects = entity.getOrCreate(PotionEffectData.class).get();
+        PotionEffectData effects = getSpongeEntity().getOrCreate(PotionEffectData.class).get();
 
         effects.removeAll((pe) -> pe.getType().equals(PotionUtil.toSponge(type)));
 
-        entity.offer(effects);
+        getSpongeEntity().offer(effects);
     }
 
     @Override
     public void setAI(boolean ai) {
-        entity.offer(Keys.AI_ENABLED, ai);
+        getSpongeEntity().offer(Keys.AI_ENABLED, ai);
     }
 
     @Override
     public void setCanPickupItems(boolean p) {
         if (p) {
-            entity.offer(Keys.PICKUP_RULE, PickupRules.ALLOWED);
+            getSpongeEntity().offer(Keys.PICKUP_RULE, PickupRules.ALLOWED);
         } else {
-            entity.offer(Keys.PICKUP_RULE, PickupRules.DISALLOWED);
+            getSpongeEntity().offer(Keys.PICKUP_RULE, PickupRules.DISALLOWED);
         }
     }
 
     @Override
     public void setCollidable(boolean c) {
-        entity.offer(Keys.VANISH_IGNORES_COLLISION, c);
+        getSpongeEntity().offer(Keys.VANISH_IGNORES_COLLISION, c);
     }
 
     @Override
@@ -178,62 +178,62 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
 
     @Override
     public void setLastDamage(double damage) {
-        entity.offer(Keys.LAST_DAMAGE, Optional.of(damage));
+        getSpongeEntity().offer(Keys.LAST_DAMAGE, Optional.of(damage));
     }
 
     @Override
     public void setMaximumAir(int ticks) {
-        entity.offer(Keys.MAX_AIR, ticks);
+        getSpongeEntity().offer(Keys.MAX_AIR, ticks);
     }
 
     @Override
     public void setMaximumNoDamageTicks(int ticks) {
-        entity.offer(Keys.INVULNERABILITY_TICKS, ticks);
+        getSpongeEntity().offer(Keys.INVULNERABILITY_TICKS, ticks);
     }
 
     @Override
     public void setNoDamageTicks(int ticks) {
-        entity.offer(Keys.INVULNERABILITY_TICKS, ticks);
+        getSpongeEntity().offer(Keys.INVULNERABILITY_TICKS, ticks);
     }
 
     @Override
     public void setRemainingAir(int ticks) {
-        entity.offer(Keys.REMAINING_AIR, ticks);
+        getSpongeEntity().offer(Keys.REMAINING_AIR, ticks);
     }
 
     @Override
     public void damage(double amount) {
-        entity.damage(amount, DamageSources.GENERIC);
+        getSpongeEntity().damage(amount, DamageSources.GENERIC);
     }
 
     @Override
     public void damage(double amount, Entity source) {
         org.spongepowered.api.entity.Entity spongeEntity = ((EntityWrapper)source).getSpongeEntity();
-        entity.damage(amount, EntityDamageSource.builder().entity(spongeEntity).type(DamageTypes.CUSTOM).build());
+        getSpongeEntity().damage(amount, EntityDamageSource.builder().entity(spongeEntity).type(DamageTypes.CUSTOM).build());
     }
 
     @Override
     public double getHealth() {
-        return entity.get(Keys.HEALTH).orElse(0.0);
+        return getSpongeEntity().get(Keys.HEALTH).orElse(0.0);
     }
 
     @Override
     public double getMaxHealth() {
-        return entity.get(Keys.MAX_HEALTH).orElse(0.0);
+        return getSpongeEntity().get(Keys.MAX_HEALTH).orElse(0.0);
     }
 
     @Override
     public void resetMaxHealth() {
-        entity.offer(Keys.MAX_HEALTH, 20.0);
+        getSpongeEntity().offer(Keys.MAX_HEALTH, 20.0);
     }
 
     @Override
     public void setHealth(double health) {
-        entity.offer(Keys.HEALTH, health);
+        getSpongeEntity().offer(Keys.HEALTH, health);
     }
 
     @Override
     public void setMaxHealth(double health) {
-        entity.offer(Keys.MAX_HEALTH, health);
+        getSpongeEntity().offer(Keys.MAX_HEALTH, health);
     }
 }
