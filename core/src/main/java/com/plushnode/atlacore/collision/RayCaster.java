@@ -12,8 +12,8 @@ import java.util.*;
 public final class RayCaster {
     private static final List<Vector3D> DIRECTIONS = Arrays.asList(
             Vector3D.ZERO,
-            Vector3D.PLUS_I, Vector3D.PLUS_J, Vector3D.PLUS_J,
-            Vector3D.MINUS_I, Vector3D.MINUS_J, Vector3D.MINUS_J,
+            Vector3D.PLUS_I, Vector3D.PLUS_J, Vector3D.PLUS_K,
+            Vector3D.MINUS_I, Vector3D.MINUS_J, Vector3D.MINUS_K,
 
             new Vector3D(0, 1, 1), new Vector3D(0, 1, -1),
             new Vector3D(1, 1, 0), new Vector3D(1, 1, 1), new Vector3D(1, 1, -1),

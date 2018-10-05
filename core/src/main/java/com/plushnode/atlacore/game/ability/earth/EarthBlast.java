@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 
 public class EarthBlast implements Ability {
     private static final List<Vector3D> DIRECTIONS = Arrays.asList(
-            Vector3D.PLUS_I, Vector3D.PLUS_J, Vector3D.PLUS_J,
-            Vector3D.MINUS_I, Vector3D.MINUS_J, Vector3D.MINUS_J
+            Vector3D.PLUS_I, Vector3D.PLUS_J, Vector3D.PLUS_K,
+            Vector3D.MINUS_I, Vector3D.MINUS_J, Vector3D.MINUS_K
     );
     public static Config config = new Config();
 

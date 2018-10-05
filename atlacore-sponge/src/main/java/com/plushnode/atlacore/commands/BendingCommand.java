@@ -24,7 +24,7 @@ public class BendingCommand extends CommandRegistry implements CommandCallable {
         // Note: this doesn't handle quoted strings, but it shouldn't be needed.
         String[] args = arguments.split(" ");
 
-        if (args.length == 0) {
+        if (arguments.isEmpty() || args.length == 0) {
             sendUsage(source);
             return CommandResult.success();
         }
@@ -59,6 +59,8 @@ public class BendingCommand extends CommandRegistry implements CommandCallable {
         Set<CoreCommand> commandSet = new HashSet<>();
         commandSet.addAll(getCommands().values());
 
+        boolean sentCommand = false;
+
         for (CoreCommand command : commandSet) {
             String[] aliases = command.getAliases();
             if (aliases == null || aliases.length == 0)
@@ -72,6 +74,12 @@ public class BendingCommand extends CommandRegistry implements CommandCallable {
             Text usage = Text.of(TextColors.GREEN, "/" + COMMAND_NAME + " " + name, TextColors.GOLD, ": " + command.getDescription());
 
             commandSender.sendMessage(usage);
+            sentCommand = true;
+        }
+
+        if (!sentCommand) {
+            Text noCommands = Text.of(TextColors.RED, "You don't have permission to use any bending commands.");
+            commandSender.sendMessage(noCommands);
         }
     }
 

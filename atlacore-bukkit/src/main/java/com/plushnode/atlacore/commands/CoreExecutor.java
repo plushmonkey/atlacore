@@ -52,6 +52,8 @@ public class CoreExecutor extends CommandRegistry implements CommandExecutor {
         Set<CoreCommand> commandSet = new HashSet<>();
         commandSet.addAll(getCommands().values());
 
+        boolean sentCommand = false;
+
         for (CoreCommand command : commandSet) {
             String[] aliases = command.getAliases();
             if (aliases == null || aliases.length == 0)
@@ -64,6 +66,12 @@ public class CoreExecutor extends CommandRegistry implements CommandExecutor {
             String usage = ChatColor.GREEN + "/" + COMMAND_NAME + " " + name + ChatColor.GOLD + ": " + command.getDescription();
 
             commandSender.sendMessage(usage);
+            sentCommand = true;
+        }
+
+        if (!sentCommand) {
+            String noCommands = ChatColor.RED + "You don't have permission to use any bending commands.";
+            commandSender.sendMessage(noCommands);
         }
     }
 }

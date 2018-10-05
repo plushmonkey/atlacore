@@ -116,7 +116,7 @@ public class WorldWrapper implements World {
     public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z) {
         double radius = Math.max(x, Math.max(y, z));
 
-        return world.getEntities(e -> SpongeTypeUtil.adapt(e.getLocation()).distanceSquared(location) <= radius).stream()
+        return world.getEntities(e -> SpongeTypeUtil.adapt(e.getLocation()).distanceSquared(location) <= radius * radius).stream()
                 .map(EntityFactory::createEntity)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
