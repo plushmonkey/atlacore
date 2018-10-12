@@ -2,14 +2,14 @@ package com.plushnode.atlacore.platform.block;
 
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.World;
+import com.plushnode.atlacore.platform.block.data.BlockData;
 
 public interface BlockState {
     Block getBlock();
     Location getLocation();
 
-    byte getRawData();
+    BlockData getBlockData();
     Material getType();
-    int getTypeId();
 
     World getWorld();
 
@@ -17,9 +17,8 @@ public interface BlockState {
     int getY();
     int getZ();
 
-    void setRawData(byte data);
+    void setBlockData(BlockData data);
     void setType(Material type);
-    void setTypeId(int typeId);
 
     boolean update();
     boolean update(boolean force);

@@ -3,12 +3,12 @@ package com.plushnode.atlacore.platform.block;
 import com.plushnode.atlacore.collision.geometry.AABBProvider;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.World;
+import com.plushnode.atlacore.platform.block.data.BlockData;
 
 public interface Block extends AABBProvider {
     boolean breakNaturally();
 
-    int getTypeId();
-    byte getData();
+    BlockData getBlockData();
     Material getType();
     Location getLocation();
 
@@ -22,9 +22,7 @@ public interface Block extends AABBProvider {
     int getZ();
     boolean isLiquid();
 
-    void setData(byte data);
+    void setBlockData(BlockData data);
     void setType(Material type);
-    void setTypeId(int typeId);
-    void setTypeId(int typeId, boolean applyPhysics);
-    void setTypeIdAndData(int typeId, byte data, boolean applyPhysics);
+    void setType(Material type, boolean applyPhysics);
 }

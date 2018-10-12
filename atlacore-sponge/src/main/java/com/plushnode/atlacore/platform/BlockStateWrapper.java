@@ -3,6 +3,7 @@ package com.plushnode.atlacore.platform;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.platform.block.data.BlockData;
 import com.plushnode.atlacore.util.SpongeMaterialUtil;
 import com.plushnode.atlacore.util.SpongeVersionUtil;
 
@@ -48,19 +49,14 @@ public class BlockStateWrapper implements BlockState {
     }
 
     @Override
-    public byte getRawData() {
+    public BlockData getBlockData() {
         // todo
-        return 0;
+        return null;
     }
 
     @Override
     public Material getType() {
         return SpongeMaterialUtil.toMaterial(state.getType());
-    }
-
-    @Override
-    public int getTypeId() {
-        return getType().getId();
     }
 
     @Override
@@ -84,21 +80,12 @@ public class BlockStateWrapper implements BlockState {
     }
 
     @Override
-    public void setRawData(byte data) {
+    public void setBlockData(BlockData data) {
 
     }
 
     @Override
     public void setType(Material type) {
-        SpongeVersionUtil.setBlockType(location, SpongeMaterialUtil.toBlockType(type));
-
-        state = location.getBlock();
-    }
-
-    @Override
-    public void setTypeId(int typeId) {
-        Material type = SpongeMaterialUtil.fromTypeId(typeId);
-
         SpongeVersionUtil.setBlockType(location, SpongeMaterialUtil.toBlockType(type));
 
         state = location.getBlock();

@@ -36,7 +36,9 @@ import java.util.stream.Stream;
 public class AirScooter implements Ability {
     private static Config config = new Config();
 
-    private Set<Material> groundMaterials = Stream.of(Material.WATER, Material.STATIONARY_WATER, Material.LAVA, Material.STATIONARY_LAVA).collect(Collectors.toSet());
+    private Set<Material> groundMaterials = Stream.of(
+            Material.WATER, Material.LAVA
+    ).collect(Collectors.toSet());
 
     private boolean liquidMovement = true;
     private double liquidClimbSpeed = 0.6;

@@ -3,6 +3,7 @@ package com.plushnode.atlacore.platform;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.platform.block.data.BlockData;
 import com.plushnode.atlacore.util.TypeUtil;
 
 public class BlockStateWrapper implements BlockState {
@@ -41,18 +42,14 @@ public class BlockStateWrapper implements BlockState {
     }
 
     @Override
-    public byte getRawData() {
-        return state.getRawData();
+    public BlockData getBlockData() {
+        // TODO: implement BlockData
+        return null;
     }
 
     @Override
     public Material getType() {
         return TypeUtil.adapt(state.getType());
-    }
-
-    @Override
-    public int getTypeId() {
-        return state.getTypeId();
     }
 
     @Override
@@ -76,18 +73,14 @@ public class BlockStateWrapper implements BlockState {
     }
 
     @Override
-    public void setRawData(byte data) {
-        state.setRawData(data);
+    public void setBlockData(BlockData data) {
+        // TODO: Transform block data to bukkit BlockData.
+        //state.setBlockData(data);
     }
 
     @Override
     public void setType(Material type) {
         state.setType(TypeUtil.adapt(type));
-    }
-
-    @Override
-    public void setTypeId(int typeId) {
-        state.setTypeId(typeId);
     }
 
     @Override

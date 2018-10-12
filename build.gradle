@@ -12,7 +12,7 @@ apply plugin: 'java'
 
 allprojects {
   group = 'com.plushnode.atlacore'
-  version = '0.1'
+  version = '0.2'
 }
 
 description = 'Avatar bending plugin'

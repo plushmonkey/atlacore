@@ -7,6 +7,7 @@ import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.platform.block.data.BlockData;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.SpongeMaterialUtil;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
@@ -49,14 +50,9 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public int getTypeId() {
-        throw new UnsupportedOperationException("Blocks should be using newer api.");
-    }
-
-    @Override
-    public byte getData() {
+    public BlockData getBlockData() {
         // todo: impl
-        return 0;
+        return null;
     }
 
     @Override
@@ -114,13 +110,11 @@ public class BlockWrapper implements Block {
     public boolean isLiquid() {
         Material material = SpongeMaterialUtil.toMaterial(location.getBlock().getType());
         return material == Material.WATER ||
-               material == Material.STATIONARY_WATER ||
-               material == Material.LAVA ||
-               material == Material.STATIONARY_LAVA;
+               material == Material.LAVA;
     }
 
     @Override
-    public void setData(byte data) {
+    public void setBlockData(BlockData data) {
 
     }
 
@@ -130,21 +124,8 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public void setTypeId(int typeId) {
-        Material material = SpongeMaterialUtil.fromTypeId(typeId);
-        setType(material);
-    }
-
-    @Override
-    public void setTypeId(int typeId, boolean applyPhysics) {
-        // todo: physics
-        setTypeId(typeId);
-    }
-
-    @Override
-    public void setTypeIdAndData(int typeId, byte data, boolean applyPhysics) {
-        // todo: data?/physics
-        setTypeId(typeId);
+    public void setType(Material type, boolean applyPhysics) {
+        SpongeVersionUtil.setBlockType(location, SpongeMaterialUtil.toBlockType(type));
     }
 
     @Override

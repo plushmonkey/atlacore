@@ -318,11 +318,10 @@ public class Combustion implements Ability {
 
     private abstract class AbstractExplosionMethod implements ExplosionMethod {
         protected List<Material> blocks = Arrays.asList(
-                Material.AIR, Material.BEDROCK, Material.CHEST, Material.TRAPPED_CHEST, Material.OBSIDIAN, Material.PORTAL,
-                Material.ENDER_PORTAL, Material.ENDER_PORTAL_FRAME, Material.FIRE, Material.WALL_SIGN, Material.SIGN_POST,
-                Material.WATER, Material.STATIONARY_WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.BANNER,
-                Material.WALL_BANNER, Material.DROPPER, Material.FURNACE, Material.DISPENSER, Material.HOPPER,
-                Material.BEACON, Material.BARRIER, Material.MOB_SPAWNER
+                Material.AIR, Material.BEDROCK, Material.CHEST, Material.TRAPPED_CHEST, Material.OBSIDIAN,
+                Material.NETHER_PORTAL, Material.END_PORTAL, Material.END_PORTAL_FRAME, Material.FIRE,
+                Material.WALL_SIGN, Material.SIGN, Material.WATER, Material.LAVA, Material.DROPPER, Material.FURNACE,
+                Material.DISPENSER, Material.HOPPER, Material.BEACON, Material.BARRIER, Material.SPAWNER
         );
 
         private boolean destroy;

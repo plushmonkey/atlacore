@@ -49,9 +49,10 @@ shadowJar {
 
 dependencies {
 	shadow project(':core')
-	compile 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+	compile 'org.spigotmc:spigot-api:1.13.1-R0.1-SNAPSHOT'
 	shadow 'ninja.leaping.configurate:configurate-hocon:3.2'
-	compile name: 'worldguard-6.1'
+	compile name: 'worldguard-legacy-7.0.0-beta01'
+	compile name: 'worldedit-bukkit-7.0.0-beta-01'
 	compile name: 'Towny-0.90'
 	compile name: 'Factions-2.7.5'
 	compile name: 'MassiveCore-2.7.5'

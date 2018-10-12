@@ -3,6 +3,7 @@ author: plushmonkey
 version: ${version}
 main: com.plushnode.atlacore.AtlaCorePlugin
 softdepend: [ProjectKorra, Factions, GriefPrevention, LWC, Towny, WorldGuard]
+api-version: 1.13
 commands:
   atla:
     aliases: [b, bending]
@@ -50,6 +51,7 @@ permissions:
       atla.ability.Catapult: true
       atla.ability.Collapse: true
       atla.ability.EarthBlast: true
+      atla.ability.EarthSmash: true
       atla.ability.Shockwave: true
       atla.ability.DensityShift: true
   atla.fire:

@@ -6,6 +6,7 @@ import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.platform.block.data.BlockData;
 import com.plushnode.atlacore.util.TypeUtil;
 
 public class BlockWrapper implements Block {
@@ -43,13 +44,11 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public int getTypeId() {
-        return block.getTypeId();
-    }
+    public BlockData getBlockData() {
+        org.bukkit.block.data.BlockData bukkitData = block.getBlockData();
 
-    @Override
-    public byte getData() {
-        return block.getData();
+        // TODO: transform BlockData
+        return null;
     }
 
     @Override
@@ -105,8 +104,9 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public void setData(byte data) {
-        block.setData(data);
+    public void setBlockData(BlockData data) {
+        // TODO: Transform BlockData
+        //block.setBlockData(data);
     }
 
     @Override
@@ -115,18 +115,8 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public void setTypeId(int typeId) {
-        block.setTypeId(typeId);
-    }
-
-    @Override
-    public void setTypeId(int typeId, boolean applyPhysics) {
-        block.setTypeId(typeId, applyPhysics);
-    }
-
-    @Override
-    public void setTypeIdAndData(int typeId, byte data, boolean applyPhysics) {
-        block.setTypeIdAndData(typeId, data, applyPhysics);
+    public void setType(Material type, boolean applyPhysics) {
+        block.setType(TypeUtil.adapt(type), applyPhysics);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.block.setters;
 
+import com.plushnode.atlacore.AtlaCorePlugin;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -22,7 +23,8 @@ public class NativeMethods {
             setupReflection();
             enabled = true;
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            AtlaCorePlugin.plugin.getLogger().warning("Failed to setup reflection for fast block setting.");
+            //e.printStackTrace();
         }
     }
 

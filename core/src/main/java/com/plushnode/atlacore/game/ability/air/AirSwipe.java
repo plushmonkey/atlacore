@@ -211,7 +211,8 @@ public class AirSwipe implements Ability {
         private boolean handleBlockInteractions(Block block) {
             if (block.isLiquid()) {
                 if (MaterialUtil.isLava(block)) {
-                    if (block.getType() == Material.STATIONARY_LAVA) {
+                    // TODO: Check if source block using BlockData.
+                    if (block.getType() == Material.LAVA) {
                         block.setType(Material.OBSIDIAN);
                     } else {
                         block.setType(Material.COBBLESTONE);
