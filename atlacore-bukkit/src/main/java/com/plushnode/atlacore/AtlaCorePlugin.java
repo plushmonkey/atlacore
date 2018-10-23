@@ -32,7 +32,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     public static AtlaCorePlugin plugin;
 
     private CommentedConfigurationNode configRoot;
-    private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();;
+    private BlockSetterFactory blockSetterFactory = new BlockSetterFactory();
     private BukkitParticleEffectRenderer particleRenderer = new BukkitParticleEffectRenderer();
     private BukkitPotionFactory potionFactory = new BukkitPotionFactory();
     private Game game;
@@ -55,8 +55,8 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         protection.getFactory().registerProtectMethod("Towny", () -> new TownyProtectMethod(this));
         protection.getFactory().registerProtectMethod("WorldGuard", () -> new WorldGuardProtectMethod(this));
 
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new BlockListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        getServer().getPluginManager().registerEvents(new BlockListener(), this);
 
         CoreExecutor executor = new CoreExecutor();
 
@@ -67,9 +67,9 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         executor.registerCommand(new DisplayCommand());
         executor.registerCommand(new HelpCommand());
 
-        this.getCommand("b").setExecutor(executor);
+        //this.getCommand("b").setExecutor(executor);
         this.getCommand("atla").setExecutor(executor);
-        this.getCommand("bending").setExecutor(executor);
+        //this.getCommand("bending").setExecutor(executor);
 
         // Save the config after loading everything so the defaults are saved.
         try {

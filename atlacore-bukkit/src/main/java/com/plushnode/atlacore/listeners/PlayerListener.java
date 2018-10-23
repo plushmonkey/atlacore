@@ -37,14 +37,9 @@ import java.util.Map;
 
 // NOTE: test code.
 public class PlayerListener implements Listener {
-    private AtlaCorePlugin plugin;
     // TODO: Move into appropriate place
     public static Map<String, BendingBoard> boards = new HashMap<>();
     private Task boardTask = null;
-
-    public PlayerListener(AtlaCorePlugin plugin) {
-        this.plugin = plugin;
-    }
 
     private boolean activateAbility(User user, ActivationMethod method) {
         AbilityDescription abilityDescription = user.getSelectedAbility();
@@ -56,7 +51,7 @@ public class PlayerListener implements Listener {
         Ability ability = abilityDescription.createAbility();
 
         if (ability.activate(user, method)) {
-            plugin.getGame().addAbility(user, ability);
+            Game.addAbility(user, ability);
         } else {
             return false;
         }
@@ -69,7 +64,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
 
         // Create the player on the next tick so createPlayer can find the Bukkit player.
-        plugin.createTask(() -> {
+        Game.plugin.createTask(() -> {
             Game.getPlayerService().createPlayer(player.getUniqueId(), player.getName(), (p) -> {
                 if (p == null || !p.isOnline()) {
                     // This can happen if the player logs off before the player is created.
@@ -79,7 +74,7 @@ public class PlayerListener implements Listener {
                 boards.put(p.getName(), new BendingBoard(p));
 
                 if (boardTask == null) {
-                    boardTask = plugin.createTaskTimer(() -> {
+                    boardTask = Game.plugin.createTaskTimer(() -> {
                         for (BendingBoard board : boards.values()) {
                             board.update();
                         }

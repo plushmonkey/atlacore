@@ -1,6 +1,6 @@
 package com.plushnode.atlacore.block.setters;
 
-import com.plushnode.atlacore.AtlaCorePlugin;
+import com.plushnode.atlacore.game.Game;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -23,7 +23,9 @@ public class NativeMethods {
             setupReflection();
             enabled = true;
         } catch (NoSuchMethodException e) {
-            AtlaCorePlugin.plugin.getLogger().warning("Failed to setup reflection for fast block setting.");
+            if (Game.plugin != null) {
+              Game.warn("Failed to setup reflection for fast block setting.");
+            }
             //e.printStackTrace();
         }
     }

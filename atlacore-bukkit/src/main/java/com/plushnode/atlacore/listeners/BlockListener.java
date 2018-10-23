@@ -1,6 +1,5 @@
 package com.plushnode.atlacore.listeners;
 
-import com.plushnode.atlacore.AtlaCorePlugin;
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.BlockWrapper;
@@ -10,12 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 
 public class BlockListener implements Listener {
-    private AtlaCorePlugin plugin;
-
-    public BlockListener(AtlaCorePlugin plugin) {
-        this.plugin = plugin;
-    }
-
     @EventHandler(ignoreCancelled = true)
     public void onBlockIgnite(BlockIgniteEvent event) {
         if (event.getCause() == BlockIgniteEvent.IgniteCause.SPREAD) {

@@ -140,6 +140,6 @@ public class BlockWrapper implements Block {
 
     @Override
     public boolean hasBounds() {
-        return getBounds().max() != null;
+        return getBounds().max() != null && !MaterialUtil.isTransparent(this);
     }
 }

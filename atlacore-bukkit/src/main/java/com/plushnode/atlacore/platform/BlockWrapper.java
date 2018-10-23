@@ -7,6 +7,7 @@ import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.platform.block.data.BlockData;
+import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.TypeUtil;
 
 public class BlockWrapper implements Block {
@@ -126,6 +127,6 @@ public class BlockWrapper implements Block {
 
     @Override
     public boolean hasBounds() {
-        return getBounds().max() != null;
+        return getBounds().max() != null && !MaterialUtil.isTransparent(this);
     }
 }

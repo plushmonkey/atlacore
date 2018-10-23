@@ -305,7 +305,7 @@ public class Game {
         return abilityRegistry.getAbilityByName(abilityName);
     }
 
-    public void addAbility(User user, Ability instance) {
+    public static void addAbility(User user, Ability instance) {
         instanceManager.addAbility(user, instance);
     }
 

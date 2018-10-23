@@ -6,7 +6,7 @@ softdepend: [ProjectKorra, Factions, GriefPrevention, LWC, Towny, WorldGuard]
 api-version: 1.13
 commands:
   atla:
-    aliases: [b, bending]
+    aliases: []
     usage: /<command>
 permissions:
   atla.admin:
