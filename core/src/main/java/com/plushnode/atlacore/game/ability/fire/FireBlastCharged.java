@@ -206,7 +206,7 @@ public class FireBlastCharged implements Ability {
         return Game.getAbilityRegistry().getAbilityByName("FireBlast");
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         public boolean enabled;
         public long cooldown;
         public long chargeTime;

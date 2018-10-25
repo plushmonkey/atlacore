@@ -194,7 +194,7 @@ public class Collapse implements Ability {
         }
     }
 
-    private static class Column {
+    public static class Column {
         Block base;
         int height;
 

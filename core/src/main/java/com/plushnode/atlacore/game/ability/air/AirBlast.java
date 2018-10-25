@@ -279,7 +279,7 @@ public class AirBlast implements Ability, Burstable {
         this.particleCount = count;
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         boolean enabled;
         long cooldown;
         double range;

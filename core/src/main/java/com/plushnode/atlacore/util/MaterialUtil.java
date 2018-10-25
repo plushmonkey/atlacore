@@ -117,8 +117,8 @@ public final class MaterialUtil {
         if (type == Material.SAND) {
             new TempBlock(block, Material.SANDSTONE);
             return true;
-        } else if (type == Material.STONE) {
-            new TempBlock(block, Material.COBBLESTONE);
+        } else if (type == Material.RED_SAND) {
+            new TempBlock(block, Material.RED_SANDSTONE);
             return true;
         } else if (type == Material.GRAVEL) {
             new TempBlock(block, Material.COBBLESTONE);
@@ -126,5 +126,19 @@ public final class MaterialUtil {
         }
 
         return false;
+    }
+
+    // Finds a suitable solid block type to replace a falling-type block with.
+    public static Material getSolidEarthType(Material type) {
+        // TODO: implement the rest
+        if (type == Material.SAND) {
+            return Material.SANDSTONE;
+        } else if (type == Material.RED_SAND) {
+            return Material.RED_SANDSTONE;
+        } else if (type == Material.GRAVEL) {
+            return Material.COBBLESTONE;
+        }
+
+        return type;
     }
 }

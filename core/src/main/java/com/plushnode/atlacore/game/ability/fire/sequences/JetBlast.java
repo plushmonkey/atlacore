@@ -65,7 +65,7 @@ public class JetBlast implements Ability {
 
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         public boolean enabled;
         public long cooldown;
         public double speed;

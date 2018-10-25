@@ -29,10 +29,12 @@ public class EarthSmash implements Ability {
     private User user;
     private Boulder boulder;
     private State state;
+    private int tick;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.tick = 0;
 
         if (method != ActivationMethod.Sneak) {
             return false;
@@ -40,12 +42,10 @@ public class EarthSmash implements Ability {
 
         Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), 10.0, true);
         if (block == null) {
-            Game.info("Block is null.");
             return false;
         }
 
         if (!MaterialUtil.isEarthbendable(block)) {
-            Game.info("Block is not earthbendable.");
             return false;
         }
 
@@ -63,7 +63,6 @@ public class EarthSmash implements Ability {
         this.state.update();
 
         if (this.state == null) {
-            Game.info("State is null.");
             return UpdateResult.Remove;
         }
 
@@ -81,14 +80,32 @@ public class EarthSmash implements Ability {
                     Material type = layer.getState(x, y);
                     Location current = boulder.getBase().add(x, i, y);
 
-                    if (current.getBlock().getType() != type && type != Material.AIR) {
+                    if (current.getBlock().getType() != type) {
                         new TempBlock(current.getBlock(), type, 10000);
                     }
                 }
             }
         }
 
-        Game.info("State is continuing.");
+        if (!prevBase.equals(boulder.getBase())) {
+            if (tick < config.radius && tick > 0) {
+                Layer layer = prevBoulderState.get(config.radius / 2);
+
+                for (int y = 0; y < boulder.getSize(); ++y) {
+                    for (int x = 0; x < boulder.getSize(); ++x) {
+                        if (tick > 1 || layer.getState(x, y) == Material.AIR) {
+                            Location current = boulder.getBase().add(x, -1, y);
+
+                            if (MaterialUtil.isEarthbendable(current.getBlock())) {
+                                new TempBlock(current.getBlock(), Material.AIR, 10000);
+                            }
+                        }
+                    }
+                }
+            }
+
+            ++tick;
+        }
 
         return UpdateResult.Continue;
     }
@@ -104,7 +121,7 @@ public class EarthSmash implements Ability {
                     Material prevState = prevLayer.getState(x, y);
                     Material currentState = currentLayer.getState(x, y);
 
-                    Game.getTempBlockService().reset(prevBase.add(x, i, y));
+                    Game.getTempBlockService().reset(prevBase.add(x, i, y).getBlock());
                 }
             }
         }
@@ -152,7 +169,6 @@ public class EarthSmash implements Ability {
         @Override
         public void update() {
             if (boulder.getBase().getY() >= targetBase.getY()) {
-                Game.info("Boulder base is high.");
                 state = null;
                 return;
             }
@@ -161,21 +177,8 @@ public class EarthSmash implements Ability {
 
             if (time >= nextRaiseTime) {
                 boulder.setBase(boulder.getBase().add(0, 1, 0));
-                nextRaiseTime = time + 500;
+                nextRaiseTime = time + 50;
             }
-        }
-    }
-
-    private static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-
-        @Override
-        public void onConfigReload() {
-            CommentedConfigurationNode abilityNode = config.getNode("abilities", "earth", "earthsmash");
-
-            enabled = abilityNode.getNode("enabled").getBoolean(true);
-            cooldown = abilityNode.getNode("cooldown").getLong(500);
         }
     }
 
@@ -216,9 +219,9 @@ public class EarthSmash implements Ability {
         private Location base;
 
         public Boulder(Block selectedBlock) {
-            layers.add(new Layer(3));
-            layers.add(new Layer(3));
-            layers.add(new Layer(3));
+            layers.add(new Layer(config.radius));
+            layers.add(new Layer(config.radius));
+            layers.add(new Layer(config.radius));
 
             double offset = Math.floor(getSize() / 2.0);
             this.base = selectedBlock.getLocation().subtract(offset, 2, offset);
@@ -237,16 +240,17 @@ public class EarthSmash implements Ability {
                             continue;
                         }
 
+                        Material solidType = MaterialUtil.getSolidEarthType(type);
                         // Generate checkerboard pattern
                         if (i % 2 == 0) {
                             if ((x + y) % 2 == 0) {
                                 layer.setState(x, y, Material.AIR);
                             } else {
-                                layer.setState(x, y, type);
+                                layer.setState(x, y, solidType);
                             }
                         } else {
                             if ((x + y) % 2 == 0) {
-                                layer.setState(x, y, type);
+                                layer.setState(x, y, solidType);
                             } else {
                                 layer.setState(x, y, Material.AIR);
                             }
@@ -297,6 +301,21 @@ public class EarthSmash implements Ability {
 
         public int getSize() {
             return layers.size();
+        }
+    }
+
+    public static class Config extends Configurable {
+        boolean enabled;
+        long cooldown;
+        int radius;
+
+        @Override
+        public void onConfigReload() {
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "earth", "earthsmash");
+
+            enabled = abilityNode.getNode("enabled").getBoolean(true);
+            cooldown = abilityNode.getNode("cooldown").getLong(500);
+            radius = abilityNode.getNode("radius").getInt(3);
         }
     }
 }

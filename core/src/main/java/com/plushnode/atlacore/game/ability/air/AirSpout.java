@@ -148,7 +148,7 @@ public class AirSpout implements Ability {
         }
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         boolean enabled;
         long cooldown;
         double height;

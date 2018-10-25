@@ -110,7 +110,7 @@ public class FireJet implements Ability {
         this.duration = newDuration;
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         public boolean enabled;
         public long cooldown;
         public double speed;

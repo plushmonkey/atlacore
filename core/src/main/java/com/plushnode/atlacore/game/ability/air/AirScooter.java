@@ -304,7 +304,7 @@ public class AirScooter implements Ability {
         }
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         boolean enabled;
         double speed;
         long cooldown;

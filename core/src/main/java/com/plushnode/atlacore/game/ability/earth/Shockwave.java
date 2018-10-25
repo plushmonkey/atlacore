@@ -481,7 +481,7 @@ public class Shockwave implements Ability {
         }
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         boolean enabled;
         double fallThreshold;
         long chargeTime;

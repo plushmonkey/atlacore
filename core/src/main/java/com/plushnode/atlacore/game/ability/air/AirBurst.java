@@ -149,7 +149,7 @@ public class AirBurst extends BurstAbility {
         user.setCooldown(this, config.fallCooldown);
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         boolean enabled;
         long cooldown;
 

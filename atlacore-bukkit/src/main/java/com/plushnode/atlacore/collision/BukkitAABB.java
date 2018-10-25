@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
 public final class BukkitAABB {
     private static Class<?> CraftWorld, CraftEntity, World, AxisAlignedBB, Block, BlockPosition, IBlockData, Entity, VoxelShape;
     private static Method getHandle, getEntityHandle, getType, getBlock, getBlockBoundingBox, getBoundingBox, getVoxelShape, isEmptyBounds;
-    private static Field aField, bField, cField, dField, eField, fField;
+    private static Field minXField, minYField, minZField, maxXField, maxYField, maxZField;
+    private static Constructor<?> bpConstructor;
     private static int serverVersion;
 
     private Vector min = null;
@@ -35,7 +36,7 @@ public final class BukkitAABB {
 
         }
 
-        if (!setupReflection(serverVersion)) {
+        if (!setupReflection()) {
             Game.warn("ERROR: Failed to setup BukkitAABB reflection.");
         }
     }
@@ -73,9 +74,9 @@ public final class BukkitAABB {
 
             if (aabb == null) return null;
 
-            double a = (double)aField.get(aabb);
-            double b = (double)bField.get(aabb);
-            double c = (double)cField.get(aabb);
+            double a = (double) minXField.get(aabb);
+            double b = (double) minYField.get(aabb);
+            double c = (double) minZField.get(aabb);
 
             return new Vector(a, b, c);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -92,9 +93,9 @@ public final class BukkitAABB {
 
             if (aabb == null) return null;
 
-            double d = (double)dField.get(aabb);
-            double e = (double)eField.get(aabb);
-            double f = (double)fField.get(aabb);
+            double d = (double) maxXField.get(aabb);
+            double e = (double) maxYField.get(aabb);
+            double f = (double) maxZField.get(aabb);
 
             return new Vector(d, e, f);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -109,9 +110,9 @@ public final class BukkitAABB {
         if (aabb == null) return null;
 
         try {
-            double a = (double)aField.get(aabb);
-            double b = (double)bField.get(aabb);
-            double c = (double)cField.get(aabb);
+            double a = (double) minXField.get(aabb);
+            double b = (double) minYField.get(aabb);
+            double c = (double) minZField.get(aabb);
 
             return new Vector(a, b, c);
         } catch (IllegalAccessException e) {
@@ -126,9 +127,9 @@ public final class BukkitAABB {
         if (aabb == null) return null;
 
         try {
-            double d = (double)dField.get(aabb);
-            double e = (double)eField.get(aabb);
-            double f = (double)fField.get(aabb);
+            double d = (double) maxXField.get(aabb);
+            double e = (double) maxYField.get(aabb);
+            double f = (double) maxZField.get(aabb);
 
             return new Vector(d, e, f);
         } catch (IllegalAccessException e) {
@@ -141,19 +142,17 @@ public final class BukkitAABB {
     private static Object getAABB(Block block) {
         if (serverVersion < 13) {
             try {
-                Constructor<?> bpConstructor = BlockPosition.getConstructor(int.class, int.class, int.class);
                 Object bp = bpConstructor.newInstance(block.getX(), block.getY(), block.getZ());
                 Object world = getHandle.invoke(CraftWorld.cast(block.getWorld()));
                 Object blockData = getType.invoke(world, BlockPosition.cast(bp));
                 Object blockNative = getBlock.invoke(blockData);
 
                 return getBlockBoundingBox.invoke(blockNative, IBlockData.cast(blockData), World.cast(world), BlockPosition.cast(bp));
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         } else {
             try {
-                Constructor<?> bpConstructor = BlockPosition.getConstructor(int.class, int.class, int.class);
                 Object bp = bpConstructor.newInstance(block.getX(), block.getY(), block.getZ());
                 Object world = getHandle.invoke(CraftWorld.cast(block.getWorld()));
                 Object blockData = getType.invoke(world, BlockPosition.cast(bp));
@@ -164,7 +163,7 @@ public final class BukkitAABB {
                 if (emptyBounds != null && !(Boolean)emptyBounds) {
                     return getBlockBoundingBox.invoke(voxelShape);
                 }
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
@@ -172,7 +171,7 @@ public final class BukkitAABB {
         return null;
     }
 
-    private static boolean setupReflection(int serverVersion) {
+    private static boolean setupReflection() {
         CraftWorld = getNMSClass("org.bukkit.craftbukkit.%s.CraftWorld");
         CraftEntity = getNMSClass("org.bukkit.craftbukkit.%s.entity.CraftEntity");
         World = getNMSClass("net.minecraft.server.%s.World");
@@ -184,46 +183,56 @@ public final class BukkitAABB {
         VoxelShape = getNMSClass("net.minecraft.server.%s.VoxelShape");
         Class<?> IBlockAccess = getNMSClass("net.minecraft.server.%s.IBlockAccess");
 
-        if (serverVersion < 13) {
-            try {
-                getHandle = CraftWorld.getDeclaredMethod("getHandle");
-                getEntityHandle = CraftEntity.getDeclaredMethod("getHandle");
-                getType = World.getDeclaredMethod("getType", BlockPosition);
-                getBlock = IBlockData.getDeclaredMethod("getBlock");
-                getBlockBoundingBox = Block.getDeclaredMethod("a", IBlockData, serverVersion >= 11 ? IBlockAccess : World, BlockPosition);
-                getBoundingBox = Entity.getDeclaredMethod("getBoundingBox");
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-                return false;
-            }
-        } else {
-
-            try {
-                getHandle = CraftWorld.getDeclaredMethod("getHandle");
-                getEntityHandle = CraftEntity.getDeclaredMethod("getHandle");
-                getType = World.getDeclaredMethod("getType", BlockPosition);
-                getBlock = IBlockData.getDeclaredMethod("getBlock");
-                getVoxelShape = Block.getDeclaredMethod("a", IBlockData, serverVersion >= 11 ? IBlockAccess : World, BlockPosition);
-                getBlockBoundingBox = VoxelShape.getDeclaredMethod("a");
-                isEmptyBounds = VoxelShape.getDeclaredMethod("b");
-                getBoundingBox = Entity.getDeclaredMethod("getBoundingBox");
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-                return false;
-            }
+        try {
+            getHandle = CraftWorld.getDeclaredMethod("getHandle");
+            getEntityHandle = CraftEntity.getDeclaredMethod("getHandle");
+            getType = World.getDeclaredMethod("getType", BlockPosition);
+            getBlock = IBlockData.getDeclaredMethod("getBlock");
+            bpConstructor = BlockPosition.getConstructor(int.class, int.class, int.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            return false;
         }
 
         try {
-            aField = AxisAlignedBB.getField("a");
-            bField = AxisAlignedBB.getField("b");
-            cField = AxisAlignedBB.getField("c");
-            dField = AxisAlignedBB.getField("d");
-            eField = AxisAlignedBB.getField("e");
-            fField = AxisAlignedBB.getField("f");
+            if (serverVersion < 13) {
+                getBlockBoundingBox = Block.getDeclaredMethod("a", IBlockData, serverVersion >= 11 ? IBlockAccess : World, BlockPosition);
+                getBoundingBox = Entity.getDeclaredMethod("getBoundingBox");
+            } else {
+                getVoxelShape = Block.getDeclaredMethod("a", IBlockData, IBlockAccess, BlockPosition);
+                getBlockBoundingBox = VoxelShape.getDeclaredMethod("a");
+                getBoundingBox = Entity.getDeclaredMethod("getBoundingBox");
 
-        } catch (NoSuchFieldException e) {
+                try {
+                    isEmptyBounds = VoxelShape.getDeclaredMethod("b");
+                } catch (NoSuchMethodException e) {
+                    isEmptyBounds = VoxelShape.getDeclaredMethod("isEmpty");
+                }
+            }
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
             return false;
+        }
+
+        try {
+            minXField = AxisAlignedBB.getField("a");
+            minYField = AxisAlignedBB.getField("b");
+            minZField = AxisAlignedBB.getField("c");
+            maxXField = AxisAlignedBB.getField("d");
+            maxYField = AxisAlignedBB.getField("e");
+            maxZField = AxisAlignedBB.getField("f");
+        } catch (NoSuchFieldException e) {
+            try {
+                minXField = AxisAlignedBB.getField("minX");
+                minYField = AxisAlignedBB.getField("minY");
+                minZField = AxisAlignedBB.getField("minZ");
+                maxXField = AxisAlignedBB.getField("maxX");
+                maxYField = AxisAlignedBB.getField("maxY");
+                maxZField = AxisAlignedBB.getField("maxZ");
+            } catch (NoSuchFieldException e2) {
+                e2.printStackTrace();
+                return false;
+            }
         }
 
         return true;

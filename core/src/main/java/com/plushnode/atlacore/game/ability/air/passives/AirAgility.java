@@ -70,7 +70,7 @@ public class AirAgility implements PassiveAbility {
 
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         boolean enabled;
         int speedAmplifier;
         int jumpAmplifier;

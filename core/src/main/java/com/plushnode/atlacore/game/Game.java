@@ -144,7 +144,7 @@ public class Game {
         registerAbility("Catapult", Catapult.class, Elements.EARTH, ActivationMethod.Punch).setHarmless(true);
         registerAbility("Collapse", Collapse.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("RaiseEarth", RaiseEarth.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
-        //registerAbility("EarthSmash", EarthSmash.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
+        registerAbility("EarthSmash", EarthSmash.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("DensityShift", DensityShift.class, Elements.EARTH, ActivationMethod.Passive).setHarmless(true).setHidden(true);
 
         sequenceService.registerSequence(fireKick, new Sequence(true,

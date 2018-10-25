@@ -131,7 +131,7 @@ public class FireBurst extends BurstAbility {
         user.setCooldown(this, config.coneCooldown);
     }
 
-    private static class Config extends Configurable {
+    public static class Config extends Configurable {
         boolean enabled;
 
         int sphereParticlesPerBlast;
