@@ -178,6 +178,7 @@ public class SqlPresetRepository implements PresetRepository {
                     return true;
                 })) {
                     guard.run();
+                    return true;
                 } catch (SQLException e) {
                     e.printStackTrace();
                     return false;
@@ -190,7 +191,7 @@ public class SqlPresetRepository implements PresetRepository {
             return false;
         }
 
-        return true;
+        return false;
     }
 
     private int getPresetId(Connection connection, UUID playerUniqueId, String presetName) {

@@ -103,7 +103,7 @@ public class AirBlast implements Ability, Burstable {
         this.launched = true;
         this.location = origin;
 
-        Location target = RayCaster.cast(user, new Ray(origin.toVector(), user.getDirection()), config.range, true, true);
+        Location target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), config.range, true, true);
         this.direction = VectorUtil.normalizeOrElse(target.subtract(origin).toVector(), Vector3D.PLUS_I);
 
         removalPolicy.removePolicyType(IsDeadRemovalPolicy.class);

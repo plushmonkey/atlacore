@@ -27,7 +27,7 @@ public class AirBurst extends BurstAbility {
         this.released = false;
 
         if (method == ActivationMethod.Fall) {
-            if (user.getFallDistance() < config.fallThreshold) {
+            if (user.getFallDistance() < config.fallThreshold || user.isSneaking()) {
                 return false;
             }
 

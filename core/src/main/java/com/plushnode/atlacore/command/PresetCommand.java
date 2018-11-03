@@ -97,6 +97,8 @@ public class PresetCommand implements CoreCommand {
                             if (player.canBind(desc)) {
                                 player.setSlotAbility(i + 1, desc);
                                 ++count;
+                            } else {
+                                player.setSlotAbility(i + 1, null);
                             }
                         } else {
                             player.setSlotAbility(i + 1, null);
