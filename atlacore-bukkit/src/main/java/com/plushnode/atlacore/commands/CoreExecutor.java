@@ -9,8 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class CoreExecutor extends CommandRegistry implements CommandExecutor {
     private static final String COMMAND_NAME = "atla";
@@ -49,12 +48,12 @@ public class CoreExecutor extends CommandRegistry implements CommandExecutor {
     }
 
     private void sendUsage(CommandSender commandSender) {
-        Set<CoreCommand> commandSet = new HashSet<>();
-        commandSet.addAll(getCommands().values());
+        List<CoreCommand> commands = new ArrayList<>(new HashSet<>(getCommands().values()));
+        commands.sort(Comparator.comparing(command -> command.getAliases()[0]));
 
         boolean sentCommand = false;
 
-        for (CoreCommand command : commandSet) {
+        for (CoreCommand command : commands) {
             String[] aliases = command.getAliases();
             if (aliases == null || aliases.length == 0)
                 continue;

@@ -56,12 +56,12 @@ public class BendingCommand extends CommandRegistry implements CommandCallable {
     }
 
     private void sendUsage(CommandSource commandSender) {
-        Set<CoreCommand> commandSet = new HashSet<>();
-        commandSet.addAll(getCommands().values());
+        List<CoreCommand> commands = new ArrayList<>(new HashSet<>(getCommands().values()));
+        commands.sort(Comparator.comparing(command -> command.getAliases()[0]));
 
         boolean sentCommand = false;
 
-        for (CoreCommand command : commandSet) {
+        for (CoreCommand command : commands) {
             String[] aliases = command.getAliases();
             if (aliases == null || aliases.length == 0)
                 continue;

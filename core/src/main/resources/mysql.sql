@@ -1,10 +1,10 @@
-CREATE TABLE IF NOT EXISTS bending_players(
+CREATE TABLE IF NOT EXISTS bending_players (
     uuid BINARY(16) PRIMARY KEY NOT NULL,
     name VARCHAR(16) NOT NULL,
     creation_time TIMESTAMP NOT NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS bending_elements(
+CREATE TABLE IF NOT EXISTS bending_elements (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     name VARCHAR(32) NOT NULL UNIQUE,
     UNIQUE(name)
@@ -25,4 +25,19 @@ CREATE TABLE IF NOT EXISTS bending_players_slots (
     FOREIGN KEY(player_uuid) REFERENCES bending_players(uuid) ON DELETE CASCADE,
     PRIMARY KEY(slot, player_uuid),
     INDEX uuid_i(player_uuid)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS bending_presets (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    player_uuid BINARY(16) NOT NULL,
+    name VARCHAR(32) NOT NULL,
+    FOREIGN KEY(player_uuid) REFERENCES bending_players(uuid) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS bending_presets_slots (
+    preset_id INT UNSIGNED NOT NULL,
+    slot INT UNSIGNED NOT NULL,
+    ability VARCHAR(32) NOT NULL,
+    FOREIGN KEY(preset_id) REFERENCES bending_presets(id) ON DELETE CASCADE,
+    PRIMARY KEY(slot, preset_id)
 ) ENGINE=InnoDB;

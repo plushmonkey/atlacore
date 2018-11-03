@@ -22,6 +22,7 @@ permissions:
       atla.command.choose: true
       atla.command.display: true
       atla.command.help: true
+      atla.command.preset: true
       atla.board.display: true
       atla.air: true
       atla.chi: true

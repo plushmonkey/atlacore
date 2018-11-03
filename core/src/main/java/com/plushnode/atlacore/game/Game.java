@@ -25,6 +25,9 @@ import com.plushnode.atlacore.game.element.Elements;
 import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.player.*;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.preset.MemoryPresetRepository;
+import com.plushnode.atlacore.preset.PresetService;
+import com.plushnode.atlacore.preset.SqlPresetRepository;
 import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.Flight;
@@ -40,6 +43,7 @@ public class Game {
     public static CorePlugin plugin;
 
     private static PlayerService playerService;
+    private static PresetService presetService;
     private static ProtectionSystem protectionSystem;
 
     private static AbilityRegistry abilityRegistry;
@@ -48,6 +52,8 @@ public class Game {
     private static TempBlockService tempBlockService;
     private static SequenceService sequenceService;
     private static CollisionService collisionService;
+
+    private static DatabaseManager databaseManager = null;
 
     public Game(CorePlugin plugin) {
         Game.plugin = plugin;
@@ -97,9 +103,20 @@ public class Game {
 
         if (startup) {
             Game.playerService = new PlayerService(loadPlayerRepository());
+
+            if (databaseManager != null) {
+                Game.presetService = new PresetService(new SqlPresetRepository(databaseManager));
+            } else {
+                Game.presetService = new PresetService(new MemoryPresetRepository());
+            }
         } else {
             plugin.loadConfig();
             Game.getPlayerService().reload(loadPlayerRepository());
+            if (databaseManager != null) {
+                Game.presetService = new PresetService(new SqlPresetRepository(databaseManager));
+            } else {
+                Game.presetService = new PresetService(new MemoryPresetRepository());
+            }
         }
 
         for (Player player : playerService.getOnlinePlayers()) {
@@ -249,8 +266,6 @@ public class Game {
 
         String engine = configRoot.getNode("storage").getNode("engine").getString("sqlite");
 
-        DatabaseManager databaseManager;
-
         CommentedConfigurationNode mysqlNode = configRoot.getNode("storage").getNode("mysql");
 
         // Initialize config with mysql values.
@@ -344,6 +359,10 @@ public class Game {
 
     public static PlayerService getPlayerService() {
         return playerService;
+    }
+
+    public static PresetService getPresetService() {
+        return presetService;
     }
 
     public static ProtectionSystem getProtectionSystem() {

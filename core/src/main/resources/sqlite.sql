@@ -26,4 +26,19 @@ CREATE TABLE IF NOT EXISTS bending_players_slots (
     PRIMARY KEY(slot, player_uuid)
 );
 
+CREATE TABLE IF NOT EXISTS bending_presets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_uuid BINARY(16) NOT NULL,
+    name VARCHAR(32) NOT NULL,
+    FOREIGN KEY(player_uuid) REFERENCES bending_players(uuid) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS bending_presets_slots (
+    preset_id INTEGER NOT NULL,
+    slot INTEGER NOT NULL,
+    ability VARCHAR(32) NOT NULL,
+    FOREIGN KEY(preset_id) REFERENCES bending_presets(id) ON DELETE CASCADE,
+    PRIMARY KEY(slot, preset_id)
+);
+
 CREATE INDEX IF NOT EXISTS uuid_i ON bending_players_slots(player_uuid);

@@ -78,11 +78,15 @@ public class PlayerService {
     public void createPlayer(UUID uuid, String name, Consumer<Player> callback) {
         executor.execute(() -> {
             Player player = repository.createPlayer(uuid, name);
-            if (player != null) {
-                playerCache.put(name.toLowerCase(), player);
-                Game.plugin.getEventBus().postBendingPlayerCreateEvent(player);
-            }
-            Game.plugin.createTask(() -> callback.accept(player), 0);
+
+            Game.plugin.createTask(() -> {
+                // This must be done on the main thread.
+                if (player != null) {
+                    playerCache.put(name.toLowerCase(), player);
+                    Game.plugin.getEventBus().postBendingPlayerCreateEvent(player);
+                }
+                callback.accept(player);
+            }, 0);
         });
     }
 
