@@ -15,12 +15,15 @@ import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.element.Elements;
+import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.air.AirScooter;
 import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
+import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
 import com.plushnode.atlacore.util.Task;
@@ -175,6 +178,9 @@ public class PlayerListener {
         }
 
         if (user.hasElement(Elements.EARTH) && DensityShift.isSoftened(user)) {
+            Block block = user.getLocation().getBlock().getRelative(BlockFace.DOWN);
+            Location location = block.getLocation().add(0.5, 0.5, 0.5);
+            DensityShift.softenArea(location);
             event.setCancelled(true);
         }
 

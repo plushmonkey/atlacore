@@ -217,8 +217,6 @@ public class AirSwipe implements Ability {
                     } else {
                         block.setType(Material.COBBLESTONE);
                     }
-                } else {
-                    return false;
                 }
             }
 
