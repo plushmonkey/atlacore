@@ -257,16 +257,16 @@ public class EarthBlast implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double damage;
-        double speed;
-        double entitySelectRadius;
-        double range;
-        double sourceSelectRange;
+        public boolean enabled;
+        public long cooldown;
+        public double damage;
+        public double speed;
+        public double entitySelectRadius;
+        public double range;
+        public double sourceSelectRange;
 
-        double entityCollisionRadius;
-        double abilityCollisionRadius;
+        public double entityCollisionRadius;
+        public double abilityCollisionRadius;
 
         @Override
         public void onConfigReload() {

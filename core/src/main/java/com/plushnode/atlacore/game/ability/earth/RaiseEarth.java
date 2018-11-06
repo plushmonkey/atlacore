@@ -286,18 +286,18 @@ public class RaiseEarth implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long columnCooldown;
-        long columnDuration;
-        long columnInterval;
-        int columnMaxHeight;
-        double columnSelectRange;
-        long wallCooldown;
-        long wallDuration;
-        long wallInterval;
-        int wallMaxHeight;
-        double wallSelectRange;
-        int wallWidth;
+        public boolean enabled;
+        public long columnCooldown;
+        public long columnDuration;
+        public long columnInterval;
+        public int columnMaxHeight;
+        public double columnSelectRange;
+        public long wallCooldown;
+        public long wallDuration;
+        public long wallInterval;
+        public int wallMaxHeight;
+        public double wallSelectRange;
+        public int wallWidth;
 
         @Override
         public void onConfigReload() {

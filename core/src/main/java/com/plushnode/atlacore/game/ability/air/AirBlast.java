@@ -280,19 +280,19 @@ public class AirBlast implements Ability, Burstable {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double range;
-        double speed;
-        double entityCollisionRadius;
-        double abilityCollisionRadius;
-        int particles;
-        double selfPush;
-        double otherPush;
+        public boolean enabled;
+        public long cooldown;
+        public double range;
+        public double speed;
+        public double entityCollisionRadius;
+        public double abilityCollisionRadius;
+        public int particles;
+        public double selfPush;
+        public double otherPush;
 
-        double selectRange;
-        double selectOutOfRange;
-        int selectParticles;
+        public double selectRange;
+        public double selectOutOfRange;
+        public int selectParticles;
 
         @Override
         public void onConfigReload() {

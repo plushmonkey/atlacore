@@ -117,10 +117,10 @@ public class Catapult implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        int angle;
-        double strength;
+        public boolean enabled;
+        public long cooldown;
+        public int angle;
+        public double strength;
 
         @Override
         public void onConfigReload() {

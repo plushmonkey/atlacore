@@ -220,13 +220,13 @@ public class FireWheel implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double radius;
-        double damage;
-        double range;
-        double speed;
-        double entityCollisionRadius;
+        public boolean enabled;
+        public long cooldown;
+        public double radius;
+        public double damage;
+        public double range;
+        public double speed;
+        public double entityCollisionRadius;
 
         @Override
         public void onConfigReload() {

@@ -305,13 +305,13 @@ public class AirScooter implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        double speed;
-        long cooldown;
-        double targetHeight;
-        double springStiffness;
-        int heightTolerance;
-        double abilityCollisionRadius;
+        public boolean enabled;
+        public double speed;
+        public long cooldown;
+        public double targetHeight;
+        public double springStiffness;
+        public int heightTolerance;
+        public double abilityCollisionRadius;
 
         public Config() {
             super();

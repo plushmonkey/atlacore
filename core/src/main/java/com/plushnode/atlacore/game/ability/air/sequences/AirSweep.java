@@ -153,15 +153,15 @@ public class AirSweep implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double range;
-        double speed;
-        double damage;
-        double knockback;
-        int sampleTime;
-        int streamCount;
-        String interpolationMethod;
+        public boolean enabled;
+        public long cooldown;
+        public double range;
+        public double speed;
+        public double damage;
+        public double knockback;
+        public int sampleTime;
+        public int streamCount;
+        public String interpolationMethod;
 
         @Override
         public void onConfigReload() {

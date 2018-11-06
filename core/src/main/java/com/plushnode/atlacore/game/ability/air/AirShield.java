@@ -148,15 +148,15 @@ public class AirShield implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        long duration;
-        double radius;
-        double maxPush;
+        public boolean enabled;
+        public long cooldown;
+        public long duration;
+        public double radius;
+        public double maxPush;
 
-        double renderParticleSpeed;
-        int renderParticleStreams;
-        int renderParticleCount;
+        public double renderParticleSpeed;
+        public int renderParticleStreams;
+        public int renderParticleCount;
 
         @Override
         public void onConfigReload() {

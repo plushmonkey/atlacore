@@ -71,9 +71,9 @@ public class AirAgility implements PassiveAbility {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        int speedAmplifier;
-        int jumpAmplifier;
+        public boolean enabled;
+        public int speedAmplifier;
+        public int jumpAmplifier;
 
         @Override
         public void onConfigReload() {

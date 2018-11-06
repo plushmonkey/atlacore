@@ -482,14 +482,14 @@ public class Shockwave implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        double fallThreshold;
-        long chargeTime;
-        long cooldown;
-        double damage;
-        double knockback;
-        int range;
-        int angle;
+        public boolean enabled;
+        public double fallThreshold;
+        public long chargeTime;
+        public long cooldown;
+        public double damage;
+        public double knockback;
+        public int range;
+        public int angle;
 
         @Override
         public void onConfigReload() {

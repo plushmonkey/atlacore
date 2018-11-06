@@ -193,32 +193,32 @@ public class Suffocate implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        long chargeTime;
-        double range;
-        double selectRange;
-        double selectScale;
-        boolean requireConstantAim;
-        double constantAimRadius;
+        public boolean enabled;
+        public long cooldown;
+        public long chargeTime;
+        public double range;
+        public double selectRange;
+        public double selectScale;
+        public boolean requireConstantAim;
+        public double constantAimRadius;
 
-        double damageAmount;
-        int damageDelay;
-        int damageInterval;
+        public double damageAmount;
+        public int damageDelay;
+        public int damageInterval;
 
-        int slowAmplifier;
-        int slowDelay;
-        int slowInterval;
+        public int slowAmplifier;
+        public int slowDelay;
+        public int slowInterval;
 
-        int blindAmplifier;
-        int blindDelay;
-        int blindInterval;
+        public int blindAmplifier;
+        public int blindDelay;
+        public int blindInterval;
 
-        int renderRadiusScaleTime;
-        int renderLayerScaleTime;
-        double renderMaxRadius;
-        double renderMinRadius;
-        int renderLayers;
+        public int renderRadiusScaleTime;
+        public int renderLayerScaleTime;
+        public double renderMaxRadius;
+        public double renderMinRadius;
+        public int renderLayers;
 
         @Override
         public void onConfigReload() {

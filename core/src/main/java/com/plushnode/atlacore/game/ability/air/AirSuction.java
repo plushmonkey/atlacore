@@ -237,18 +237,18 @@ public class AirSuction implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double range;
-        double speed;
-        double entityCollisionRadius;
-        double abilityCollisionRadius;
-        int particles;
-        double push;
+        public boolean enabled;
+        public long cooldown;
+        public double range;
+        public double speed;
+        public double entityCollisionRadius;
+        public double abilityCollisionRadius;
+        public int particles;
+        public double push;
 
-        double selectRange;
-        double selectOutOfRange;
-        int selectParticles;
+        public double selectRange;
+        public double selectOutOfRange;
+        public int selectParticles;
 
         @Override
         public void onConfigReload() {

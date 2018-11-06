@@ -111,13 +111,13 @@ public class FireKick implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double damage;
-        double range;
-        double speed;
-        double entityCollisionRadius;
-        double abilityCollisionRadius;
+        public boolean enabled;
+        public long cooldown;
+        public double damage;
+        public double range;
+        public double speed;
+        public double entityCollisionRadius;
+        public double abilityCollisionRadius;
 
         @Override
         public void onConfigReload() {

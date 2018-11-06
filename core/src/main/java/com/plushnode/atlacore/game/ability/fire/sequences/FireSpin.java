@@ -125,14 +125,14 @@ public class FireSpin implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double damage;
-        double range;
-        double speed;
-        double entityCollisionRadius;
-        double abilityCollisionRadius;
-        double knockback;
+        public boolean enabled;
+        public long cooldown;
+        public double damage;
+        public double range;
+        public double speed;
+        public double entityCollisionRadius;
+        public double abilityCollisionRadius;
+        public double knockback;
 
         @Override
         public void onConfigReload() {

@@ -248,17 +248,17 @@ public class AirSwipe implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double damage;
-        double range;
-        double speed;
-        int arc;
-        int arcStep;
-        long maxChargeTime;
-        double chargeFactor;
-        double entityCollisionRadius;
-        double abilityCollisionRadius;
+        public boolean enabled;
+        public long cooldown;
+        public double damage;
+        public double range;
+        public double speed;
+        public int arc;
+        public int arcStep;
+        public long maxChargeTime;
+        public double chargeFactor;
+        public double entityCollisionRadius;
+        public double abilityCollisionRadius;
 
         @Override
         public void onConfigReload() {

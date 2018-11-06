@@ -103,9 +103,9 @@ public class DensityShift implements PassiveAbility {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long duration;
-        double radius;
+        public boolean enabled;
+        public long duration;
+        public double radius;
 
         @Override
         public void onConfigReload() {

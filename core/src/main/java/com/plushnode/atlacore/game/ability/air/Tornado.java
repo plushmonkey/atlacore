@@ -166,16 +166,16 @@ public class Tornado implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        long duration;
-        double radius;
-        double height;
-        double renderSpeed;
-        double range;
-        long growthTime;
-        int streams;
-        int particlesPerStream;
+        public boolean enabled;
+        public long cooldown;
+        public long duration;
+        public double radius;
+        public double height;
+        public double renderSpeed;
+        public double range;
+        public long growthTime;
+        public int streams;
+        public int particlesPerStream;
 
         @Override
         public void onConfigReload() {

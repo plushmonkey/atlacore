@@ -181,18 +181,18 @@ public class Twister implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        long duration;
-        double radius;
-        double height;
-        double range;
-        double speed;
-        double proximity;
+        public boolean enabled;
+        public long cooldown;
+        public long duration;
+        public double radius;
+        public double height;
+        public double range;
+        public double speed;
+        public double proximity;
 
-        double renderSpeed;
-        int streams;
-        int particlesPerStream;
+        public double renderSpeed;
+        public int streams;
+        public int particlesPerStream;
 
         @Override
         public void onConfigReload() {

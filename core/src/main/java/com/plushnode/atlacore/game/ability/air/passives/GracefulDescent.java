@@ -57,7 +57,7 @@ public class GracefulDescent implements PassiveAbility {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
+        public boolean enabled;
 
         @Override
         public void onConfigReload() {

@@ -203,14 +203,14 @@ public class AirStream implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double speed;
-        double range;
-        double radius;
-        long entityDuration;
-        double height;
-        int tailCount;
+        public boolean enabled;
+        public long cooldown;
+        public double speed;
+        public double range;
+        public double radius;
+        public long entityDuration;
+        public double height;
+        public int tailCount;
 
         @Override
         public void onConfigReload() {

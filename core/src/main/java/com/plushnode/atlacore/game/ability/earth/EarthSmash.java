@@ -227,7 +227,7 @@ public class EarthSmash implements Ability {
                 }
             }
 
-            return count > 2;
+            return count >= config.minColumns;
         }
     }
 
@@ -371,7 +371,7 @@ public class EarthSmash implements Ability {
             // TODO: Check for collisions. It should move as close to the collision as possible.
 
             int halfSize = (int)(boulder.getSize() / 2.0);
-            Location targetCenter = user.getEyeLocation().add(user.getDirection().scalarMultiply(5.0));
+            Location targetCenter = user.getEyeLocation().add(user.getDirection().scalarMultiply(boulder.getSize() + 2));
             Location newBase = targetCenter.subtract(halfSize, halfSize, halfSize);
 
             boulder.setBase(newBase);
@@ -447,12 +447,12 @@ public class EarthSmash implements Ability {
         private Location base;
 
         public Boulder(Block selectedBlock) {
-            layers.add(new Layer(config.radius));
-            layers.add(new Layer(config.radius));
-            layers.add(new Layer(config.radius));
+            for (int i = 0; i < config.radius; ++i) {
+                layers.add(new Layer(config.radius));
+            }
 
             double offset = Math.floor(getSize() / 2.0);
-            this.base = selectedBlock.getLocation().subtract(offset, 2, offset);
+            this.base = selectedBlock.getLocation().subtract(offset, getSize() - 1, offset);
 
             List<Vector3D> invalidColumns = new ArrayList<>();
 
@@ -573,15 +573,16 @@ public class EarthSmash implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        int radius;
-        long chargeTime;
-        double grabRange;
-        double selectRange;
-        double shootRange;
-        double shootSpeed;
-        long maxDuration;
+        public boolean enabled;
+        public long cooldown;
+        public int radius;
+        public long chargeTime;
+        public double grabRange;
+        public double selectRange;
+        public double shootRange;
+        public double shootSpeed;
+        public long maxDuration;
+        public int minColumns;
 
         @Override
         public void onConfigReload() {
@@ -596,6 +597,15 @@ public class EarthSmash implements Ability {
             shootRange = abilityNode.getNode("shoot-range").getDouble(25.0);
             shootSpeed = abilityNode.getNode("shoot-speed").getDouble(1.0);
             maxDuration = abilityNode.getNode("max-duration").getLong(30000);
+            minColumns = abilityNode.getNode("min-columns").getInt(3);
+
+            if (radius < 3) {
+                radius = 3;
+            }
+
+            if (radius % 2 == 0) {
+                ++radius;
+            }
         }
     }
 }

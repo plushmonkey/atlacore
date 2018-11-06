@@ -149,12 +149,12 @@ public class AirSpout implements Ability {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
-        long cooldown;
-        double height;
-        double heightBuffer;
-        double maxSpeed;
-        int renderDelay;
+        public boolean enabled;
+        public long cooldown;
+        public double height;
+        public double heightBuffer;
+        public double maxSpeed;
+        public int renderDelay;
 
         @Override
         public void onConfigReload() {

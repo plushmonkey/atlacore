@@ -132,17 +132,17 @@ public class FireBurst extends BurstAbility {
     }
 
     public static class Config extends Configurable {
-        boolean enabled;
+        public boolean enabled;
 
-        int sphereParticlesPerBlast;
-        int sphereRenderInterval;
-        int sphereChargeTime;
-        long sphereCooldown;
+        public int sphereParticlesPerBlast;
+        public int sphereRenderInterval;
+        public int sphereChargeTime;
+        public long sphereCooldown;
 
-        int coneParticlesPerBlast;
-        int coneRenderInterval;
-        int coneChargeTime;
-        long coneCooldown;
+        public int coneParticlesPerBlast;
+        public int coneRenderInterval;
+        public int coneChargeTime;
+        public long coneCooldown;
 
         @Override
         public void onConfigReload() {

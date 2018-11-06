@@ -174,12 +174,12 @@ public class Collapse implements Ability {
     }
 
     private static class Config extends Configurable {
-        boolean enabled;
-        double selectRange;
-        int height;
-        double radius;
-        long punchCooldown;
-        long sneakCooldown;
+        public boolean enabled;
+        public double selectRange;
+        public int height;
+        public double radius;
+        public long punchCooldown;
+        public long sneakCooldown;
 
         @Override
         public void onConfigReload() {
