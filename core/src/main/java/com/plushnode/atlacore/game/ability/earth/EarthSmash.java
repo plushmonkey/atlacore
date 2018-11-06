@@ -11,11 +11,14 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.platform.Location;
+import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.MaterialUtil;
+import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,101 +33,87 @@ public class EarthSmash implements Ability {
     private Boulder boulder;
     private State state;
     private int tick;
+    private long startTime;
+    private List<Block> initialBlocks = new ArrayList<>();
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
         this.tick = 0;
+        this.startTime = System.currentTimeMillis();
 
-        if (method != ActivationMethod.Sneak) {
+        if (method == ActivationMethod.Sneak) {
+            List<EarthSmash> earthSmashes = Game.getAbilityInstanceManager().getPlayerInstances(user, EarthSmash.class);
+            if (!earthSmashes.isEmpty()) {
+                Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.grabRange, true);
+
+                if (block != null) {
+                    EarthSmash eSmash = earthSmashes.get(0);
+                    if (eSmash.isBoulderBlock(block)) {
+                        eSmash.enterHoldState();
+                    }
+                }
+
+                return false;
+            }
+        } else if (method == ActivationMethod.Punch) {
+            List<EarthSmash> earthSmashes = Game.getAbilityInstanceManager().getPlayerInstances(user, EarthSmash.class);
+            if (!earthSmashes.isEmpty()) {
+                EarthSmash eSmash = earthSmashes.get(0);
+
+                if (eSmash.state instanceof HoldState) {
+                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.grabRange, true);
+                    if (eSmash.isBoulderBlock(block)) {
+                        eSmash.enterTravelState();
+                    }
+                }
+            }
+
+            return false;
+        } else {
             return false;
         }
 
-        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), 10.0, true);
-        if (block == null) {
-            return false;
-        }
-
-        if (!MaterialUtil.isEarthbendable(block)) {
-            return false;
-        }
-
-        this.boulder = new Boulder(block);
-        this.state = new RaiseState();
+        this.state = new ChargeState();
 
         return true;
     }
 
     @Override
     public UpdateResult update() {
-        Location prevBase = boulder.getBase();
-        List<Layer> prevBoulderState = boulder.getState();
+        long time = System.currentTimeMillis();
 
-        this.state.update();
-
-        if (this.state == null) {
-            return UpdateResult.Remove;
+        if (time > startTime + config.maxDuration) {
+            return remove();
         }
 
-        this.boulder.update();
-
-        List<Layer> currentBoulderState = boulder.getState();
-
-        resetPreviousBoulder(prevBase, prevBoulderState, currentBoulderState);
-
-        for (int i = 0; i < boulder.getSize(); ++i) {
-            Layer layer = currentBoulderState.get(i);
-
-            for (int y = 0; y < layer.getSize(); ++y) {
-                for (int x = 0; x < layer.getSize(); ++x) {
-                    Material type = layer.getState(x, y);
-                    Location current = boulder.getBase().add(x, i, y);
-
-                    if (current.getBlock().getType() != type) {
-                        new TempBlock(current.getBlock(), type, 10000);
-                    }
-                }
-            }
-        }
-
-        if (!prevBase.equals(boulder.getBase())) {
-            if (tick < config.radius && tick > 0) {
-                Layer layer = prevBoulderState.get(config.radius / 2);
-
-                for (int y = 0; y < boulder.getSize(); ++y) {
-                    for (int x = 0; x < boulder.getSize(); ++x) {
-                        if (tick > 1 || layer.getState(x, y) == Material.AIR) {
-                            Location current = boulder.getBase().add(x, -1, y);
-
-                            if (MaterialUtil.isEarthbendable(current.getBlock())) {
-                                new TempBlock(current.getBlock(), Material.AIR, 10000);
-                            }
-                        }
-                    }
-                }
-            }
-
-            ++tick;
+        if (!state.update()) {
+            return remove();
         }
 
         return UpdateResult.Continue;
     }
 
-    // TODO: Perform a diff of the states to do a minimal update.
-    private void resetPreviousBoulder(Location prevBase, List<Layer> prevBoulderState, List<Layer> currentBoulderState) {
-        for (int i = 0; i < boulder.getSize(); ++i) {
-            Layer prevLayer = prevBoulderState.get(i);
-            Layer currentLayer = currentBoulderState.get(i);
+    private UpdateResult remove() {
+        if (boulder != null) {
+            for (int i = 0; i < boulder.getSize(); ++i) {
+                Layer layer = boulder.getLayer(i);
 
-            for (int y = 0; y < currentLayer.getSize(); ++y) {
-                for (int x = 0; x < currentLayer.getSize(); ++x) {
-                    Material prevState = prevLayer.getState(x, y);
-                    Material currentState = currentLayer.getState(x, y);
-
-                    Game.getTempBlockService().reset(prevBase.add(x, i, y).getBlock());
+                for (int y = 0; y < layer.getSize(); ++y) {
+                    for (int x = 0; x < layer.getSize(); ++x) {
+                        Block block = boulder.getBase().add(x, i, y).getBlock();
+                        Game.getTempBlockService().reset(block);
+                    }
                 }
             }
+
+            for (Block initialBlock : initialBlocks) {
+                Game.getTempBlockService().reset(initialBlock);
+            }
+            initialBlocks.clear();
         }
+
+        return UpdateResult.Remove;
     }
 
     @Override
@@ -152,25 +141,204 @@ public class EarthSmash implements Ability {
 
     }
 
+    public boolean isBoulderBlock(Block block) {
+        if (block.getLocation().distanceSquared(boulder.getBase()) > boulder.getSize() * boulder.getSize()) {
+            return false;
+        }
+
+        for (int i = 0; i < boulder.getSize(); ++i) {
+            for (int y = 0; y < boulder.getSize(); ++y) {
+                for (int x = 0; x < boulder.getSize(); ++x) {
+                    Block check = boulder.getBase().add(x, i, y).getBlock();
+
+                    if (block.equals(check)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public void enterHoldState() {
+        this.state = new HoldState();
+    }
+
+    public void enterTravelState() {
+        this.state = new TravelState();
+    }
+
     private interface State {
-        void update();
+        boolean update();
+    }
+
+    private class ChargeState implements State {
+        private long chargeStartTime;
+
+        ChargeState() {
+            chargeStartTime = System.currentTimeMillis();
+        }
+
+        @Override
+        public boolean update() {
+            long time = System.currentTimeMillis();
+
+            // Refresh the global start timer so it doesn't time out while charging.
+            startTime = time;
+
+            if (time >= chargeStartTime + config.chargeTime) {
+                Vector3D direction = user.getDirection();
+                Location location = user.getEyeLocation().add(direction);
+
+                Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
+                location = location.add(side.scalarMultiply(0.5));
+
+                Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+
+                if (!user.isSneaking()) {
+                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.selectRange, true);
+                    if (block == null) {
+                        return false;
+                    }
+
+                    if (!MaterialUtil.isEarthbendable(block)) {
+                        return false;
+                    }
+
+                    boulder = new Boulder(block);
+                    state = new RaiseState();
+
+                    return isValidInitialBoulder();
+                }
+                return true;
+            }
+
+            return user.isSneaking();
+        }
+
+        private boolean isValidInitialBoulder() {
+            int count = 0;
+            for (int y = 0; y < boulder.getSize(); ++y) {
+                for (int x = 0; x < boulder.getSize(); ++x) {
+                    if (boulder.isValidColumn(x, y)) {
+                        ++count;
+                    }
+                }
+            }
+
+            return count > 2;
+        }
+    }
+
+    // Used for any state that allows the user to control the boulder.
+    private abstract class ControlState implements State {
+        public abstract boolean updateState();
+
+        @Override
+        public boolean update() {
+            Location prevBase = boulder.getBase();
+            List<Layer> prevBoulderState = boulder.getState();
+
+            if (!updateState()) {
+                return false;
+            }
+
+            boulder.update();
+
+            renderBoulder(prevBase, prevBoulderState);
+            clearRaiseArea(prevBase, prevBoulderState);
+
+            return true;
+        }
+
+        private void renderBoulder(Location prevBase, List<Layer> prevBoulderState) {
+            List<Layer> currentBoulderState = boulder.getState();
+
+            resetPreviousBoulder(prevBase, prevBoulderState, currentBoulderState);
+
+            for (int y = 0; y < boulder.getSize(); ++y) {
+                for (int x = 0; x < boulder.getSize(); ++x) {
+                    if (boulder.isValidColumn(x, y)) {
+                        for (int i = 0; i < boulder.getSize(); ++i) {
+                            Layer layer = currentBoulderState.get(i);
+
+                            Material type = layer.getState(x, y);
+                            Location current = boulder.getBase().add(x, i, y);
+
+                            if (current.getBlock().getType() != type) {
+                                new TempBlock(current.getBlock(), type, 10000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void clearRaiseArea(Location prevBase, List<Layer> prevBoulderState) {
+            if (!prevBase.equals(boulder.getBase())) {
+                if (tick < config.radius && tick > 0) {
+                    Layer layer = prevBoulderState.get(config.radius / 2);
+
+                    for (int y = 0; y < boulder.getSize(); ++y) {
+                        for (int x = 0; x < boulder.getSize(); ++x) {
+                            if ((tick > 1 || layer.getState(x, y) == Material.AIR) && boulder.isValidColumn(x, y)) {
+                                Location current = boulder.getBase().add(x, -1, y);
+
+                                if (MaterialUtil.isEarthbendable(current.getBlock())) {
+                                    initialBlocks.add(current.getBlock());
+                                    new TempBlock(current.getBlock(), Material.AIR);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ++tick;
+            }
+        }
+
+        // TODO: Perform a diff of the states to do a minimal update.
+        private void resetPreviousBoulder(Location prevBase, List<Layer> prevBoulderState, List<Layer> currentBoulderState) {
+            for (int i = 0; i < boulder.getSize(); ++i) {
+                Layer prevLayer = prevBoulderState.get(i);
+                Layer currentLayer = currentBoulderState.get(i);
+
+                for (int y = 0; y < currentLayer.getSize(); ++y) {
+                    for (int x = 0; x < currentLayer.getSize(); ++x) {
+                        Block block = prevBase.add(x, i, y).getBlock();
+
+                        if (initialBlocks.contains(block)) {
+                            new TempBlock(block, Material.AIR);
+                        } else {
+                            Game.getTempBlockService().reset(block);
+                        }
+
+                        // Don't immediately reset plant blocks since the block below could be air.
+                        if (MaterialUtil.isTransparent(block) && !MaterialUtil.isAir(block.getType())) {
+                            new TempBlock(block, Material.AIR, 10000);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // This state is active after charging. It raises the boulder up from the ground into its idle position.
-    private class RaiseState implements State {
+    private class RaiseState extends ControlState {
         private Location targetBase;
         private long nextRaiseTime;
 
         RaiseState() {
-            targetBase = boulder.getBase().add(0, boulder.getSize(), 0);
+            targetBase = boulder.getBase().add(0, boulder.getSize() + 1, 0);
             this.nextRaiseTime = 0;
         }
 
         @Override
-        public void update() {
+        public boolean updateState() {
             if (boulder.getBase().getY() >= targetBase.getY()) {
-                state = null;
-                return;
+                state = new IdleState();
+                return true;
             }
 
             long time = System.currentTimeMillis();
@@ -179,6 +347,66 @@ public class EarthSmash implements Ability {
                 boulder.setBase(boulder.getBase().add(0, 1, 0));
                 nextRaiseTime = time + 50;
             }
+
+            return true;
+        }
+    }
+
+    private class IdleState extends ControlState {
+        @Override
+        public boolean updateState() {
+            return true;
+        }
+    }
+
+    // This state is active when the player is holding sneak and using it as a shield.
+    private class HoldState extends ControlState {
+        @Override
+        public boolean updateState() {
+            if (!user.isSneaking()) {
+                state = new IdleState();
+                return true;
+            }
+
+            // TODO: Check for collisions. It should move as close to the collision as possible.
+
+            int halfSize = (int)(boulder.getSize() / 2.0);
+            Location targetCenter = user.getEyeLocation().add(user.getDirection().scalarMultiply(5.0));
+            Location newBase = targetCenter.subtract(halfSize, halfSize, halfSize);
+
+            boulder.setBase(newBase);
+            return true;
+        }
+    }
+
+    private class TravelState extends ControlState {
+        private Vector3D direction;
+        private Location start;
+
+        TravelState() {
+            this.direction = user.getDirection();
+            this.start = boulder.getBase();
+
+            user.setCooldown(getDescription(), config.cooldown);
+        }
+
+        @Override
+        public boolean updateState() {
+            // TODO: Check for collisions
+
+            // Refresh the global start timer so it doesn't time out during travel state.
+            startTime = System.currentTimeMillis();
+
+            Location newBase = boulder.getBase().add(direction.scalarMultiply(config.shootSpeed));
+
+            if (newBase.distanceSquared(start) > config.shootRange * config.shootRange) {
+                state = null;
+                return false;
+            }
+
+            boulder.setBase(newBase);
+
+            return true;
         }
     }
 
@@ -226,6 +454,8 @@ public class EarthSmash implements Ability {
             double offset = Math.floor(getSize() / 2.0);
             this.base = selectedBlock.getLocation().subtract(offset, 2, offset);
 
+            List<Vector3D> invalidColumns = new ArrayList<>();
+
             // Generate the layers from the world state.
             for (int i = 0; i < layers.size(); ++i) {
                 Layer layer = layers.get(i);
@@ -237,6 +467,7 @@ public class EarthSmash implements Ability {
 
                         if (!MaterialUtil.isEarthbendable(type)) {
                             layer.setState(x, y, Material.AIR);
+                            invalidColumns.add(new Vector3D(x, y, i));
                             continue;
                         }
 
@@ -258,6 +489,14 @@ public class EarthSmash implements Ability {
                     }
                 }
             }
+
+            for (Vector3D v : invalidColumns) {
+                for (int i = 0; i < (int)v.getZ(); ++i) {
+                    layers.get(i).setState((int)v.getX(), (int)v.getY(), Material.AIR);
+                }
+            }
+
+            invalidateBlockedAreas();
         }
 
         // Checks all of the blocks of the boulder and marks them as invalid if they aren't earthbendable
@@ -302,20 +541,61 @@ public class EarthSmash implements Ability {
         public int getSize() {
             return layers.size();
         }
+
+        private void invalidateBlockedAreas() {
+            // Check above each column to ensure it can be raised.
+            // Invalidate any columns if it can't be.
+            for (int y = 0; y < getSize(); ++y) {
+                for (int x = 0; x < getSize(); ++x) {
+                    for (int i = 0; i < getSize() + 1; ++i) {
+                        Block checkBlock = base.add(x, getSize() + i, y).getBlock();
+
+                        if (!MaterialUtil.isTransparent(checkBlock)) {
+                            for (int layerIndex = 0; layerIndex < getSize(); ++layerIndex) {
+                                layers.get(layerIndex).setState(x, y, Material.AIR);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Checks if there's any earthbendable materials in the boulder's column.
+        public boolean isValidColumn(int x, int y) {
+            for (int i = 0; i < getSize(); ++i) {
+                if (MaterialUtil.isEarthbendable(layers.get(i).getState(x, y))) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public static class Config extends Configurable {
         boolean enabled;
         long cooldown;
         int radius;
+        long chargeTime;
+        double grabRange;
+        double selectRange;
+        double shootRange;
+        double shootSpeed;
+        long maxDuration;
 
         @Override
         public void onConfigReload() {
             CommentedConfigurationNode abilityNode = config.getNode("abilities", "earth", "earthsmash");
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
-            cooldown = abilityNode.getNode("cooldown").getLong(500);
+            cooldown = abilityNode.getNode("cooldown").getLong(3000);
             radius = abilityNode.getNode("radius").getInt(3);
+            chargeTime = abilityNode.getNode("charge-time").getLong(1500);
+            grabRange = abilityNode.getNode("grab-range").getDouble(16.0);
+            selectRange = abilityNode.getNode("select-range").getDouble(12.0);
+            shootRange = abilityNode.getNode("shoot-range").getDouble(25.0);
+            shootSpeed = abilityNode.getNode("shoot-speed").getDouble(1.0);
+            maxDuration = abilityNode.getNode("max-duration").getLong(30000);
         }
     }
 }
