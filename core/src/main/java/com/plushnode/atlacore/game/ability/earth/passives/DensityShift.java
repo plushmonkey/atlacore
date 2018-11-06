@@ -18,7 +18,7 @@ import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +52,7 @@ public class DensityShift implements PassiveAbility {
 
         AABB userBounds = user.getBounds().scale(1.1).at(user.getLocation());
 
-        for (Block block : WorldUtil.getNearbyBlocks(user.getLocation(), 2.0, Collections.singletonList(Material.AIR))) {
+        for (Block block : WorldUtil.getNearbyBlocks(user.getLocation(), 2.0, Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR))) {
             if (!MaterialUtil.isEarthbendable(block)) continue;
             if (!block.hasBounds()) continue;
 

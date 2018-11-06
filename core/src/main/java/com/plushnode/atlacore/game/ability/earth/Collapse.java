@@ -18,7 +18,7 @@ import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class Collapse implements Ability {
@@ -45,7 +45,7 @@ public class Collapse implements Ability {
                 user.setCooldown(this, config.punchCooldown);
             }
         } else {
-            for (Block block : WorldUtil.getNearbyBlocks(source.getLocation(), config.radius, Collections.singletonList(Material.AIR))) {
+            for (Block block : WorldUtil.getNearbyBlocks(source.getLocation(), config.radius, Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR))) {
                 if (!MaterialUtil.isEarthbendable(block)) continue;
 
                 boolean unique = !columns.stream()

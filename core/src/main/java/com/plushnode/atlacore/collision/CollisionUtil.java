@@ -10,7 +10,7 @@ import com.plushnode.atlacore.util.WorldUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.util.Pair;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Optional;
 
 public final class CollisionUtil {
@@ -74,7 +74,7 @@ public final class CollisionUtil {
         Location mid = begin.add(toEnd.scalarMultiply(distance / 2.0));
         double lookupRadius = (distance / 2.0) + maxExtent + 1.0;
 
-        for (Block block : WorldUtil.getNearbyBlocks(mid, lookupRadius, Collections.singletonList(Material.AIR))) {
+        for (Block block : WorldUtil.getNearbyBlocks(mid, lookupRadius, Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR))) {
             AABB localBounds = block.getBounds();
 
             if (liquids && block.isLiquid()) {

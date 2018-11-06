@@ -10,8 +10,6 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.game.element.Element;
-import com.plushnode.atlacore.game.element.Elements;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
@@ -20,7 +18,7 @@ import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 public class HeatControl implements Ability {
@@ -60,7 +58,7 @@ public class HeatControl implements Ability {
 
         boolean acted = false;
 
-        for (Block block : WorldUtil.getNearbyBlocks(location, radius, Collections.singletonList(Material.AIR))) {
+        for (Block block : WorldUtil.getNearbyBlocks(location, radius, Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR))) {
             if (!predicate.test(block)) continue;
 
             if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) {

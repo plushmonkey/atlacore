@@ -88,7 +88,7 @@ public final class WorldUtil {
         for (int x = -1; x <= 1; ++x) {
             for (int z = -1; z <= 1; ++z) {
                 Block checkBlock = location.clone().add(x, -epsilon, z).getBlock();
-                if (checkBlock.getType() == Material.AIR) continue;
+                if (MaterialUtil.isAir(checkBlock.getType())) continue;
 
                 AABB checkBounds = checkBlock.getBounds().at(checkBlock.getLocation());
 

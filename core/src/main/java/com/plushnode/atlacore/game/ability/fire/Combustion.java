@@ -321,7 +321,8 @@ public class Combustion implements Ability {
                 Material.AIR, Material.BEDROCK, Material.CHEST, Material.TRAPPED_CHEST, Material.OBSIDIAN,
                 Material.NETHER_PORTAL, Material.END_PORTAL, Material.END_PORTAL_FRAME, Material.FIRE,
                 Material.WALL_SIGN, Material.SIGN, Material.WATER, Material.LAVA, Material.DROPPER, Material.FURNACE,
-                Material.DISPENSER, Material.HOPPER, Material.BEACON, Material.BARRIER, Material.SPAWNER
+                Material.DISPENSER, Material.HOPPER, Material.BEACON, Material.BARRIER, Material.SPAWNER,
+                Material.CAVE_AIR, Material.VOID_AIR
         );
 
         private boolean destroy;

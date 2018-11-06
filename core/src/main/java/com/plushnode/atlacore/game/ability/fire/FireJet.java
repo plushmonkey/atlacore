@@ -11,7 +11,6 @@ import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
-import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.MaterialUtil;
@@ -34,7 +33,7 @@ public class FireJet implements Ability {
         Block block = user.getLocation().getBlock();
         boolean ignitable = MaterialUtil.isIgnitable(block);
 
-        if (!ignitable && block.getType() != Material.AIR) {
+        if (!ignitable && !MaterialUtil.isAir(block.getType())) {
             return false;
         }
 

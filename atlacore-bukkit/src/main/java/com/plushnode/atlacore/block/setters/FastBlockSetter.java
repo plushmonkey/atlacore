@@ -15,7 +15,7 @@ public class FastBlockSetter implements BlockSetter {
         LocationWrapper wrapper = (LocationWrapper)location;
         org.bukkit.Material bukkitMaterial = TypeUtil.adapt(material);
 
-        NativeMethods.setBlockFast(wrapper.getBukkitLocation().getBlock(), bukkitMaterial.getId(), 0);
+        NativeMethods.setBlockFast(wrapper.getBukkitLocation().getBlock(), bukkitMaterial.createBlockData());
     }
 
     @Override
@@ -26,6 +26,7 @@ public class FastBlockSetter implements BlockSetter {
     @Override
     public void setBlock(Block block, Material material, BlockData data) {
         // TODO: pass BlockData
-        NativeMethods.setBlockFast(((BlockWrapper)block).getBukkitBlock(), material.getId(), (byte)0);
+        org.bukkit.Material bukkitMaterial = TypeUtil.adapt(material);
+        NativeMethods.setBlockFast(((BlockWrapper)block).getBukkitBlock(), bukkitMaterial.createBlockData());
     }
 }
