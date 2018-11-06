@@ -7,6 +7,6 @@ import com.plushnode.atlacore.platform.User;
 public class CooldownBendingConditional implements BendingConditional {
     @Override
     public boolean canBend(User user, AbilityDescription desc) {
-        return desc != null && !user.isOnCooldown(desc);
+        return desc != null && (desc.canBypassCooldown() || !user.isOnCooldown(desc));
     }
 }

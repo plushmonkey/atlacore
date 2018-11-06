@@ -17,6 +17,7 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     private boolean enabled;
     private boolean harmless;
     private boolean hidden;
+    private boolean cooldownBypass;
 
     public GenericAbilityDescription(String name, Element element, int cooldown, Class<T> type, ActivationMethod... activations) {
         super();
@@ -30,6 +31,7 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
         this.harmless = false;
         this.enabled = true;
         this.hidden = false;
+        this.cooldownBypass = false;
     }
 
     @Override
@@ -121,6 +123,15 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     @Override
     public Element getElement() {
         return this.element;
+    }
+
+    public void setCanBypassCooldown(boolean bypass) {
+        this.cooldownBypass = bypass;
+    }
+
+    @Override
+    public boolean canBypassCooldown() {
+        return cooldownBypass;
     }
 
     public boolean isAbility(Ability ability) {

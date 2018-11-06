@@ -157,7 +157,8 @@ public class Game {
         registerAbility("GracefulDescent", GracefulDescent.class, Elements.AIR, ActivationMethod.Passive).setHarmless(true).setHidden(true);
 
         registerAbility("Shockwave", Shockwave.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak, ActivationMethod.Fall);
-        registerAbility("EarthBlast", EarthBlast.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
+        registerAbility("EarthBlast", EarthBlast.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak)
+                .setCanBypassCooldown(true);
         registerAbility("Catapult", Catapult.class, Elements.EARTH, ActivationMethod.Punch).setHarmless(true);
         registerAbility("Collapse", Collapse.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("RaiseEarth", RaiseEarth.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
@@ -255,8 +256,8 @@ public class Game {
         Elements.EARTH.addPassive(Game.getAbilityRegistry().getAbilityByName("DensityShift"));
     }
 
-    private static AbilityDescription registerAbility(String abilityName, Class<? extends Ability> type, Element element, ActivationMethod... activations) {
-        AbilityDescription desc = new GenericAbilityDescription<>(abilityName, element, 0, type, activations);
+    private static GenericAbilityDescription registerAbility(String abilityName, Class<? extends Ability> type, Element element, ActivationMethod... activations) {
+        GenericAbilityDescription desc = new GenericAbilityDescription<>(abilityName, element, 0, type, activations);
         abilityRegistry.registerAbility(desc);
         return desc;
     }

@@ -29,4 +29,6 @@ public interface AbilityDescription {
     Ability createAbility();
 
     Element getElement();
+
+    boolean canBypassCooldown();
 }

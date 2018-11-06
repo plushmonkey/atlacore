@@ -52,6 +52,10 @@ public class EarthBlast implements Ability {
         );
 
         if (method == ActivationMethod.Sneak) {
+            if (user.isOnCooldown(getDescription())) {
+                return false;
+            }
+
             sourceBlock = getSource();
 
             if (sourceBlock == null) {
@@ -68,13 +72,15 @@ public class EarthBlast implements Ability {
             return false;
         }
 
-        List<EarthBlast> sourcedBlasts = blasts.stream()
-                .filter((eb) -> !eb.launched)
-                .collect(Collectors.toList());
+        if (!user.isOnCooldown(getDescription())) {
+            List<EarthBlast> sourcedBlasts = blasts.stream()
+                    .filter((eb) -> !eb.launched)
+                    .collect(Collectors.toList());
 
-        if (!sourcedBlasts.isEmpty()) {
-            sourcedBlasts.get(0).launch();
-            return false;
+            if (!sourcedBlasts.isEmpty()) {
+                sourcedBlasts.get(0).launch();
+                return false;
+            }
         }
 
         List<EarthBlast> launchedBlasts = blasts.stream()
