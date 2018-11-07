@@ -15,6 +15,9 @@ import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.policies.removal.CannotBendRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
+import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -35,6 +38,7 @@ public class EarthSmash implements Ability {
     private int tick;
     private long startTime;
     private List<Block> initialBlocks = new ArrayList<>();
+    private CompositeRemovalPolicy removalPolicy;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -63,7 +67,7 @@ public class EarthSmash implements Ability {
 
                 if (eSmash.state instanceof HoldState) {
                     Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.grabRange, true);
-                    if (eSmash.isBoulderBlock(block)) {
+                    if (block != null && eSmash.isBoulderBlock(block)) {
                         eSmash.enterTravelState();
                     }
                 }
@@ -76,6 +80,11 @@ public class EarthSmash implements Ability {
 
         this.state = new ChargeState();
 
+        this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
+                new CannotBendRemovalPolicy(user, getDescription(), true, true),
+                new IsOfflineRemovalPolicy(user)
+        );
+
         return true;
     }
 
@@ -83,7 +92,7 @@ public class EarthSmash implements Ability {
     public UpdateResult update() {
         long time = System.currentTimeMillis();
 
-        if (time > startTime + config.maxDuration) {
+        if (time > startTime + config.maxDuration || this.removalPolicy.shouldRemove()) {
             return remove();
         }
 
@@ -234,29 +243,40 @@ public class EarthSmash implements Ability {
     // Used for any state that allows the user to control the boulder.
     private abstract class ControlState implements State {
         public abstract boolean updateState();
+        protected abstract boolean removeOnCollision();
 
         @Override
         public boolean update() {
             Location prevBase = boulder.getBase();
             List<Layer> prevBoulderState = boulder.getState();
 
+            resetPreviousBoulder(prevBase);
+
             if (!updateState()) {
                 return false;
             }
 
+            // Update the boulder before checking if it's a valid base.
+            // That allows surrounding terrain to reshape the boulder and allow it to pass.
             boulder.update();
 
-            renderBoulder(prevBase, prevBoulderState);
+            List<Layer> currentBoulderState = boulder.getState();
+
+            if (tick > boulder.getSize() && !isValidBase(boulder.getBase())) {
+                if (removeOnCollision()) {
+                    return false;
+                }
+
+                boulder.setBase(prevBase);
+            }
+
+            renderBoulder(currentBoulderState);
             clearRaiseArea(prevBase, prevBoulderState);
 
             return true;
         }
 
-        private void renderBoulder(Location prevBase, List<Layer> prevBoulderState) {
-            List<Layer> currentBoulderState = boulder.getState();
-
-            resetPreviousBoulder(prevBase, prevBoulderState, currentBoulderState);
-
+        private void renderBoulder(List<Layer> currentBoulderState) {
             for (int y = 0; y < boulder.getSize(); ++y) {
                 for (int x = 0; x < boulder.getSize(); ++x) {
                     if (boulder.isValidColumn(x, y)) {
@@ -266,7 +286,7 @@ public class EarthSmash implements Ability {
                             Material type = layer.getState(x, y);
                             Location current = boulder.getBase().add(x, i, y);
 
-                            if (current.getBlock().getType() != type) {
+                            if (type != Material.AIR && current.getBlock().getType() != type) {
                                 new TempBlock(current.getBlock(), type, 10000);
                             }
                         }
@@ -299,13 +319,10 @@ public class EarthSmash implements Ability {
         }
 
         // TODO: Perform a diff of the states to do a minimal update.
-        private void resetPreviousBoulder(Location prevBase, List<Layer> prevBoulderState, List<Layer> currentBoulderState) {
+        private void resetPreviousBoulder(Location prevBase) {
             for (int i = 0; i < boulder.getSize(); ++i) {
-                Layer prevLayer = prevBoulderState.get(i);
-                Layer currentLayer = currentBoulderState.get(i);
-
-                for (int y = 0; y < currentLayer.getSize(); ++y) {
-                    for (int x = 0; x < currentLayer.getSize(); ++x) {
+                for (int y = 0; y < boulder.getSize(); ++y) {
+                    for (int x = 0; x < boulder.getSize(); ++x) {
                         Block block = prevBase.add(x, i, y).getBlock();
 
                         if (initialBlocks.contains(block)) {
@@ -321,6 +338,25 @@ public class EarthSmash implements Ability {
                     }
                 }
             }
+        }
+
+        protected boolean isValidBase(Location base) {
+            for (int i = 0; i < boulder.getSize(); ++i) {
+                Layer layer = boulder.getLayer(i);
+
+                for (int y = 0; y < boulder.getSize(); ++y) {
+                    for (int x = 0; x < boulder.getSize(); ++x) {
+                        if (layer.getState(x, y) != Material.AIR) {
+                            Location check = base.add(x, i, y);
+
+                            if (!MaterialUtil.isTransparent(check.getBlock())) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
         }
     }
 
@@ -350,12 +386,22 @@ public class EarthSmash implements Ability {
 
             return true;
         }
+
+        @Override
+        protected boolean removeOnCollision() {
+            return false;
+        }
     }
 
     private class IdleState extends ControlState {
         @Override
         public boolean updateState() {
             return true;
+        }
+
+        @Override
+        protected boolean removeOnCollision() {
+            return false;
         }
     }
 
@@ -368,14 +414,27 @@ public class EarthSmash implements Ability {
                 return true;
             }
 
-            // TODO: Check for collisions. It should move as close to the collision as possible.
 
             int halfSize = (int)(boulder.getSize() / 2.0);
-            Location targetCenter = user.getEyeLocation().add(user.getDirection().scalarMultiply(boulder.getSize() + 2));
+            Location targetCenter = user.getEyeLocation().add(user.getDirection().scalarMultiply(boulder.getSize() + 1));
             Location newBase = targetCenter.subtract(halfSize, halfSize, halfSize);
 
-            boulder.setBase(newBase);
+            // Attempt to place the boulder as far away as possible while avoiding collisions.
+            for (int i = 0; i < boulder.getSize(); ++i) {
+                Location check = newBase.subtract(user.getDirection().scalarMultiply(i));
+
+                if (isValidBase(check)) {
+                    boulder.setBase(check);
+                    return true;
+                }
+            }
+
             return true;
+        }
+
+        @Override
+        protected boolean removeOnCollision() {
+            return false;
         }
     }
 
@@ -392,8 +451,6 @@ public class EarthSmash implements Ability {
 
         @Override
         public boolean updateState() {
-            // TODO: Check for collisions
-
             // Refresh the global start timer so it doesn't time out during travel state.
             startTime = System.currentTimeMillis();
 
@@ -406,6 +463,11 @@ public class EarthSmash implements Ability {
 
             boulder.setBase(newBase);
 
+            return true;
+        }
+
+        @Override
+        protected boolean removeOnCollision() {
             return true;
         }
     }
