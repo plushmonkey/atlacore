@@ -78,6 +78,12 @@ public class DensityShift implements PassiveAbility {
                 .collect(Collectors.toList());
 
         for (Block block : nearby) {
+            Block above = block.getRelative(BlockFace.UP);
+
+            if (!MaterialUtil.isAir(above.getType()) && MaterialUtil.isTransparent(above)) {
+                new TempBlock(above, Material.AIR, config.duration);
+            }
+
             new TempBlock(block, Material.SAND, config.duration);
         }
     }

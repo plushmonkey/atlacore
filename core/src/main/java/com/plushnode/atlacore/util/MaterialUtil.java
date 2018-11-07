@@ -13,7 +13,7 @@ public final class MaterialUtil {
     private static final List<Material> TRANSPARENT_MATERIALS = Arrays.asList(
             Material.AIR, Material.OAK_SAPLING, Material.SPRUCE_SAPLING, Material.BIRCH_SAPLING,
             Material.JUNGLE_SAPLING, Material.ACACIA_SAPLING, Material.DARK_OAK_SAPLING,
-            Material.LAVA, Material.COBWEB, Material.TALL_GRASS, Material.GRASS, Material.FERN, Material.DEAD_BUSH,
+            Material.COBWEB, Material.TALL_GRASS, Material.GRASS, Material.FERN, Material.DEAD_BUSH,
             Material.DANDELION, Material.DANDELION_YELLOW, Material.POPPY, Material.BLUE_ORCHID, Material.ALLIUM,
             Material.AZURE_BLUET, Material.RED_TULIP, Material.ORANGE_TULIP, Material.WHITE_TULIP, Material.PINK_TULIP,
             Material.OXEYE_DAISY, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.TORCH, Material.FIRE,
@@ -106,26 +106,6 @@ public final class MaterialUtil {
     public static boolean isLava(Block block) {
         Material type = block.getType();
         return type == Material.LAVA;
-    }
-
-    // Turns a falling-type block into a fully solid block so it can be moved.
-    // Returns true if the block type was changed.
-    public static boolean resolveSolidEarth(Block block) {
-        Material type = block.getType();
-
-        // TODO: implement the rest
-        if (type == Material.SAND) {
-            new TempBlock(block, Material.SANDSTONE);
-            return true;
-        } else if (type == Material.RED_SAND) {
-            new TempBlock(block, Material.RED_SANDSTONE);
-            return true;
-        } else if (type == Material.GRAVEL) {
-            new TempBlock(block, Material.COBBLESTONE);
-            return true;
-        }
-
-        return false;
     }
 
     // Finds a suitable solid block type to replace a falling-type block with.

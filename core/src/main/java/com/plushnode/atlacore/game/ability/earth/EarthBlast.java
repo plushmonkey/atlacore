@@ -194,6 +194,11 @@ public class EarthBlast implements Ability {
         if (block == null || !MaterialUtil.isEarthbendable(block)) return null;
         if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) return null;
 
+        // Don't select the block if the center of it is too far away.
+        if (block.getLocation().add(0.5, 0.5, 0.5).distanceSquared(user.getEyeLocation()) > config.sourceSelectRange * config.sourceSelectRange) {
+            return null;
+        }
+
         // Destroy any existing blasts that haven't been launched.
         List<EarthBlast> blasts = Game.getAbilityInstanceManager().getPlayerInstances(user, EarthBlast.class);
         blasts.removeIf((eb) -> eb.launched);
@@ -204,12 +209,14 @@ public class EarthBlast implements Ability {
 
     private void renderSelectedBlock() {
         Material type = sourceBlock.getType();
-        sourceMaterial = Material.STONE;
+        sourceMaterial = MaterialUtil.getSolidEarthType(type);
 
-        if (type == Material.SAND) {
-            sourceMaterial = Material.SANDSTONE;
-        } else if (type == Material.STONE) {
-            sourceMaterial = Material.COBBLESTONE;
+        if (sourceMaterial == type) {
+            if (type == Material.STONE) {
+                sourceMaterial = Material.COBBLESTONE;
+            } else {
+                sourceMaterial = Material.STONE;
+            }
         }
 
         this.tempBlock = new TempBlock(sourceBlock, sourceMaterial);
