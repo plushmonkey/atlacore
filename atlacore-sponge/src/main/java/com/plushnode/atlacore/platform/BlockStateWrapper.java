@@ -4,7 +4,7 @@ import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.platform.block.data.BlockData;
-import com.plushnode.atlacore.util.SpongeMaterialUtil;
+import com.plushnode.atlacore.material.SpongeMaterialUtil;
 import com.plushnode.atlacore.util.SpongeVersionUtil;
 
 public class BlockStateWrapper implements BlockState {
@@ -93,7 +93,7 @@ public class BlockStateWrapper implements BlockState {
 
     @Override
     public boolean update() {
-        return SpongeVersionUtil.setBlockType(location, state.getType());
+        return SpongeVersionUtil.setBlock(location, state);
     }
 
     @Override

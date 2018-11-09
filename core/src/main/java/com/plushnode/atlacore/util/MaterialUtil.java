@@ -28,7 +28,7 @@ public final class MaterialUtil {
             Material.GOLD_ORE, Material.REDSTONE_ORE, Material.LAPIS_ORE, Material.DIAMOND_ORE, Material.NETHERRACK,
             Material.NETHER_QUARTZ_ORE, Material.COBBLESTONE, Material.COBBLESTONE_STAIRS, Material.STONE_BRICK_STAIRS,
             Material.STONE_BRICKS, Material.SAND, Material.SANDSTONE, Material.RED_SAND, Material.RED_SANDSTONE,
-            Material.GRASS_PATH
+            Material.GRASS_PATH, Material.COARSE_DIRT
     );
 
     // These are materials that must be attached to a block.

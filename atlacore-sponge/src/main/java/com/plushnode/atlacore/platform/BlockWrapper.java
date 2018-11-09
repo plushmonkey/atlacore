@@ -9,7 +9,7 @@ import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.platform.block.data.BlockData;
 import com.plushnode.atlacore.util.MaterialUtil;
-import com.plushnode.atlacore.util.SpongeMaterialUtil;
+import com.plushnode.atlacore.material.SpongeMaterialUtil;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
 import com.plushnode.atlacore.util.SpongeVersionUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;

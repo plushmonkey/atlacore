@@ -2,6 +2,7 @@ package com.plushnode.atlacore.util;
 
 import com.plushnode.atlacore.AtlaPlugin;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -15,6 +16,7 @@ import java.lang.reflect.Method;
 public final class SpongeVersionUtil {
     private static Class<?> eventContextClass;
     private static Method setBlockTypeMethod;
+    private static Method setBlockStateMethod;
     private static Method setCauseSource;
     private static Method buildCause;
 
@@ -28,6 +30,7 @@ public final class SpongeVersionUtil {
         if (eventContextClass == null) {
             try {
                 setBlockTypeMethod = Location.class.getMethod("setBlockType", BlockType.class, Cause.class);
+                setBlockStateMethod = Location.class.getMethod("setBlock", BlockState.class, Cause.class);
                 setCauseSource = Cause.class.getMethod("source", Object.class);
                 buildCause = Cause.Builder.class.getMethod("build");
             } catch (NoSuchMethodException e) {
@@ -38,6 +41,23 @@ public final class SpongeVersionUtil {
 
     private SpongeVersionUtil() {
 
+    }
+
+    public static boolean setBlock(Location<World> location, BlockState state) {
+        if (eventContextClass == null) {
+            PluginContainer container = Sponge.getPluginManager().fromInstance(AtlaPlugin.plugin).orElse(null);
+            try {
+                Cause.Builder builder = (Cause.Builder)setCauseSource.invoke(null, container);
+                Cause cause = (Cause)buildCause.invoke(builder);
+                return (boolean)setBlockStateMethod.invoke(location, state, cause);
+            } catch (IllegalAccessException|InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+
+        location.setBlock(state);
+
+        return true;
     }
 
     public static boolean setBlockType(Location<World> location, BlockType type) {

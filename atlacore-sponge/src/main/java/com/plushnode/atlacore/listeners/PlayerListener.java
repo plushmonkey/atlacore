@@ -30,12 +30,16 @@ import com.plushnode.atlacore.util.Task;
 import com.plushnode.atlacore.util.WorldUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.value.immutable.ImmutableValue;
+import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
@@ -65,7 +69,7 @@ public class PlayerListener {
         Ability ability = abilityDescription.createAbility();
 
         if (ability.activate(user, method)) {
-            plugin.getGame().addAbility(user, ability);
+            Game.addAbility(user, ability);
         } else {
             return false;
         }
@@ -204,17 +208,37 @@ public class PlayerListener {
         }
     }
 
+    // 1.11 sneak detection because it doesn't support data value change event.
     @Listener
     public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
         Player player = event.getPlayer();
+
+        onPlayerSneak(player, event.isSneaking());
+    }
+
+    @Listener
+    public void onDataValueChange(ChangeDataHolderEvent.ValueChange event) {
+        if (!(event.getTargetHolder() instanceof Player)) return;
+
+        Player player = (Player)event.getTargetHolder();
+        for (ImmutableValue v : event.getEndResult().getSuccessfulData()) {
+            if (v.getKey() == Keys.IS_SNEAKING) {
+                onPlayerSneak(player, (Boolean)v.get());
+            }
+        }
+    }
+
+    public void onPlayerSneak(Player player, boolean isSneaking) {
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        Game.getSequenceService().registerAction(user, event.isSneaking() ? Action.Sneak : Action.SneakRelease);
+        if (user != null) {
+            Game.getSequenceService().registerAction(user, isSneaking ? Action.Sneak : Action.SneakRelease);
 
-        if (event.isSneaking()) {
-            activateAbility(user, ActivationMethod.Sneak);
+            if (isSneaking) {
+                activateAbility(user, ActivationMethod.Sneak);
 
-            Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
+                Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
+            }
         }
     }
 

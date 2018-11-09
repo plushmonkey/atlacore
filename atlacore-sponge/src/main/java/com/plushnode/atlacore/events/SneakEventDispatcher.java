@@ -1,10 +1,8 @@
 package com.plushnode.atlacore.events;
 
-import com.plushnode.atlacore.events.PlayerToggleSneakEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import java.util.HashMap;

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
@@ -67,10 +68,12 @@ public class AtlaPlugin implements CorePlugin {
 
         game = new Game(this);
 
-        sneakDispatcher = new SneakEventDispatcher();
-        createTaskTimer(sneakDispatcher::run, 1, 1);
+        if (Sponge.getPlatform().getMinecraftVersion().getName().contains("1.11")) {
+            sneakDispatcher = new SneakEventDispatcher();
+            createTaskTimer(sneakDispatcher::run, 1, 1);
+            Sponge.getEventManager().registerListeners(this, sneakDispatcher);
+        }
 
-        Sponge.getEventManager().registerListeners(this, sneakDispatcher);
         Sponge.getEventManager().registerListeners(this, new PlayerListener(this));
         Sponge.getEventManager().registerListeners(this, new BlockListener(this));
 

@@ -7,6 +7,7 @@ public interface BlockSetter {
     void setBlock(Location location, Material material);
     void setBlock(Block block, Material material);
     void setBlock(Block block, Material material, BlockData data);
+    void setBlock(BlockState state);
 
     enum Flag {
         FAST,

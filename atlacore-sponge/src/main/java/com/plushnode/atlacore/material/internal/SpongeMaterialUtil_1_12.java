@@ -1,4 +1,4 @@
-package com.plushnode.atlacore.util;
+package com.plushnode.atlacore.material.internal;
 
 import com.plushnode.atlacore.platform.block.Material;
 import org.spongepowered.api.block.BlockType;
@@ -8,10 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public final class SpongeMaterialUtil {
+public class SpongeMaterialUtil_1_12 {
     private static Map<Material, BlockType> blockTypes = new HashMap<>();
+    private static Map<BlockType, Material> reverseBlockTypes = new HashMap<>();
 
-    private SpongeMaterialUtil() {
+    private SpongeMaterialUtil_1_12() {
+
     }
 
     static {
@@ -535,6 +537,32 @@ public final class SpongeMaterialUtil {
         blockTypes.put(Material.YELLOW_WALL_BANNER, BlockTypes.WALL_BANNER);
         blockTypes.put(Material.YELLOW_WOOL, BlockTypes.WOOL);
 
+
+        reverseBlockTypes.put(BlockTypes.STONE, Material.STONE);
+        reverseBlockTypes.put(BlockTypes.DIRT, Material.DIRT);
+        reverseBlockTypes.put(BlockTypes.PLANKS, Material.OAK_PLANKS);
+        reverseBlockTypes.put(BlockTypes.SAPLING, Material.OAK_SAPLING);
+        reverseBlockTypes.put(BlockTypes.SAND, Material.SAND);
+        reverseBlockTypes.put(BlockTypes.LOG, Material.OAK_LOG);
+        reverseBlockTypes.put(BlockTypes.LEAVES, Material.OAK_LEAVES);
+        reverseBlockTypes.put(BlockTypes.SPONGE, Material.SPONGE);
+        reverseBlockTypes.put(BlockTypes.SANDSTONE, Material.SANDSTONE);
+        reverseBlockTypes.put(BlockTypes.TALLGRASS, Material.GRASS);
+        reverseBlockTypes.put(BlockTypes.WOOL, Material.WHITE_WOOL);
+        reverseBlockTypes.put(BlockTypes.RED_FLOWER, Material.POPPY);
+        reverseBlockTypes.put(BlockTypes.DOUBLE_STONE_SLAB, Material.STONE_SLAB);
+        reverseBlockTypes.put(BlockTypes.STONE_SLAB, Material.STONE_SLAB);
+        reverseBlockTypes.put(BlockTypes.STAINED_GLASS, Material.WHITE_STAINED_GLASS);
+        reverseBlockTypes.put(BlockTypes.MONSTER_EGG, Material.INFESTED_STONE);
+        reverseBlockTypes.put(BlockTypes.STONEBRICK, Material.STONE_BRICKS);
+        reverseBlockTypes.put(BlockTypes.WOODEN_SLAB, Material.OAK_SLAB);
+        reverseBlockTypes.put(BlockTypes.HARDENED_CLAY, Material.TERRACOTTA);
+        reverseBlockTypes.put(BlockTypes.STAINED_HARDENED_CLAY, Material.WHITE_TERRACOTTA);
+        reverseBlockTypes.put(BlockTypes.STAINED_GLASS_PANE, Material.WHITE_STAINED_GLASS_PANE);
+        reverseBlockTypes.put(BlockTypes.LEAVES2, Material.ACACIA_LEAVES);
+        reverseBlockTypes.put(BlockTypes.LOG2, Material.ACACIA_LOG);
+        reverseBlockTypes.put(BlockTypes.CARPET, Material.WHITE_CARPET);
+        reverseBlockTypes.put(BlockTypes.DOUBLE_PLANT, Material.TALL_GRASS);
         // TODO: Item types
     }
 
@@ -555,9 +583,15 @@ public final class SpongeMaterialUtil {
     }
 
     public static Material toMaterial(BlockType type) {
+        Material material = reverseBlockTypes.get(type);
+        if (material != null) {
+            return material;
+        }
+
         Optional<Map.Entry<Material,BlockType>> entry = blockTypes.entrySet().stream().filter(e -> e.getValue().equals(type)).findAny();
 
         if (!entry.isPresent()) {
+            System.out.println("type not found: " + type);
             return Material.AIR;
         }
 
@@ -568,6 +602,7 @@ public final class SpongeMaterialUtil {
         BlockType type = blockTypes.get(material);
 
         if (material == null) {
+            System.out.println("material not found: " + material);
             return BlockTypes.AIR;
         }
 

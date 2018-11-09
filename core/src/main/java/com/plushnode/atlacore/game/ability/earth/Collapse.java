@@ -146,8 +146,8 @@ public class Collapse implements Ability {
         }
 
         // Check above the base for earthbendable blocks to shift down.
-        for (int i = 0; i < height; ++i) {
-            Block current = base.getRelative(BlockFace.UP, i + 1);
+        for (int i = 1; i <= height; ++i) {
+            Block current = base.getRelative(BlockFace.UP, i);
 
             if (!MaterialUtil.isEarthbendable(current)) {
                 height = i + 1;

@@ -3,6 +3,7 @@ package com.plushnode.atlacore.block.setters;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockSetter;
+import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.platform.block.data.BlockData;
 import com.plushnode.atlacore.util.TypeUtil;
@@ -26,5 +27,10 @@ public class StandardBlockSetter implements BlockSetter {
         if (data != null) {
             block.setBlockData(data.clone());
         }
+    }
+
+    @Override
+    public void setBlock(BlockState state) {
+        state.update();
     }
 }

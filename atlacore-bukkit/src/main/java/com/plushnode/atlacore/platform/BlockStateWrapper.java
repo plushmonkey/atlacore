@@ -13,6 +13,10 @@ public class BlockStateWrapper implements BlockState {
         this.state = state;
     }
 
+    public org.bukkit.block.BlockState getBukkitState() {
+        return state;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof BlockStateWrapper) {
