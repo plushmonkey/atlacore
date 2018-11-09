@@ -3,21 +3,22 @@ package com.plushnode.atlacore.game.ability.earth;
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
+import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.RayCaster;
+import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.CannotBendRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
+import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -49,12 +50,28 @@ public class EarthSmash implements Ability {
         if (method == ActivationMethod.Sneak) {
             List<EarthSmash> earthSmashes = Game.getAbilityInstanceManager().getPlayerInstances(user, EarthSmash.class);
             if (!earthSmashes.isEmpty()) {
-                Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.grabRange, true);
+                EarthSmash eSmash = earthSmashes.get(0);
 
-                if (block != null) {
-                    EarthSmash eSmash = earthSmashes.get(0);
-                    if (eSmash.isBoulderBlock(block)) {
-                        eSmash.enterHoldState();
+                if (config.flyEnabled) {
+                    Vector3D min = Vector3D.ZERO;
+                    Vector3D max = new Vector3D(eSmash.boulder.getSize(), config.flyBoundsSize, eSmash.boulder.getSize());
+                    Location base = eSmash.boulder.getBase();
+
+                    AABB bounds = new AABB(min, max, base.getWorld()).at(base.add(0, eSmash.boulder.getSize() / 2.0, 0));
+
+                    if (bounds.intersects(user.getBounds().at(user.getLocation()))) {
+                        eSmash.enterFlyState();
+                        return false;
+                    }
+                }
+
+                if (config.grabEnabled) {
+                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.grabRange, true);
+
+                    if (block != null) {
+                        if (eSmash.isBoulderBlock(block)) {
+                            eSmash.enterHoldState();
+                        }
                     }
                 }
 
@@ -178,6 +195,10 @@ public class EarthSmash implements Ability {
         this.state = new TravelState();
     }
 
+    public void enterFlyState() {
+        this.state = new FlyState();
+    }
+
     private interface State {
         boolean update();
     }
@@ -277,6 +298,10 @@ public class EarthSmash implements Ability {
         }
 
         private void renderBoulder(List<Layer> currentBoulderState) {
+            if (!boulder.canRender()) {
+                return;
+            }
+
             for (int y = 0; y < boulder.getSize(); ++y) {
                 for (int x = 0; x < boulder.getSize(); ++x) {
                     if (boulder.isValidColumn(x, y)) {
@@ -318,7 +343,6 @@ public class EarthSmash implements Ability {
             }
         }
 
-        // TODO: Perform a diff of the states to do a minimal update.
         private void resetPreviousBoulder(Location prevBase) {
             for (int i = 0; i < boulder.getSize(); ++i) {
                 for (int y = 0; y < boulder.getSize(); ++y) {
@@ -380,6 +404,14 @@ public class EarthSmash implements Ability {
             long time = System.currentTimeMillis();
 
             if (time >= nextRaiseTime) {
+                final Vector3D push = new Vector3D(0, config.raiseEntityPush, 0);
+
+                AABB bounds = boulder.getBoundingBox().at(boulder.getBase());
+                CollisionUtil.handleEntityCollisions(user, bounds, (entity) -> {
+                    entity.setVelocity(entity.getVelocity().add(push));
+                    return false;
+                }, true, true);
+
                 boulder.setBase(boulder.getBase().add(0, 1, 0));
                 nextRaiseTime = time + 50;
             }
@@ -438,9 +470,49 @@ public class EarthSmash implements Ability {
         }
     }
 
+    private class FlyState extends ControlState {
+        private Flight flight;
+        private long startTime;
+
+        FlyState() {
+            flight = Flight.get(user);
+            flight.setFlying(true);
+            startTime = System.currentTimeMillis();
+        }
+
+        @Override
+        public boolean updateState() {
+            if (!user.isSneaking() || System.currentTimeMillis() > startTime + config.flyDuration) {
+                state = null;
+                flight.setFlying(false);
+                flight.release();
+                user.setCooldown(getDescription());
+                return false;
+            }
+
+            Vector3D velocity = user.getDirection().scalarMultiply(config.flySpeed);
+            user.setVelocity(velocity);
+
+            double halfSize = boulder.getSize() / 2.0;
+
+            Location newBase = user.getLocation().add(velocity).subtract(halfSize, boulder.getSize() + 1, halfSize);
+
+            boulder.setCanRender(isValidBase(newBase));
+            boulder.setBase(newBase);
+
+            return true;
+        }
+
+        @Override
+        protected boolean removeOnCollision() {
+            return false;
+        }
+    }
+
     private class TravelState extends ControlState {
         private Vector3D direction;
         private Location start;
+        private List<Entity> hitEntities = new ArrayList<>();
 
         TravelState() {
             this.direction = user.getDirection();
@@ -462,6 +534,24 @@ public class EarthSmash implements Ability {
             }
 
             boulder.setBase(newBase);
+
+            double halfSize = Math.floor(boulder.getSize() / 2.0);
+            Location boulderCenter = boulder.getBase().add(halfSize, halfSize, halfSize);
+
+            AABB bounds = boulder.getBoundingBox().at(boulder.getBase());
+            CollisionUtil.handleEntityCollisions(user, bounds, (entity) -> {
+                if (hitEntities.contains(entity)) return false;
+
+                ((LivingEntity)entity).damage(config.shootDamage);
+
+                Vector3D toEntity = entity.getLocation().subtract(boulderCenter).toVector();
+                toEntity = VectorUtil.setY(toEntity, config.shootKnockup);
+                Vector3D velocity = VectorUtil.normalizeOrElse(toEntity, Vector3D.PLUS_I);
+
+                entity.setVelocity(velocity.scalarMultiply(config.shootKnockback));
+                hitEntities.add(entity);
+                return false;
+            }, true);
 
             return true;
         }
@@ -507,8 +597,11 @@ public class EarthSmash implements Ability {
     private static class Boulder {
         private List<Layer> layers = new ArrayList<>();
         private Location base;
+        private boolean canRender;
 
         public Boulder(Block selectedBlock) {
+            this.canRender = true;
+
             for (int i = 0; i < config.radius; ++i) {
                 layers.add(new Layer(config.radius));
             }
@@ -563,6 +656,10 @@ public class EarthSmash implements Ability {
 
         // Checks all of the blocks of the boulder and marks them as invalid if they aren't earthbendable
         private void update() {
+            if (!canRender) {
+                return;
+            }
+
             for (int i = 0; i < this.getSize(); ++i) {
                 Layer layer = this.getLayer(i);
 
@@ -604,6 +701,14 @@ public class EarthSmash implements Ability {
             return layers.size();
         }
 
+        public boolean canRender() {
+            return canRender;
+        }
+
+        public void setCanRender(boolean renderable) {
+            canRender = renderable;
+        }
+
         private void invalidateBlockedAreas() {
             // Check above each column to ensure it can be raised.
             // Invalidate any columns if it can't be.
@@ -632,6 +737,14 @@ public class EarthSmash implements Ability {
 
             return false;
         }
+
+        // Bounding box in local space.
+        public AABB getBoundingBox() {
+            Vector3D min = Vector3D.ZERO;
+            Vector3D max = new Vector3D(getSize(), getSize(), getSize());
+
+            return new AABB(min, max, base.getWorld());
+        }
     }
 
     public static class Config extends Configurable {
@@ -639,12 +752,24 @@ public class EarthSmash implements Ability {
         public long cooldown;
         public int radius;
         public long chargeTime;
-        public double grabRange;
         public double selectRange;
-        public double shootRange;
-        public double shootSpeed;
         public long maxDuration;
         public int minColumns;
+        public double raiseEntityPush;
+
+        public boolean grabEnabled;
+        public double grabRange;
+
+        public double shootRange;
+        public double shootSpeed;
+        public double shootDamage;
+        public double shootKnockback;
+        public double shootKnockup;
+
+        public boolean flyEnabled;
+        public double flySpeed;
+        public double flyBoundsSize;
+        public long flyDuration;
 
         @Override
         public void onConfigReload() {
@@ -654,12 +779,24 @@ public class EarthSmash implements Ability {
             cooldown = abilityNode.getNode("cooldown").getLong(3000);
             radius = abilityNode.getNode("radius").getInt(3);
             chargeTime = abilityNode.getNode("charge-time").getLong(1500);
-            grabRange = abilityNode.getNode("grab-range").getDouble(16.0);
             selectRange = abilityNode.getNode("select-range").getDouble(12.0);
-            shootRange = abilityNode.getNode("shoot-range").getDouble(25.0);
-            shootSpeed = abilityNode.getNode("shoot-speed").getDouble(1.0);
             maxDuration = abilityNode.getNode("max-duration").getLong(30000);
             minColumns = abilityNode.getNode("min-columns").getInt(3);
+            raiseEntityPush = abilityNode.getNode("raise-entity-push").getDouble(0.4);
+
+            grabEnabled = abilityNode.getNode("grab").getNode("enabled").getBoolean(true);
+            grabRange = abilityNode.getNode("grab").getNode("range").getDouble(16.0);
+
+            shootRange = abilityNode.getNode("shoot").getNode("range").getDouble(25.0);
+            shootSpeed = abilityNode.getNode("shoot").getNode("speed").getDouble(1.0);
+            shootDamage = abilityNode.getNode("shoot").getNode("damage").getDouble(5.0);
+            shootKnockback = abilityNode.getNode("shoot").getNode("knockback").getDouble(3.5);
+            shootKnockup = abilityNode.getNode("shoot").getNode("knockup").getDouble(0.15);
+
+            flyEnabled = abilityNode.getNode("flight").getNode("enabled").getBoolean(true);
+            flySpeed = abilityNode.getNode("flight").getNode("speed").getDouble(0.75);
+            flyBoundsSize = abilityNode.getNode("flight").getNode("bounds-size").getDouble(3.0);
+            flyDuration = abilityNode.getNode("flight").getNode("duration").getLong(3000);
 
             if (radius < 3) {
                 radius = 3;
