@@ -53,11 +53,14 @@ public class EarthSmash implements Ability {
                 EarthSmash eSmash = earthSmashes.get(0);
 
                 if (config.flyEnabled) {
-                    Vector3D min = Vector3D.ZERO;
-                    Vector3D max = new Vector3D(eSmash.boulder.getSize(), config.flyBoundsSize, eSmash.boulder.getSize());
-                    Location base = eSmash.boulder.getBase();
+                    double halfSize = eSmash.boulder.getSize() / 2.0;
+                    double halfExtent = halfSize + 0.25;
+                    Location center = eSmash.boulder.getBase().add(halfSize, halfSize + 1, halfSize);
+                    Vector3D min = new Vector3D(-halfExtent, 0, -halfExtent);
+                    Vector3D max = new Vector3D(halfExtent, config.flyBoundsSize, halfExtent);
 
-                    AABB bounds = new AABB(min, max, base.getWorld()).at(base.add(0, eSmash.boulder.getSize() / 2.0, 0));
+                    // Create a bounding box that encompasses the upper half of the boulder with some extra space around it for activating flight.
+                    AABB bounds = new AABB(min, max, center.getWorld()).at(center);
 
                     if (bounds.intersects(user.getBounds().at(user.getLocation()))) {
                         eSmash.enterFlyState();
@@ -70,7 +73,10 @@ public class EarthSmash implements Ability {
 
                     if (block != null) {
                         if (eSmash.isBoulderBlock(block)) {
-                            eSmash.enterHoldState();
+                            double halfSize = eSmash.boulder.getSize() / 2.0;
+                            Location center = eSmash.boulder.getBase().add(halfSize, halfSize, halfSize).subtract(user.getDirection().scalarMultiply(0.5));
+                            double distance = Math.min(center.distance(user.getEyeLocation()), config.grabRange);
+                            eSmash.enterHoldState(distance);
                         }
                     }
                 }
@@ -187,8 +193,8 @@ public class EarthSmash implements Ability {
         return false;
     }
 
-    public void enterHoldState() {
-        this.state = new HoldState();
+    public void enterHoldState(double distance) {
+        this.state = new HoldState(distance);
     }
 
     public void enterTravelState() {
@@ -380,6 +386,7 @@ public class EarthSmash implements Ability {
                     }
                 }
             }
+
             return true;
         }
     }
@@ -439,6 +446,12 @@ public class EarthSmash implements Ability {
 
     // This state is active when the player is holding sneak and using it as a shield.
     private class HoldState extends ControlState {
+        private double grabDistance;
+
+        HoldState(double distance) {
+            this.grabDistance = Math.max(distance, boulder.getSize() + 1);
+        }
+
         @Override
         public boolean updateState() {
             if (!user.isSneaking()) {
@@ -446,13 +459,12 @@ public class EarthSmash implements Ability {
                 return true;
             }
 
-
             int halfSize = (int)(boulder.getSize() / 2.0);
-            Location targetCenter = user.getEyeLocation().add(user.getDirection().scalarMultiply(boulder.getSize() + 1));
+            Location targetCenter = RayCaster.cast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), grabDistance, true, boulder.getBlocks());
             Location newBase = targetCenter.subtract(halfSize, halfSize, halfSize);
 
             // Attempt to place the boulder as far away as possible while avoiding collisions.
-            for (int i = 0; i < boulder.getSize(); ++i) {
+            for (int i = 0; i < (int)targetCenter.distance(user.getEyeLocation()); ++i) {
                 Location check = newBase.subtract(user.getDirection().scalarMultiply(i));
 
                 if (isValidBase(check)) {
@@ -744,6 +756,22 @@ public class EarthSmash implements Ability {
             Vector3D max = new Vector3D(getSize(), getSize(), getSize());
 
             return new AABB(min, max, base.getWorld());
+        }
+
+        public List<Block> getBlocks() {
+            List<Block> blocks = new ArrayList<>();
+
+            for (int i = 0; i < getSize(); ++i) {
+                for (int y = 0; y < getSize(); ++y) {
+                    for (int x = 0; x < getSize(); ++x) {
+                        if (layers.get(i).getState(x, y) != Material.AIR) {
+                            blocks.add(base.add(x, i, y).getBlock());
+                        }
+                    }
+                }
+            }
+
+            return blocks;
         }
     }
 

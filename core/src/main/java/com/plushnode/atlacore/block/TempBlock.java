@@ -102,8 +102,6 @@ public class TempBlock {
             this.previousState.update(true);
         } else {
             setter.setBlock(previousState);
-            //Material previousType = this.previousState.getType();
-            //setter.setBlock(previousState.getBlock(), previousType, previousState.getBlockData());
         }
     }
 
