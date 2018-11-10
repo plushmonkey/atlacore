@@ -21,6 +21,7 @@ import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.VectorUtil;
+import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -52,10 +53,12 @@ public class EarthSmash implements Ability {
             if (!earthSmashes.isEmpty()) {
                 EarthSmash eSmash = earthSmashes.get(0);
 
-                if (config.flyEnabled) {
-                    double halfSize = eSmash.boulder.getSize() / 2.0;
+                double halfSize = eSmash.boulder.getSize() / 2.0;
+                Location center = eSmash.boulder.getBaseBlockLocation().add(halfSize, halfSize, halfSize);
+
+                if (config.flyEnabled && (!WorldUtil.isOnGround(user) || user.getLocation().getY() > center.getY())) {
                     double halfExtent = halfSize + 0.25;
-                    Location center = eSmash.boulder.getBase().add(halfSize, halfSize + 1, halfSize);
+
                     Vector3D min = new Vector3D(-halfExtent, 0, -halfExtent);
                     Vector3D max = new Vector3D(halfExtent, config.flyBoundsSize, halfExtent);
 
@@ -73,8 +76,6 @@ public class EarthSmash implements Ability {
 
                     if (block != null) {
                         if (eSmash.isBoulderBlock(block)) {
-                            double halfSize = eSmash.boulder.getSize() / 2.0;
-                            Location center = eSmash.boulder.getBase().add(halfSize, halfSize, halfSize).subtract(user.getDirection().scalarMultiply(0.5));
                             double distance = Math.min(center.distance(user.getEyeLocation()), config.grabRange);
                             eSmash.enterHoldState(distance);
                         }
@@ -411,11 +412,15 @@ public class EarthSmash implements Ability {
             long time = System.currentTimeMillis();
 
             if (time >= nextRaiseTime) {
-                final Vector3D push = new Vector3D(0, config.raiseEntityPush, 0);
+                AABB bounds = boulder.getBoundingBox().at(boulder.getBaseBlockLocation());
 
-                AABB bounds = boulder.getBoundingBox().at(boulder.getBase());
                 CollisionUtil.handleEntityCollisions(user, bounds, (entity) -> {
-                    entity.setVelocity(entity.getVelocity().add(push));
+                    Vector3D vel = entity.getVelocity();
+                    // Preserve horizontal movement while setting vertical velocity.
+                    // This isn't accumulated so the player doesn't fly high into the air.
+                    Vector3D newVelocity = new Vector3D(vel.getX(), config.raiseEntityPush, vel.getZ());
+
+                    entity.setVelocity(newVelocity);
                     return false;
                 }, true, true);
 
@@ -507,7 +512,7 @@ public class EarthSmash implements Ability {
 
             double halfSize = boulder.getSize() / 2.0;
 
-            Location newBase = user.getLocation().add(velocity).subtract(halfSize, boulder.getSize() + 1, halfSize);
+            Location newBase = user.getLocation().getBlock().getLocation().add(new Vector3D(0.5, 0.5, 0.5)).add(velocity).subtract(halfSize, boulder.getSize() + 1, halfSize);
 
             boulder.setCanRender(isValidBase(newBase));
             boulder.setBase(newBase);
@@ -550,7 +555,7 @@ public class EarthSmash implements Ability {
             double halfSize = Math.floor(boulder.getSize() / 2.0);
             Location boulderCenter = boulder.getBase().add(halfSize, halfSize, halfSize);
 
-            AABB bounds = boulder.getBoundingBox().at(boulder.getBase());
+            AABB bounds = boulder.getBoundingBox().at(boulder.getBaseBlockLocation());
             CollisionUtil.handleEntityCollisions(user, bounds, (entity) -> {
                 if (hitEntities.contains(entity)) return false;
 
@@ -705,6 +710,10 @@ public class EarthSmash implements Ability {
             return this.base;
         }
 
+        public Location getBaseBlockLocation() {
+            return this.base.getBlock().getLocation();
+        }
+
         public Layer getLayer(int index) {
             return layers.get(index);
         }
@@ -810,7 +819,7 @@ public class EarthSmash implements Ability {
             selectRange = abilityNode.getNode("select-range").getDouble(12.0);
             maxDuration = abilityNode.getNode("max-duration").getLong(30000);
             minColumns = abilityNode.getNode("min-columns").getInt(3);
-            raiseEntityPush = abilityNode.getNode("raise-entity-push").getDouble(0.4);
+            raiseEntityPush = abilityNode.getNode("raise-entity-push").getDouble(0.85);
 
             grabEnabled = abilityNode.getNode("grab").getNode("enabled").getBoolean(true);
             grabRange = abilityNode.getNode("grab").getNode("range").getDouble(16.0);
