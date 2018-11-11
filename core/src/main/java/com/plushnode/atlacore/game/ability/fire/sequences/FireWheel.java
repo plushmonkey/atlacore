@@ -80,6 +80,11 @@ public class FireWheel implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         location = location.add(direction.scalarMultiply(userConfig.speed));
 

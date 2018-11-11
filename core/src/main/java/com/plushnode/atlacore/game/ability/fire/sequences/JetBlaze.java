@@ -56,6 +56,11 @@ public class JetBlaze implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         if (!Game.getProtectionSystem().canBuild(getUser(), getUser().getLocation())) {
             return UpdateResult.Remove;

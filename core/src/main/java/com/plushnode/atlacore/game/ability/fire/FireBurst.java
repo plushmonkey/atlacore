@@ -34,6 +34,11 @@ public class FireBurst extends BurstAbility {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         if (!released) {
             // This renders particles to the left if cone is charged and to the right if sphere is charged.

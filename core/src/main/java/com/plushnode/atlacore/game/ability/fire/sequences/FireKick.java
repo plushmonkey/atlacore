@@ -62,14 +62,13 @@ public class FireKick implements Ability {
     }
 
     @Override
-    public UpdateResult update() {
-        for (Iterator<ParticleStream> iterator = streams.iterator(); iterator.hasNext();) {
-            ParticleStream stream = iterator.next();
-            if (!stream.update()) {
-                iterator.remove();
-            }
-        }
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
 
+    @Override
+    public UpdateResult update() {
+        streams.removeIf(stream -> !stream.update());
         return streams.isEmpty() ? UpdateResult.Remove : UpdateResult.Continue;
     }
 

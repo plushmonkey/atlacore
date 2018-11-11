@@ -68,6 +68,11 @@ public class Collapse implements Ability {
         return !columns.isEmpty();
     }
 
+    @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
     private boolean createColumn(Block source) {
         Block base = getBase(source);
 

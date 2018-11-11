@@ -67,6 +67,11 @@ public class FireShield implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
             return UpdateResult.Remove;

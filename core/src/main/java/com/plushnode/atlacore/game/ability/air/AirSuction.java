@@ -92,7 +92,10 @@ public class AirSuction implements Ability {
         return true;
     }
 
-
+    @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
 
     @Override
     public UpdateResult update() {

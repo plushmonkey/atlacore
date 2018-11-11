@@ -43,6 +43,11 @@ public class Lightning implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         for (Collider collider : colliders) {
             CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {

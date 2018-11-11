@@ -51,6 +51,11 @@ public class AirShield implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         long time = System.currentTimeMillis();
 

@@ -41,6 +41,11 @@ public class Tornado implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         if (!user.isSneaking() || user.getEyeLocation().getBlock().isLiquid()) {
             return UpdateResult.Remove;

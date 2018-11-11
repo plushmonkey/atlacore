@@ -54,6 +54,11 @@ public class AirSpout implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         double maxHeight = userConfig.height + userConfig.heightBuffer;
 

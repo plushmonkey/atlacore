@@ -15,6 +15,7 @@ permissions:
       atla.player: true
       atla.command.reload: true
       atla.command.add: true
+      atla.command.modify: true
   atla.player:
     default: true
     children:

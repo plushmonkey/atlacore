@@ -58,6 +58,11 @@ public class Combustion implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         if (this.removalPolicy.shouldRemove()) {
             return UpdateResult.Remove;

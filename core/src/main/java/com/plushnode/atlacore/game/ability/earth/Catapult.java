@@ -41,6 +41,11 @@ public class Catapult implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         if (!launched) {
             Vector3D direction = user.getDirection();

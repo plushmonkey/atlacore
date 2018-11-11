@@ -28,4 +28,5 @@ public interface Ability {
     }
 
     void handleCollision(Collision collision);
+    void recalculateConfig();
 }

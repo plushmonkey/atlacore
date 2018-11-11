@@ -48,6 +48,11 @@ public class HeatControl implements Ability {
         return false;
     }
 
+    @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
     private boolean melt() {
         return act(userConfig.meltRange, userConfig.meltRadius, this::isIce);
     }

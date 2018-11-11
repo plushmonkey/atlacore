@@ -82,6 +82,11 @@ public class RaiseEarth implements Ability {
         return true;
     }
 
+    @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
     private boolean createCenterColumn(Block selection) {
         Block base = getBase(selection);
 

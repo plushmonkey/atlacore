@@ -103,6 +103,7 @@ public class AtlaPlugin implements CorePlugin {
         cmd.registerCommand(new DisplayCommand());
         cmd.registerCommand(new HelpCommand());
         cmd.registerCommand(new PresetCommand());
+        cmd.registerCommand(new ModifyCommand());
 
         Sponge.getCommandManager().register(this, cmd, "bending", "b", "atla");
     }

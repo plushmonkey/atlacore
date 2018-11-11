@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.game.attribute;
 
 import com.plushnode.atlacore.config.Configurable;
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.platform.User;
 
@@ -42,6 +43,11 @@ public class AttributeSystem {
         }
 
         return result;
+    }
+
+    // Recalculates all of the config values for the user's instances.
+    public void recalculate(User user) {
+        Game.getAbilityInstanceManager().getPlayerInstances(user).forEach(Ability::recalculateConfig);
     }
 
     public <T extends Configurable> T calculate(Ability ability, T oldConfig) {

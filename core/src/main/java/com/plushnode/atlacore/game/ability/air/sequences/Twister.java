@@ -63,6 +63,11 @@ public class Twister implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         base = base.add(direction.scalarMultiply(userConfig.speed));
         base = RayCaster.cast(user, new Ray(base.add(0, 3.5, 0).toVector(), Vector3D.MINUS_J), 7.0, true, false);

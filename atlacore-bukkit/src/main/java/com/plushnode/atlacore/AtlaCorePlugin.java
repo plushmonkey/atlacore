@@ -67,6 +67,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
         executor.registerCommand(new DisplayCommand());
         executor.registerCommand(new HelpCommand());
         executor.registerCommand(new PresetCommand());
+        executor.registerCommand(new ModifyCommand());
 
         //this.getCommand("b").setExecutor(executor);
         this.getCommand("atla").setExecutor(executor);

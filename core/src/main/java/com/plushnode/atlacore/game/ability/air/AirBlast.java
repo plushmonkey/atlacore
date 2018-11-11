@@ -93,6 +93,11 @@ public class AirBlast implements Ability, Burstable {
         return true;
     }
 
+    @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
     private void selectOrigin() {
         Ray ray = new Ray(user.getEyeLocation(), user.getDirection());
 

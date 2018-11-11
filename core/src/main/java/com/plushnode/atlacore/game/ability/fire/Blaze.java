@@ -65,6 +65,11 @@ public class Blaze implements Ability {
     }
 
     @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+    }
+
+    @Override
     public UpdateResult update() {
         Iterator<FireStream> iterator = fireStreams.iterator();
 
