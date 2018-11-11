@@ -11,6 +11,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
@@ -21,11 +23,13 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public class AirSpout implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private AABB collider;
     private Flight flight;
     private long nextRenderTime;
@@ -41,6 +45,7 @@ public class AirSpout implements Ability {
         }
 
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.nextRenderTime = System.currentTimeMillis();
         this.flight = Flight.get(user);
         this.flight.setFlying(true);
@@ -50,7 +55,7 @@ public class AirSpout implements Ability {
 
     @Override
     public UpdateResult update() {
-        double maxHeight = config.height + config.heightBuffer;
+        double maxHeight = userConfig.height + userConfig.heightBuffer;
 
         if (!user.canBend(getDescription())) {
             return UpdateResult.Remove;
@@ -70,7 +75,7 @@ public class AirSpout implements Ability {
         double distance = ground.distance(user.getLocation());
 
         // Remove flight when user goes above the top. This will drop them back down into the acceptable height.
-        if (distance > config.height) {
+        if (distance > userConfig.height) {
             flight.setFlying(false);
         } else {
             flight.setFlying(true);
@@ -97,14 +102,14 @@ public class AirSpout implements Ability {
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.4f, 0.4f, 0.4f, 0.0f, 3, location, 257);
         }
 
-        nextRenderTime = time + config.renderDelay;
+        nextRenderTime = time + userConfig.renderDelay;
     }
 
     @Override
     public void destroy() {
         flight.setFlying(false);
         flight.release();
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
     }
 
     @Override
@@ -137,22 +142,27 @@ public class AirSpout implements Ability {
     public static void handleMovement(User user, Vector3D velocity) {
         AbilityDescription desc = Game.getAbilityRegistry().getAbilityByName("AirSpout");
 
-        if (!Game.getAbilityInstanceManager().hasAbility(user, desc)) return;
+        List<AirSpout> spouts = Game.getAbilityInstanceManager().getPlayerInstances(user, AirSpout.class);
+        if (spouts.isEmpty()) return;
+        AirSpout spout = spouts.get(0);
 
         // Don't consider y in the calculation.
         velocity = VectorUtil.clearAxis(velocity, 1);
 
-        if (velocity.getNormSq() > config.maxSpeed * config.maxSpeed) {
-            velocity = velocity.normalize().scalarMultiply(config.maxSpeed);
+        if (velocity.getNormSq() > spout.userConfig.maxSpeed * spout.userConfig.maxSpeed) {
+            velocity = velocity.normalize().scalarMultiply(spout.userConfig.maxSpeed);
             user.setVelocity(velocity);
         }
     }
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.HEIGHT)
         public double height;
         public double heightBuffer;
+        @Attribute(Attributes.SPEED)
         public double maxSpeed;
         public int renderDelay;
 

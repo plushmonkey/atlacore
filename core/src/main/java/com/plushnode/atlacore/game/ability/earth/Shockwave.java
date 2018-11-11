@@ -6,6 +6,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.Grid;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.Material;
@@ -17,7 +19,6 @@ import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
-import com.plushnode.atlacore.policies.removal.IsDeadRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.IsOfflineRemovalPolicy;
 import com.plushnode.atlacore.policies.removal.OutOfWorldRemovalPolicy;
 import com.plushnode.atlacore.protection.ProtectionSystem;
@@ -35,6 +36,7 @@ public class Shockwave implements Ability {
     private static List<Shockwave> instances = new ArrayList<>();
 
     private User user;
+    private Config userConfig;
     private boolean charged;
     private Location origin;
     private boolean released;
@@ -82,10 +84,11 @@ public class Shockwave implements Ability {
         }
 
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.charged = false;
         this.released = false;
-        this.offsets = new int[config.range * 2 + 1][config.range * 2 + 1];
-        this.obstructions = new int[config.range * 2 + 1][config.range * 2 + 1];
+        this.offsets = new int[userConfig.range * 2 + 1][userConfig.range * 2 + 1];
+        this.obstructions = new int[userConfig.range * 2 + 1][userConfig.range * 2 + 1];
         this.distance = 2;
         this.shockwaveGrid = new ShockwaveGrid();
         this.tempBlocks = new HashMap<>();
@@ -115,7 +118,7 @@ public class Shockwave implements Ability {
         long time = System.currentTimeMillis();
 
         if (!this.charged) {
-            this.charged = time >= startTime + config.chargeTime;
+            this.charged = time >= startTime + userConfig.chargeTime;
         }
 
         if (isCharging()) {
@@ -127,7 +130,7 @@ public class Shockwave implements Ability {
                 this.released = true;
                 this.origin = user.getLocation().clone();
 
-                user.setCooldown(getDescription());
+                user.setCooldown(getDescription(), userConfig.cooldown);
 
                 buildOffsets();
 
@@ -181,8 +184,8 @@ public class Shockwave implements Ability {
         int count = 1;
         final double allowedDeviation = 7;
 
-        for (int x = -config.range; x < config.range; ++x) {
-            for (int z = -config.range; z < config.range; ++z) {
+        for (int x = -userConfig.range; x < userConfig.range; ++x) {
+            for (int z = -userConfig.range; z < userConfig.range; ++z) {
 
                 blockLocation = blockLocation.setX(origin.getX() + x);
                 blockLocation = blockLocation.setY(origin.getY());
@@ -213,10 +216,10 @@ public class Shockwave implements Ability {
                 int averageOffset = (int)(averageY - origin.getY());
 
                 if (Math.abs(yOffset - averageOffset) > allowedDeviation) {
-                    this.obstructions[config.range + x][config.range + z] = 1;
+                    this.obstructions[userConfig.range + x][userConfig.range + z] = 1;
                 } else {
-                    this.offsets[config.range + x][config.range + z] = yOffset;
-                    this.obstructions[config.range + x][config.range + z] = 0;
+                    this.offsets[userConfig.range + x][userConfig.range + z] = yOffset;
+                    this.obstructions[userConfig.range + x][userConfig.range + z] = 0;
                 }
             }
         }
@@ -234,7 +237,7 @@ public class Shockwave implements Ability {
     }
 
     private void updateObstructions() {
-        double delta = 360.0 / (2 * Math.PI * config.range) - 1;
+        double delta = 360.0 / (2 * Math.PI * userConfig.range) - 1;
 
         for (double theta = 0.0; theta < 360; theta += delta) {
             double rads = Math.toRadians(theta);
@@ -244,7 +247,7 @@ public class Shockwave implements Ability {
             Vector3D current = new Vector3D(0, 0, 0);
             Vector3D previous = Vector3D.ZERO;
 
-            for (int i = 0; i < config.range; ++i) {
+            for (int i = 0; i < userConfig.range; ++i) {
                 current = current.add(direction);
 
                 int x = (int)Math.floor(current.getX());
@@ -252,11 +255,11 @@ public class Shockwave implements Ability {
                 int prevX = (int)Math.floor(previous.getX());
                 int prevZ = (int)Math.floor(previous.getZ());
 
-                int offset = this.offsets[config.range + x][config.range + z];
-                int prevOffset = this.offsets[config.range + prevX][config.range + prevZ];
+                int offset = this.offsets[userConfig.range + x][userConfig.range + z];
+                int prevOffset = this.offsets[userConfig.range + prevX][userConfig.range + prevZ];
 
-                if (Math.abs(offset - prevOffset) > 2 || this.obstructions[config.range + x][config.range + z] == 1) {
-                    this.obstructions[config.range + x][config.range + z] = 1;
+                if (Math.abs(offset - prevOffset) > 2 || this.obstructions[userConfig.range + x][userConfig.range + z] == 1) {
+                    this.obstructions[userConfig.range + x][userConfig.range + z] = 1;
                     markObstructed(current, direction);
                     break;
                 }
@@ -271,7 +274,7 @@ public class Shockwave implements Ability {
 
         int obsX = (int)Math.floor(obstructed.getX());
         int obsZ = (int)Math.floor(obstructed.getZ());
-        this.obstructions[config.range + obsX][config.range + obsZ] = 1;
+        this.obstructions[userConfig.range + obsX][userConfig.range + obsZ] = 1;
 
         while (true) {
             obstructed = obstructed.add(direction);
@@ -279,10 +282,10 @@ public class Shockwave implements Ability {
             int x = (int)Math.floor(obstructed.getX());
             int z = (int)Math.floor(obstructed.getZ());
 
-            if (Math.abs(x) > config.range) break;
-            if (Math.abs(z) > config.range) break;
+            if (Math.abs(x) > userConfig.range) break;
+            if (Math.abs(z) > userConfig.range) break;
 
-            this.obstructions[config.range + x][config.range + z] = 1;
+            this.obstructions[userConfig.range + x][userConfig.range + z] = 1;
         }
     }
 
@@ -331,21 +334,21 @@ public class Shockwave implements Ability {
 
         Location blockLocation = this.origin.clone();
 
-        for (int x = -config.range; x < config.range; ++x) {
-            for (int z = -config.range; z < config.range; ++z) {
-                if (this.obstructions[x + config.range][z + config.range] == 1) continue;
+        for (int x = -userConfig.range; x < userConfig.range; ++x) {
+            for (int z = -userConfig.range; z < userConfig.range; ++z) {
+                if (this.obstructions[x + userConfig.range][z + userConfig.range] == 1) continue;
 
                 int value = shockwaveGrid.getValue(x, z);
                 if (value == 0) continue;
 
                 blockLocation = blockLocation.setX(this.origin.getBlockX() + x);
-                blockLocation = blockLocation.setY(this.origin.getBlockY() + this.offsets[x + config.range][z + config.range]);
+                blockLocation = blockLocation.setY(this.origin.getBlockY() + this.offsets[x + userConfig.range][z + userConfig.range]);
                 blockLocation = blockLocation.setZ(this.origin.getBlockZ() + z);
 
                 if (this.conal) {
                     Vector3D coneCheck = new Vector3D(x, 0, z);
 
-                    if (Vector3D.angle(coneCheck, this.coneDirection) > Math.toRadians(config.angle)) {
+                    if (Vector3D.angle(coneCheck, this.coneDirection) > Math.toRadians(userConfig.angle)) {
                         continue;
                     }
                 }
@@ -394,7 +397,7 @@ public class Shockwave implements Ability {
 
         updateTempBlocks();
 
-        return distance >= config.range;
+        return distance >= userConfig.range;
     }
 
     private void hitEntities(Location location, Vector3D direction, double radius) {
@@ -406,11 +409,11 @@ public class Shockwave implements Ability {
             if (entity.equals(user)) continue;
 
             if (!affectedEntities.contains(entity)) {
-                ((LivingEntity) entity).damage(config.damage);
+                ((LivingEntity) entity).damage(userConfig.damage);
                 affectedEntities.add(entity);
             }
 
-            entity.setVelocity(direction.scalarMultiply(config.knockback));
+            entity.setVelocity(direction.scalarMultiply(userConfig.knockback));
         }
     }
 
@@ -471,7 +474,7 @@ public class Shockwave implements Ability {
 
     class ShockwaveGrid extends Grid {
         public ShockwaveGrid() {
-            super(config.range * 2 + 2);
+            super(userConfig.range * 2 + 2);
         }
 
         @Override
@@ -484,10 +487,15 @@ public class Shockwave implements Ability {
     public static class Config extends Configurable {
         public boolean enabled;
         public double fallThreshold;
+        @Attribute(Attributes.CHARGE_TIME)
         public long chargeTime;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.STRENGTH)
         public double knockback;
+        @Attribute(Attributes.RANGE)
         public int range;
         public int angle;
 

@@ -13,6 +13,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.Burstable;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
@@ -32,6 +34,7 @@ public class FireBlast implements Ability, Burstable {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private World world;
     private Location origin;
     private Location location;
@@ -44,6 +47,7 @@ public class FireBlast implements Ability, Burstable {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.world = user.getWorld();
         this.particleCount = 6;
 
@@ -95,9 +99,9 @@ public class FireBlast implements Ability, Burstable {
 
         Location previous = location;
 
-        location = location.add(direction.scalarMultiply(config.speed));
+        location = location.add(direction.scalarMultiply(userConfig.speed));
 
-        if (location.distanceSquared(origin) >= config.range * config.range) {
+        if (location.distanceSquared(origin) >= userConfig.range * userConfig.range) {
             return UpdateResult.Remove;
         }
 
@@ -112,7 +116,7 @@ public class FireBlast implements Ability, Burstable {
             this.nextRenderTime = time + renderInterval;
         }
 
-        Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
+        Sphere collider = new Sphere(location.toVector(), userConfig.entityCollisionRadius);
 
         boolean hit = CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
             if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
@@ -120,7 +124,7 @@ public class FireBlast implements Ability, Burstable {
             }
 
             LivingEntity living = (LivingEntity) entity;
-            living.damage(config.damage, user);
+            living.damage(userConfig.damage, user);
             return true;
         }, true);
 
@@ -133,19 +137,19 @@ public class FireBlast implements Ability, Burstable {
 
         if (collisionResult.getFirst()) {
             // Ignite right where the collision happened.
-            igniteBlocks(this.user, collisionResult.getSecond());
+            igniteBlocks(this.user, collisionResult.getSecond(), userConfig.igniteRadius);
         }
 
         return collisionResult.getFirst() ? UpdateResult.Remove : UpdateResult.Continue;
     }
 
-    public static void igniteBlocks(User user, Location location) {
+    public static void igniteBlocks(User user, Location location, double igniteRadius) {
         // The top is used so the ray casted won't collide when going down a layer.
         Location top = location.getBlock().getLocation().add(0.5, 0.95, 0.5);
         Location center = location.getBlock().getLocation().add(0.5, 0.5, 0.5);
         final double NearbyDistSq = 1.5;
 
-        for (Block block : WorldUtil.getNearbyBlocks(center, config.igniteRadius)) {
+        for (Block block : WorldUtil.getNearbyBlocks(center, igniteRadius)) {
             if (block.isLiquid()) continue;
 
             if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) {
@@ -164,7 +168,7 @@ public class FireBlast implements Ability, Burstable {
                     // Cast a ray to see if there's line of sight of the target block to ignite.
                     // This stops it from igniting blocks through walls.
                     Ray ray = new Ray(top.toVector(), checkTop.subtract(top).toVector().normalize());
-                    Location rayLocation = RayCaster.cast(location.getWorld(), ray, config.igniteRadius + 2.0, true);
+                    Location rayLocation = RayCaster.cast(location.getWorld(), ray, igniteRadius + 2.0, true);
 
                     if (rayLocation.distanceSquared(top) < checkTop.distanceSquared(top)) {
                         // The casted ray collided with something before it reached the target ignite block.
@@ -193,7 +197,7 @@ public class FireBlast implements Ability, Burstable {
         boolean success = !origin.getBlock().isLiquid();
 
         if (success) {
-            user.setCooldown(this);
+            user.setCooldown(this, userConfig.cooldown);
         }
 
         return success;
@@ -201,7 +205,7 @@ public class FireBlast implements Ability, Burstable {
 
     @Override
     public Collection<Collider> getColliders() {
-        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
+        return Collections.singletonList(new Sphere(location.toVector(), userConfig.abilityCollisionRadius, world));
     }
 
     @Override
@@ -225,6 +229,7 @@ public class FireBlast implements Ability, Burstable {
     // Used to initialize the blast for bursts.
     public void initialize(User user, Location location, Vector3D direction) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.direction = direction;
         this.origin = location;
         this.location = location;
@@ -244,12 +249,19 @@ public class FireBlast implements Ability, Burstable {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.RADIUS)
         public double igniteRadius;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
 
         @Override

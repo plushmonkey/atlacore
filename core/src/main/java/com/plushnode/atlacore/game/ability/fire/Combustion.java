@@ -10,6 +10,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
@@ -27,6 +29,7 @@ public class Combustion implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private World world;
     private State state;
     private Location location;
@@ -35,6 +38,7 @@ public class Combustion implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.world = user.getWorld();
         this.state = new ChargeState();
 
@@ -84,7 +88,7 @@ public class Combustion implements Ability {
     @Override
     public Collection<Collider> getColliders() {
         if (state instanceof TravelState) {
-            return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
+            return Collections.singletonList(new Sphere(location.toVector(), userConfig.abilityCollisionRadius, world));
         }
         return Collections.emptyList();
     }
@@ -130,7 +134,7 @@ public class Combustion implements Ability {
         public boolean update() {
             long time = System.currentTimeMillis();
 
-            boolean charged = time >= this.startTime + config.chargeTime;
+            boolean charged = time >= this.startTime + userConfig.chargeTime;
 
             if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
                 return false;
@@ -139,7 +143,7 @@ public class Combustion implements Ability {
             if (user.isSneaking()) {
                 render();
 
-                if (config.explodeOnHit && user.getHealth() < previousHealth) {
+                if (userConfig.explodeOnHit && user.getHealth() < previousHealth) {
                     // Combust at player's location because they took damage while charging.
                     state = new CombustState(user.getLocation(), true);
                     return true;
@@ -197,7 +201,7 @@ public class Combustion implements Ability {
 
             this.startTime = System.currentTimeMillis();
 
-            if (config.explodeOnDeath) {
+            if (userConfig.explodeOnDeath) {
                 removalPolicy.removePolicyType(CannotBendRemovalPolicy.class);
                 removalPolicy.removePolicyType(IsDeadRemovalPolicy.class);
             }
@@ -205,7 +209,7 @@ public class Combustion implements Ability {
 
         @Override
         public boolean update() {
-            if (config.explodeOnDeath && user.isDead()) {
+            if (userConfig.explodeOnDeath && user.isDead()) {
                 state = new CombustState(location);
                 return true;
             }
@@ -213,7 +217,7 @@ public class Combustion implements Ability {
             // Manually handle the region protection check because the CannotBendRemovalPolicy no longer checks it
             // when explodeOnDeath is true. This stops players from firing Combustion and then walking into a
             // protected area.
-            if (config.explodeOnDeath) {
+            if (userConfig.explodeOnDeath) {
                 if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
                     return false;
                 }
@@ -223,10 +227,10 @@ public class Combustion implements Ability {
 
             long time = System.currentTimeMillis();
 
-            if ((time - startTime) < config.aliveTime) {
+            if ((time - startTime) < userConfig.aliveTime) {
                 travel();
             } else {
-                user.setCooldown(Combustion.this);
+                user.setCooldown(Combustion.this, userConfig.cooldown);
                 return false;
             }
 
@@ -236,7 +240,7 @@ public class Combustion implements Ability {
         private void travel() {
             for (double i = 0; i < 10; ++i) {
                 Location previous = location;
-                location = location.add(direction.scalarMultiply(config.speed / 10));
+                location = location.add(direction.scalarMultiply(userConfig.speed / 10));
 
                 render();
 
@@ -246,7 +250,7 @@ public class Combustion implements Ability {
                     return;
                 }
 
-                boolean hit = CollisionUtil.handleEntityCollisions(user, new Sphere(location.toVector(), config.entityCollisionRadius), (entity) -> {
+                boolean hit = CollisionUtil.handleEntityCollisions(user, new Sphere(location.toVector(), userConfig.entityCollisionRadius), (entity) -> {
                     location = entity.getLocation();
                     return true;
                 }, true);
@@ -285,29 +289,29 @@ public class Combustion implements Ability {
             this.waitForRegen = true;
 
             ExplosionMethod explosionMethod;
-            if (config.regenBlocks) {
-                explosionMethod = new RegenExplosionMethod(config.damageBlocks, config.regenTime);
+            if (userConfig.regenBlocks) {
+                explosionMethod = new RegenExplosionMethod(userConfig.damageBlocks, userConfig.regenTime);
             } else {
-                explosionMethod = new PermanentExplosionMethod(config.damageBlocks);
+                explosionMethod = new PermanentExplosionMethod(userConfig.damageBlocks);
                 waitForRegen = false;
             }
 
             double modifier = 0;
             if (misfire) {
-                modifier = config.misfireModifier;
+                modifier = userConfig.misfireModifier;
             }
 
-            int destroyedCount = explosionMethod.explode(location, config.power + modifier, config.damage + modifier, config.fireTick);
+            int destroyedCount = explosionMethod.explode(location, userConfig.power + modifier, userConfig.damage + modifier, userConfig.fireTick);
             if (destroyedCount <= 0) {
                 waitForRegen = false;
             }
 
-            user.setCooldown(Combustion.this);
+            user.setCooldown(Combustion.this, userConfig.cooldown);
         }
 
         @Override
         public boolean update() {
-            return waitForRegen && System.currentTimeMillis() < (this.startTime + config.regenTime);
+            return waitForRegen && System.currentTimeMillis() < (this.startTime + userConfig.regenTime);
         }
     }
 
@@ -471,12 +475,19 @@ public class Combustion implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.STRENGTH)
         public double power;
+        @Attribute(Attributes.DURATION)
         public int fireTick;
+        @Attribute(Attributes.CHARGE_TIME)
         public long chargeTime;
+        @Attribute(Attributes.DURATION)
         public long aliveTime;
         public boolean explodeOnHit;
         public boolean explodeOnDeath;
@@ -485,7 +496,9 @@ public class Combustion implements Ability {
         public double misfireModifier;
         public long regenTime;
 
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
 
         @Override

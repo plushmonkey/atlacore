@@ -10,6 +10,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
@@ -29,6 +31,7 @@ public class FireWall implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private OBB collider;
     private Collection<Block> blocks;
     private long startTime;
@@ -38,21 +41,22 @@ public class FireWall implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.startTime = System.currentTimeMillis();
 
-        if (Math.abs(this.user.getPitch()) > config.maxAngle) {
+        if (Math.abs(this.user.getPitch()) > userConfig.maxAngle) {
             return false;
         }
 
-        double hw = config.width / 2.0;
-        double hh = config.height / 2.0;
-        double ht = config.thickness / 2.0;
+        double hw = userConfig.width / 2.0;
+        double hh = userConfig.height / 2.0;
+        double ht = userConfig.thickness / 2.0;
 
         AABB aabb = new AABB(new Vector3D(-hw, -hh, -ht), new Vector3D(hw, hh, ht));
 
         Vector3D right = VectorUtil.normalizeOrElse(user.getDirection().crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
 
-        Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.range));
+        Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.range));
 
         if (!Game.getProtectionSystem().canBuild(user, location)) {
             return false;
@@ -71,7 +75,7 @@ public class FireWall implements Ability {
                 .filter((b) -> collider.intersects(AABB.BLOCK_BOUNDS.at(b.getLocation())))
                 .collect(Collectors.toList());
 
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
         return true;
     }
 
@@ -86,22 +90,22 @@ public class FireWall implements Ability {
                 Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.6f, 0.6f, 0.6f, 0.0f, 1, location, 257);
             }
 
-            this.nextRenderTime = time + config.renderDelay;
+            this.nextRenderTime = time + userConfig.renderDelay;
         }
 
         if (time > this.nextDamageTime) {
             CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
                 if (entity instanceof LivingEntity) {
-                    ((LivingEntity) entity).damage(config.damage, user);
+                    ((LivingEntity) entity).damage(userConfig.damage, user);
                 }
 
                 return false;
             }, true);
 
-            this.nextDamageTime = time + config.damageDelay;
+            this.nextDamageTime = time + userConfig.damageDelay;
         }
 
-        if (time > startTime + config.duration) {
+        if (time > startTime + userConfig.duration) {
             return UpdateResult.Remove;
         }
 
@@ -137,12 +141,18 @@ public class FireWall implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.HEIGHT)
         public double height;
+        @Attribute(Attributes.RADIUS)
         public double width;
         public double thickness;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.DURATION)
         public long duration;
         public int maxAngle;
         public int renderDelay;

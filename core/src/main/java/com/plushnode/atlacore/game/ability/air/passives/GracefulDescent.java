@@ -14,12 +14,18 @@ public class GracefulDescent implements PassiveAbility {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
-
+        recalculateConfig();
         return true;
+    }
+
+    @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
     }
 
     @Override

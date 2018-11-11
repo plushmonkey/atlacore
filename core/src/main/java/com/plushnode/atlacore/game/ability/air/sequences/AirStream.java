@@ -11,6 +11,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.Flight;
@@ -24,6 +26,7 @@ public class AirStream implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private Location location;
     private Location origin;
     private List<Flight> flights = new ArrayList<>();
@@ -37,16 +40,17 @@ public class AirStream implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.location = user.getEyeLocation();
         this.origin = this.location;
 
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
-                new OutOfRangeRemovalPolicy(user, config.range, () -> origin),
+                new OutOfRangeRemovalPolicy(user, userConfig.range, () -> origin),
                 new SneakingRemovalPolicy(user, true)
         );
 
-        this.collider = new Sphere(location.toVector(), config.radius, user.getWorld());
+        this.collider = new Sphere(location.toVector(), userConfig.radius, user.getWorld());
 
         return true;
     }
@@ -61,8 +65,8 @@ public class AirStream implements Ability {
 
         Location previous = location;
         Vector3D direction = getDirection();
-        location = location.add(direction.scalarMultiply(config.speed));
-        collider = new Sphere(location.toVector(), config.radius, user.getWorld());
+        location = location.add(direction.scalarMultiply(userConfig.speed));
+        collider = new Sphere(location.toVector(), userConfig.radius, user.getWorld());
 
         if (!Game.getProtectionSystem().canBuild(user, location)) {
             return UpdateResult.Remove;
@@ -74,7 +78,7 @@ public class AirStream implements Ability {
 
         // TODO: There's probably a better way to handle this.
         // Either by eliminating vertical movement when max height is reached, or by dropping entities out.
-        if (location.getY() - origin.getY() > config.height) {
+        if (location.getY() - origin.getY() > userConfig.height) {
             return UpdateResult.Remove;
         }
 
@@ -82,7 +86,7 @@ public class AirStream implements Ability {
 
         CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
             if (!affected.containsKey(entity) && !immune.contains(entity)) {
-                affected.put(entity, System.currentTimeMillis() + config.entityDuration);
+                affected.put(entity, System.currentTimeMillis() + userConfig.entityDuration);
 
                 if (entity instanceof Player) {
                     flights.add(Flight.get((User)entity));
@@ -112,7 +116,7 @@ public class AirStream implements Ability {
                 continue;
             }
 
-            force = force.normalize().scalarMultiply(config.speed);
+            force = force.normalize().scalarMultiply(userConfig.speed);
             entity.setVelocity(force);
         }
 
@@ -128,7 +132,7 @@ public class AirStream implements Ability {
             tail.set(tailIndex, newData);
         }
 
-        tailIndex = ++tailIndex % config.tailCount;
+        tailIndex = ++tailIndex % userConfig.tailCount;
 
         for (TailData data : tail) {
             Vector3D side = VectorUtil.normalizeOrElse(Vector3D.PLUS_J.crossProduct(data.direction), Vector3D.PLUS_I);
@@ -140,7 +144,7 @@ public class AirStream implements Ability {
             }
 
             for (double theta = 0; theta < Math.PI * 2; theta += Math.toRadians(45)) {
-                Vector3D offset = VectorUtil.rotate(side, data.direction, theta).normalize().scalarMultiply(config.radius);
+                Vector3D offset = VectorUtil.rotate(side, data.direction, theta).normalize().scalarMultiply(userConfig.radius);
 
                 Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, data.location.add(offset), 257);
             }
@@ -148,7 +152,7 @@ public class AirStream implements Ability {
     }
 
     private Vector3D getDirection() {
-        Location target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), config.range, true, true);
+        Location target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), userConfig.range, true, true);
         Vector3D direction = target.subtract(location).toVector();
 
         if (direction.getNormSq() > 0) {
@@ -160,7 +164,7 @@ public class AirStream implements Ability {
 
     @Override
     public void destroy() {
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
 
         for (Flight flight : flights) {
             User flightUser = flight.getUser();
@@ -204,11 +208,17 @@ public class AirStream implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.RADIUS)
         public double radius;
+        @Attribute(Attributes.DURATION)
         public long entityDuration;
+        @Attribute(Attributes.HEIGHT)
         public double height;
         public int tailCount;
 

@@ -8,6 +8,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.collision.geometry.AABB;
@@ -42,9 +44,9 @@ public class AirScooter implements Ability {
 
     private boolean liquidMovement = true;
     private double liquidClimbSpeed = 0.6;
-    private long minDuration = 100;
 
     private User user;
+    private Config userConfig;
     private HeightPredictor heightPredictor;
     private DoubleSmoother heightSmoother;
     private CollisionDetector collisionDetector = new RelaxedCollisionDetector();
@@ -68,8 +70,9 @@ public class AirScooter implements Ability {
         }
 
         this.user = user;
-        this.heightPredictor = new HeightPredictor(user, config.targetHeight, config.speed);
-        this.heightSmoother = new DoubleSmoother(config.heightTolerance);
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+        this.heightPredictor = new HeightPredictor(user, userConfig.targetHeight, userConfig.speed);
+        this.heightSmoother = new DoubleSmoother(userConfig.heightTolerance);
 
         double dist = WorldUtil.distanceAboveGround(user, groundMaterials);
         // Only activate AirScooter if the player is in the air and near the ground.
@@ -124,7 +127,7 @@ public class AirScooter implements Ability {
 
     @Override
     public void destroy() {
-        user.setCooldown(getDescription());
+        user.setCooldown(getDescription(), userConfig.cooldown);
     }
 
     public void render() {
@@ -155,7 +158,7 @@ public class AirScooter implements Ability {
 
     @Override
     public Collection<Collider> getColliders() {
-        return Collections.singletonList(new Sphere(user.getLocation().toVector(), config.abilityCollisionRadius));
+        return Collections.singletonList(new Sphere(user.getLocation().toVector(), userConfig.abilityCollisionRadius));
     }
 
     @Override
@@ -173,11 +176,11 @@ public class AirScooter implements Ability {
 
         // How far the player is above the ground.
         double height = WorldUtil.distanceAboveGround(user, groundMaterials);
-        double maxHeight = config.targetHeight + 2.0;
+        double maxHeight = userConfig.targetHeight + 2.0;
         double smoothedHeight = heightSmoother.add(height);
 
         if (liquidMovement && user.getLocation().getBlock().isLiquid()) {
-            height = config.targetHeight * (1.0 - liquidClimbSpeed);
+            height = userConfig.targetHeight * (1.0 - liquidClimbSpeed);
         } else {
             // Destroy ability if player gets too far from ground.
             if (smoothedHeight > maxHeight) {
@@ -189,7 +192,7 @@ public class AirScooter implements Ability {
 
         // Calculate the spring force to push the player back to the target height.
         double displacement = height - predictedHeight;
-        double force = -config.springStiffness * displacement;
+        double force = -userConfig.springStiffness * displacement;
 
         double maxForce = 0.5;
         if (Math.abs(force) > maxForce) {
@@ -197,7 +200,7 @@ public class AirScooter implements Ability {
             force = force / Math.abs(force) * maxForce;
         }
 
-        Vector3D velocity = direction.scalarMultiply(config.speed);
+        Vector3D velocity = direction.scalarMultiply(userConfig.speed);
         // Set y to force.
         velocity = velocity.add(new Vector3D(0, -velocity.getY() + force, 0.0));
 
@@ -228,7 +231,7 @@ public class AirScooter implements Ability {
 
             double playerSpeed = VectorUtil.clearAxis(user.getVelocity(), 1).getNorm();
 
-            front = front.add(direction.scalarMultiply(Math.max(config.speed, playerSpeed)));
+            front = front.add(direction.scalarMultiply(Math.max(userConfig.speed, playerSpeed)));
 
             return isCollision(front);
         }
@@ -306,11 +309,14 @@ public class AirScooter implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
         public double targetHeight;
         public double springStiffness;
         public int heightTolerance;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
 
         public Config() {

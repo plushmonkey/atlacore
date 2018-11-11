@@ -11,6 +11,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.Flight;
@@ -27,6 +29,7 @@ public class AirSuction implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private World world;
     private Location origin;
     private Location start;
@@ -58,13 +61,14 @@ public class AirSuction implements Ability {
         }
 
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.world = user.getWorld();
         this.launched = false;
         this.selectedOrigin = false;
 
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
-                new OutOfRangeRemovalPolicy(user, config.selectOutOfRange, () -> origin),
+                new OutOfRangeRemovalPolicy(user, userConfig.selectOutOfRange, () -> origin),
                 new SwappedSlotsRemovalPolicy<>(user, AirSuction.class),
                 new OutOfWorldRemovalPolicy(user)
         );
@@ -99,16 +103,16 @@ public class AirSuction implements Ability {
         if (!launched) {
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
                     (float)Math.random(), (float)Math.random(), (float)Math.random(), (float)Math.random(),
-                    config.selectParticles, origin, 257);
+                    userConfig.selectParticles, origin, 257);
         } else {
             Location previous = location;
 
-            location = location.add(direction.scalarMultiply(config.speed));
+            location = location.add(direction.scalarMultiply(userConfig.speed));
 
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
-                    0.275f, 0.275f, 0.275f, 0.0f, config.particles, location, 257);
+                    0.275f, 0.275f, 0.275f, 0.0f, userConfig.particles, location, 257);
 
-            if (location.distanceSquared(origin) <= config.speed * config.speed) {
+            if (location.distanceSquared(origin) <= userConfig.speed * userConfig.speed) {
                 return UpdateResult.Remove;
             }
 
@@ -116,7 +120,7 @@ public class AirSuction implements Ability {
                 return UpdateResult.Remove;
             }
 
-            Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
+            Sphere collider = new Sphere(location.toVector(), userConfig.entityCollisionRadius);
 
             // Handle user separately from the general entity collision.
             if (this.selectedOrigin) {
@@ -144,9 +148,9 @@ public class AirSuction implements Ability {
     }
 
     private boolean affect(Entity entity) {
-        double factor = config.push;
+        double factor = userConfig.push;
 
-        factor *= 1.0 - (location.distance(origin) / (2 * config.range));
+        factor *= 1.0 - (location.distance(origin) / (2 * userConfig.range));
 
         // Reduce the push if the player is on the ground.
         if (entity.equals(user) && WorldUtil.isOnGround(entity)) {
@@ -179,7 +183,7 @@ public class AirSuction implements Ability {
     private void selectOrigin() {
         Ray ray = new Ray(user.getEyeLocation(), user.getDirection());
 
-        this.origin = RayCaster.cast(user.getWorld(), ray, config.selectRange, true);
+        this.origin = RayCaster.cast(user.getWorld(), ray, userConfig.selectRange, true);
         // Move origin back slightly so it doesn't collide with ground.
         this.origin = this.origin.subtract(user.getDirection().scalarMultiply(BLOCK_COLLISION_RADIUS));
 
@@ -191,7 +195,7 @@ public class AirSuction implements Ability {
 
         // Shrink the ray distance so it doesn't go over the cap.
         double rangeShrink = Math.max(0.0, user.getDirection().dotProduct(Vector3D.PLUS_J) * 1.8);
-        Location target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), config.range - rangeShrink, true, true);
+        Location target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), userConfig.range - rangeShrink, true, true);
         this.location = target;
         this.start = location;
         this.direction = origin.subtract(target).toVector().normalize();
@@ -200,9 +204,9 @@ public class AirSuction implements Ability {
         removalPolicy.removePolicyType(OutOfRangeRemovalPolicy.class);
         removalPolicy.removePolicyType(SwappedSlotsRemovalPolicy.class);
 
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
 
-        return location.distanceSquared(origin) <= config.range * config.range;
+        return location.distanceSquared(origin) <= userConfig.range * userConfig.range;
     }
 
     @Override
@@ -216,7 +220,7 @@ public class AirSuction implements Ability {
             return Collections.emptyList();
         }
 
-        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
+        return Collections.singletonList(new Sphere(location.toVector(), userConfig.abilityCollisionRadius, world));
     }
 
     @Override
@@ -238,15 +242,23 @@ public class AirSuction implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
         public int particles;
+        @Attribute(Attributes.STRENGTH)
         public double push;
 
+        @Attribute(Attributes.SELECTION)
         public double selectRange;
+        @Attribute(Attributes.SELECTION)
         public double selectOutOfRange;
         public int selectParticles;
 

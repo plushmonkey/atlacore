@@ -12,6 +12,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
@@ -35,6 +37,7 @@ public class EarthSmash implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private Boulder boulder;
     private State state;
     private int tick;
@@ -56,11 +59,11 @@ public class EarthSmash implements Ability {
                 double halfSize = eSmash.boulder.getSize() / 2.0;
                 Location center = eSmash.boulder.getBaseBlockLocation().add(halfSize, halfSize, halfSize);
 
-                if (config.flyEnabled && (!WorldUtil.isOnGround(user) || user.getLocation().getY() > center.getY())) {
+                if (eSmash.userConfig.flyEnabled && (!WorldUtil.isOnGround(user) || user.getLocation().getY() > center.getY())) {
                     double halfExtent = halfSize + 0.25;
 
                     Vector3D min = new Vector3D(-halfExtent, 0, -halfExtent);
-                    Vector3D max = new Vector3D(halfExtent, config.flyBoundsSize, halfExtent);
+                    Vector3D max = new Vector3D(halfExtent, eSmash.userConfig.flyBoundsSize, halfExtent);
 
                     // Create a bounding box that encompasses the upper half of the boulder with some extra space around it for activating flight.
                     AABB bounds = new AABB(min, max, center.getWorld()).at(center);
@@ -71,12 +74,12 @@ public class EarthSmash implements Ability {
                     }
                 }
 
-                if (config.grabEnabled) {
-                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.grabRange, true);
+                if (eSmash.userConfig.grabEnabled) {
+                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), eSmash.userConfig.grabRange, true);
 
                     if (block != null) {
                         if (eSmash.isBoulderBlock(block)) {
-                            double distance = Math.min(center.distance(user.getEyeLocation()), config.grabRange);
+                            double distance = Math.min(center.distance(user.getEyeLocation()), eSmash.userConfig.grabRange);
                             eSmash.enterHoldState(distance);
                         }
                     }
@@ -90,7 +93,7 @@ public class EarthSmash implements Ability {
                 EarthSmash eSmash = earthSmashes.get(0);
 
                 if (eSmash.state instanceof HoldState) {
-                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.grabRange, true);
+                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), eSmash.userConfig.grabRange, true);
                     if (block != null && eSmash.isBoulderBlock(block)) {
                         eSmash.enterTravelState();
                     }
@@ -102,6 +105,7 @@ public class EarthSmash implements Ability {
             return false;
         }
 
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.state = new ChargeState();
 
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
@@ -116,7 +120,7 @@ public class EarthSmash implements Ability {
     public UpdateResult update() {
         long time = System.currentTimeMillis();
 
-        if (time > startTime + config.maxDuration || this.removalPolicy.shouldRemove()) {
+        if (time > startTime + userConfig.maxDuration || this.removalPolicy.shouldRemove()) {
             return remove();
         }
 
@@ -224,7 +228,7 @@ public class EarthSmash implements Ability {
             // Refresh the global start timer so it doesn't time out while charging.
             startTime = time;
 
-            if (time >= chargeStartTime + config.chargeTime) {
+            if (time >= chargeStartTime + userConfig.chargeTime) {
                 Vector3D direction = user.getDirection();
                 Location location = user.getEyeLocation().add(direction);
 
@@ -234,7 +238,7 @@ public class EarthSmash implements Ability {
                 Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
 
                 if (!user.isSneaking()) {
-                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.selectRange, true);
+                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.selectRange, true);
                     if (block == null) {
                         return false;
                     }
@@ -264,7 +268,7 @@ public class EarthSmash implements Ability {
                 }
             }
 
-            return count >= config.minColumns;
+            return count >= userConfig.minColumns;
         }
     }
 
@@ -329,8 +333,8 @@ public class EarthSmash implements Ability {
 
         private void clearRaiseArea(Location prevBase, List<Layer> prevBoulderState) {
             if (!prevBase.equals(boulder.getBase())) {
-                if (tick < config.radius && tick > 0) {
-                    Layer layer = prevBoulderState.get(config.radius / 2);
+                if (tick < userConfig.radius && tick > 0) {
+                    Layer layer = prevBoulderState.get(userConfig.radius / 2);
 
                     for (int y = 0; y < boulder.getSize(); ++y) {
                         for (int x = 0; x < boulder.getSize(); ++x) {
@@ -418,7 +422,7 @@ public class EarthSmash implements Ability {
                     Vector3D vel = entity.getVelocity();
                     // Preserve horizontal movement while setting vertical velocity.
                     // This isn't accumulated so the player doesn't fly high into the air.
-                    Vector3D newVelocity = new Vector3D(vel.getX(), config.raiseEntityPush, vel.getZ());
+                    Vector3D newVelocity = new Vector3D(vel.getX(), userConfig.raiseEntityPush, vel.getZ());
 
                     entity.setVelocity(newVelocity);
                     return false;
@@ -499,15 +503,15 @@ public class EarthSmash implements Ability {
 
         @Override
         public boolean updateState() {
-            if (!user.isSneaking() || System.currentTimeMillis() > startTime + config.flyDuration) {
+            if (!user.isSneaking() || System.currentTimeMillis() > startTime + userConfig.flyDuration) {
                 state = null;
                 flight.setFlying(false);
                 flight.release();
-                user.setCooldown(getDescription());
+                user.setCooldown(getDescription(), userConfig.cooldown);
                 return false;
             }
 
-            Vector3D velocity = user.getDirection().scalarMultiply(config.flySpeed);
+            Vector3D velocity = user.getDirection().scalarMultiply(userConfig.flySpeed);
             user.setVelocity(velocity);
 
             double halfSize = boulder.getSize() / 2.0;
@@ -535,7 +539,7 @@ public class EarthSmash implements Ability {
             this.direction = user.getDirection();
             this.start = boulder.getBase();
 
-            user.setCooldown(getDescription(), config.cooldown);
+            user.setCooldown(getDescription(), userConfig.cooldown);
         }
 
         @Override
@@ -543,9 +547,9 @@ public class EarthSmash implements Ability {
             // Refresh the global start timer so it doesn't time out during travel state.
             startTime = System.currentTimeMillis();
 
-            Location newBase = boulder.getBase().add(direction.scalarMultiply(config.shootSpeed));
+            Location newBase = boulder.getBase().add(direction.scalarMultiply(userConfig.shootSpeed));
 
-            if (newBase.distanceSquared(start) > config.shootRange * config.shootRange) {
+            if (newBase.distanceSquared(start) > userConfig.shootRange * userConfig.shootRange) {
                 state = null;
                 return false;
             }
@@ -559,13 +563,13 @@ public class EarthSmash implements Ability {
             CollisionUtil.handleEntityCollisions(user, bounds, (entity) -> {
                 if (hitEntities.contains(entity)) return false;
 
-                ((LivingEntity)entity).damage(config.shootDamage);
+                ((LivingEntity)entity).damage(userConfig.shootDamage);
 
                 Vector3D toEntity = entity.getLocation().subtract(boulderCenter).toVector();
-                toEntity = VectorUtil.setY(toEntity, config.shootKnockup);
+                toEntity = VectorUtil.setY(toEntity, userConfig.shootKnockup);
                 Vector3D velocity = VectorUtil.normalizeOrElse(toEntity, Vector3D.PLUS_I);
 
-                entity.setVelocity(velocity.scalarMultiply(config.shootKnockback));
+                entity.setVelocity(velocity.scalarMultiply(userConfig.shootKnockback));
                 hitEntities.add(entity);
                 return false;
             }, true);
@@ -611,7 +615,7 @@ public class EarthSmash implements Ability {
         }
     }
 
-    private static class Boulder {
+    private class Boulder {
         private List<Layer> layers = new ArrayList<>();
         private Location base;
         private boolean canRender;
@@ -619,8 +623,8 @@ public class EarthSmash implements Ability {
         public Boulder(Block selectedBlock) {
             this.canRender = true;
 
-            for (int i = 0; i < config.radius; ++i) {
-                layers.add(new Layer(config.radius));
+            for (int i = 0; i < userConfig.radius; ++i) {
+                layers.add(new Layer(userConfig.radius));
             }
 
             double offset = Math.floor(getSize() / 2.0);
@@ -786,26 +790,39 @@ public class EarthSmash implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.RADIUS)
         public int radius;
+        @Attribute(Attributes.CHARGE_TIME)
         public long chargeTime;
+        @Attribute(Attributes.SELECTION)
         public double selectRange;
+        @Attribute(Attributes.DURATION)
         public long maxDuration;
         public int minColumns;
         public double raiseEntityPush;
 
         public boolean grabEnabled;
+        @Attribute(Attributes.SELECTION)
         public double grabRange;
 
+        @Attribute(Attributes.RANGE)
         public double shootRange;
+        @Attribute(Attributes.SPEED)
         public double shootSpeed;
+        @Attribute(Attributes.DAMAGE)
         public double shootDamage;
+        @Attribute(Attributes.STRENGTH)
         public double shootKnockback;
+        @Attribute(Attributes.STRENGTH)
         public double shootKnockup;
 
         public boolean flyEnabled;
+        @Attribute(Attributes.SPEED)
         public double flySpeed;
         public double flyBoundsSize;
+        @Attribute(Attributes.DURATION)
         public long flyDuration;
 
         @Override

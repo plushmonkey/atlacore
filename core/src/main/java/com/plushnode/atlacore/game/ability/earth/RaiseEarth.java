@@ -11,6 +11,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
@@ -29,6 +31,7 @@ public class RaiseEarth implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private List<Block> affected = new ArrayList<>();
     private List<Column> columns = new ArrayList<>();
     private long duration;
@@ -39,6 +42,7 @@ public class RaiseEarth implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         boolean wall = method == ActivationMethod.Sneak;
 
         double selectRange;
@@ -46,18 +50,18 @@ public class RaiseEarth implements Ability {
         int width = 1;
 
         if (wall) {
-            cooldown = config.wallCooldown;
-            this.duration = config.wallDuration;
-            this.interval = config.wallInterval;
-            this.maxHeight = config.wallMaxHeight;
-            selectRange = config.wallSelectRange;
-            width = config.wallWidth;
+            cooldown = userConfig.wallCooldown;
+            this.duration = userConfig.wallDuration;
+            this.interval = userConfig.wallInterval;
+            this.maxHeight = userConfig.wallMaxHeight;
+            selectRange = userConfig.wallSelectRange;
+            width = userConfig.wallWidth;
         } else {
-            cooldown = config.columnCooldown;
-            this.duration = config.columnDuration;
-            this.interval = config.columnInterval;
-            this.maxHeight = config.columnMaxHeight;
-            selectRange = config.columnSelectRange;
+            cooldown = userConfig.columnCooldown;
+            this.duration = userConfig.columnDuration;
+            this.interval = userConfig.columnInterval;
+            this.maxHeight = userConfig.columnMaxHeight;
+            selectRange = userConfig.columnSelectRange;
         }
 
         Block selection = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), selectRange, true);
@@ -287,16 +291,25 @@ public class RaiseEarth implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long columnCooldown;
+        @Attribute(Attributes.DURATION)
         public long columnDuration;
         public long columnInterval;
+        @Attribute(Attributes.HEIGHT)
         public int columnMaxHeight;
+        @Attribute(Attributes.SELECTION)
         public double columnSelectRange;
+        @Attribute(Attributes.COOLDOWN)
         public long wallCooldown;
+        @Attribute(Attributes.DURATION)
         public long wallDuration;
         public long wallInterval;
+        @Attribute(Attributes.HEIGHT)
         public int wallMaxHeight;
+        @Attribute(Attributes.SELECTION)
         public double wallSelectRange;
+        @Attribute(Attributes.RADIUS)
         public int wallWidth;
 
         @Override

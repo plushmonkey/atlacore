@@ -9,6 +9,8 @@ import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.PassiveAbility;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
@@ -26,12 +28,19 @@ public class DensityShift implements PassiveAbility {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        recalculateConfig();
 
         return true;
+    }
+
+    @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
     }
 
     @Override
@@ -59,7 +68,7 @@ public class DensityShift implements PassiveAbility {
             AABB bounds = block.getBounds().at(block.getLocation());
 
             // Horizontally adjacent blocks aren't sufficient for softening a landing.
-            if (bounds.getPosition().getY() >= userBounds.getPosition().getY()) continue;
+            if (bounds.getPosition().getY() > userBounds.getPosition().getY()) continue;
 
             if (userBounds.intersects(bounds)) {
                 return true;
@@ -69,8 +78,13 @@ public class DensityShift implements PassiveAbility {
         return false;
     }
 
-    public static void softenArea(Location location) {
-        List<Block> nearby = WorldUtil.getNearbyBlocks(location, config.radius).stream()
+    public static void softenArea(User user, Location location) {
+        List<DensityShift> instances = Game.getAbilityInstanceManager().getPlayerInstances(user, DensityShift.class);
+        if (instances.isEmpty()) return;
+
+        DensityShift instance = instances.get(0);
+
+        List<Block> nearby = WorldUtil.getNearbyBlocks(location, instance.userConfig.radius).stream()
                 .filter((b) -> !b.getRelative(BlockFace.UP).hasBounds())
                 .filter(MaterialUtil::isEarthbendable)
                 .filter((b) -> b.getRelative(BlockFace.DOWN).hasBounds())
@@ -81,10 +95,10 @@ public class DensityShift implements PassiveAbility {
             Block above = block.getRelative(BlockFace.UP);
 
             if (!MaterialUtil.isAir(above.getType()) && MaterialUtil.isTransparent(above)) {
-                new TempBlock(above, Material.AIR, config.duration);
+                new TempBlock(above, Material.AIR, instance.userConfig.duration);
             }
 
-            new TempBlock(block, Material.SAND, config.duration);
+            new TempBlock(block, Material.SAND, instance.userConfig.duration);
         }
     }
 
@@ -110,7 +124,9 @@ public class DensityShift implements PassiveAbility {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.DURATION)
         public long duration;
+        @Attribute(Attributes.RADIUS)
         public double radius;
 
         @Override

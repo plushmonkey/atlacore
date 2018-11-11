@@ -2,13 +2,14 @@ package com.plushnode.atlacore.game.ability.air.sequences;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
-import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.ParticleStream;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.math.CubicHermiteSpline;
 import com.plushnode.atlacore.platform.*;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -24,6 +25,7 @@ public class AirSweep implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private long startTime;
     private CubicHermiteSpline spline;
     private List<ParticleStream> streams;
@@ -34,12 +36,13 @@ public class AirSweep implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.startTime = System.currentTimeMillis();
         this.spline = new CubicHermiteSpline(0.1);
         this.streams = new ArrayList<>();
-        this.linear = "linear".equalsIgnoreCase(config.interpolationMethod);
+        this.linear = "linear".equalsIgnoreCase(userConfig.interpolationMethod);
 
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
 
         return true;
     }
@@ -48,10 +51,10 @@ public class AirSweep implements Ability {
     public UpdateResult update() {
         long time = System.currentTimeMillis();
 
-        if (time < startTime + config.sampleTime) {
+        if (time < startTime + userConfig.sampleTime) {
             // Sample target positions and add them to the spline.
             // These positions get interpolated later.
-            Vector3D position = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.range)).toVector();
+            Vector3D position = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.range)).toVector();
             spline.addKnot(position);
 
             return UpdateResult.Continue;
@@ -69,16 +72,16 @@ public class AirSweep implements Ability {
         }
 
         // Launch a few streams per tick to give it a delay.
-        if (launchCount < config.streamCount) {
+        if (launchCount < userConfig.streamCount) {
             // Only launch enough to hit stream count.
-            int count = Math.min(config.streamCount - launchCount, config.streamCount / 10);
+            int count = Math.min(userConfig.streamCount - launchCount, userConfig.streamCount / 10);
 
             for (int i = 0; i < count; ++i) {
                 // Interpolate based on the initial samples gathered.
-                Vector3D target = spline.interpolate(launchCount / (double)config.streamCount);
+                Vector3D target = spline.interpolate(launchCount / (double)userConfig.streamCount);
                 Vector3D direction = target.subtract(user.getEyeLocation().toVector()).normalize();
 
-                streams.add(new SweepStream(user, user.getEyeLocation(), direction, config.range, config.speed, 0.5, 0.5, config.damage));
+                streams.add(new SweepStream(user, user.getEyeLocation(), direction, userConfig.range, userConfig.speed, 0.5, 0.5, userConfig.damage));
                 ++launchCount;
             }
         }
@@ -91,7 +94,7 @@ public class AirSweep implements Ability {
             }
         }
 
-        return (streams.isEmpty() && launchCount >= config.streamCount) ? UpdateResult.Remove : UpdateResult.Continue;
+        return (streams.isEmpty() && launchCount >= userConfig.streamCount) ? UpdateResult.Remove : UpdateResult.Continue;
     }
 
     @Override
@@ -144,7 +147,7 @@ public class AirSweep implements Ability {
             }
 
             ((LivingEntity) entity).damage(damage, user);
-            entity.setVelocity(direction.scalarMultiply(config.knockback));
+            entity.setVelocity(direction.scalarMultiply(userConfig.knockback));
 
             affected.add(entity);
 
@@ -154,10 +157,15 @@ public class AirSweep implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.STRENGTH)
         public double knockback;
         public int sampleTime;
         public int streamCount;

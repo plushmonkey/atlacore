@@ -31,6 +31,6 @@ public class StandardBlockSetter implements BlockSetter {
 
     @Override
     public void setBlock(BlockState state) {
-        state.update();
+        state.update(true);
     }
 }

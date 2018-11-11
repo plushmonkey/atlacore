@@ -6,6 +6,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.BurstAbility;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
@@ -17,12 +19,14 @@ public class FireBurst extends BurstAbility {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private long startTime;
     private boolean released;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.startTime = System.currentTimeMillis();
         this.released = false;
 
@@ -63,10 +67,10 @@ public class FireBurst extends BurstAbility {
             if (!user.isSneaking()) {
                 if (sphereCharged) {
                     createBurst(user, 0.0, Math.PI, Math.toRadians(10), 0, Math.PI * 2, Math.toRadians(10), FireBlast.class);
-                    setRenderInterval(config.sphereRenderInterval);
-                    setRenderParticleCount(config.sphereParticlesPerBlast);
+                    setRenderInterval(userConfig.sphereRenderInterval);
+                    setRenderParticleCount(userConfig.sphereParticlesPerBlast);
                     this.released = true;
-                    user.setCooldown(this, config.sphereCooldown);
+                    user.setCooldown(this, userConfig.sphereCooldown);
                 }
 
                 if (!this.released && coneCharged) {
@@ -105,11 +109,11 @@ public class FireBurst extends BurstAbility {
     }
 
     public boolean isSphereCharged() {
-        return System.currentTimeMillis() >= startTime + config.sphereChargeTime;
+        return System.currentTimeMillis() >= startTime + userConfig.sphereChargeTime;
     }
 
     public boolean isConeCharged() {
-        return System.currentTimeMillis() >= startTime + config.coneChargeTime;
+        return System.currentTimeMillis() >= startTime + userConfig.coneChargeTime;
     }
 
     public static void activateCone(User user) {
@@ -124,11 +128,11 @@ public class FireBurst extends BurstAbility {
 
     private void releaseCone() {
         createCone(user, FireBlast.class);
-        setRenderInterval(config.coneRenderInterval);
-        setRenderParticleCount(config.coneParticlesPerBlast);
+        setRenderInterval(userConfig.coneRenderInterval);
+        setRenderParticleCount(userConfig.coneParticlesPerBlast);
         this.released = true;
 
-        user.setCooldown(this, config.coneCooldown);
+        user.setCooldown(this, userConfig.coneCooldown);
     }
 
     public static class Config extends Configurable {
@@ -136,12 +140,16 @@ public class FireBurst extends BurstAbility {
 
         public int sphereParticlesPerBlast;
         public int sphereRenderInterval;
+        @Attribute(Attributes.CHARGE_TIME)
         public int sphereChargeTime;
+        @Attribute(Attributes.COOLDOWN)
         public long sphereCooldown;
 
         public int coneParticlesPerBlast;
         public int coneRenderInterval;
+        @Attribute(Attributes.CHARGE_TIME)
         public int coneChargeTime;
+        @Attribute(Attributes.COOLDOWN)
         public long coneCooldown;
 
         @Override

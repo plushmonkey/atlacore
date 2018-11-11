@@ -9,6 +9,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.ParticleEffect;
@@ -23,6 +25,7 @@ public class JetBlaze implements Ability {
     public static Config config = new Config();
 
     private FireJet jet;
+    private Config userConfig;
     private List<Entity> affected = new ArrayList<>();
 
     @Override
@@ -41,11 +44,13 @@ public class JetBlaze implements Ability {
             return false;
         }
 
-        jet.setDuration(config.duration);
-        jet.setSpeed(config.speed);
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
 
-        user.setCooldown(jet, config.cooldown);
-        user.setCooldown(this);
+        jet.setDuration(userConfig.duration);
+        jet.setSpeed(userConfig.speed);
+
+        user.setCooldown(jet, userConfig.cooldown);
+        user.setCooldown(this, userConfig.cooldown);
 
         return true;
     }
@@ -60,13 +65,13 @@ public class JetBlaze implements Ability {
                 0.6f, 0.6f, 0.6f, 0.0f, 20,
                 getUser().getLocation(), 257);
 
-        Sphere collider = new Sphere(getUser().getLocation().toVector(), config.entityCollisionRadius);
+        Sphere collider = new Sphere(getUser().getLocation().toVector(), userConfig.entityCollisionRadius);
         
         CollisionUtil.handleEntityCollisions(getUser(), collider, (entity) -> {
             if (entity instanceof LivingEntity && !affected.contains(entity)) {
                 affected.add(entity);
-                ((LivingEntity) entity).damage(config.damage, getUser());
-                FireTick.set(entity, config.fireTicks);
+                ((LivingEntity) entity).damage(userConfig.damage, getUser());
+                FireTick.set(entity, userConfig.fireTicks);
             }
 
             return false;
@@ -97,11 +102,17 @@ public class JetBlaze implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.DURATION)
         public long duration;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.DURATION)
         public int fireTicks;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
 
         @Override

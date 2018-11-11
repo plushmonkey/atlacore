@@ -2,13 +2,14 @@ package com.plushnode.atlacore.game.ability.fire.sequences;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
-import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.ParticleStream;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
@@ -24,6 +25,7 @@ public class FireSpin implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private List<ParticleStream> streams = new ArrayList<>();
 
     @Override
@@ -38,7 +40,9 @@ public class FireSpin implements Ability {
             return false;
         }
 
-        user.setCooldown(this);
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+
+        user.setCooldown(this, userConfig.cooldown);
 
         Location origin = user.getLocation().add(0, 1, 0);
 
@@ -102,8 +106,8 @@ public class FireSpin implements Ability {
 
     private class FireSpinStream extends ParticleStream {
         public FireSpinStream(Location origin, Vector3D direction) {
-            super(user, origin, direction, config.range, config.speed,
-                    config.entityCollisionRadius, config.abilityCollisionRadius, config.damage);
+            super(user, origin, direction, userConfig.range, userConfig.speed,
+                    userConfig.entityCollisionRadius, userConfig.abilityCollisionRadius, userConfig.damage);
         }
 
         @Override
@@ -116,7 +120,7 @@ public class FireSpin implements Ability {
             if (super.onEntityHit(entity)) {
                 Vector3D direction = getLocation().subtract(getOrigin()).toVector().normalize();
 
-                entity.setVelocity(direction.scalarMultiply(config.knockback));
+                entity.setVelocity(direction.scalarMultiply(userConfig.knockback));
                 return true;
             }
 
@@ -126,12 +130,19 @@ public class FireSpin implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
+        @Attribute(Attributes.STRENGTH)
         public double knockback;
 
         @Override

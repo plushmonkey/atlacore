@@ -95,6 +95,8 @@ public class PlayerListener implements Listener {
 
         if (player == null) return;
 
+        Game.getAttributeSystem().clearModifiers(player);
+
         Game.getPlayerService().savePlayer(player, (p) -> {
             Game.info(p.getName() + " saved to database.");
         });
@@ -124,7 +126,7 @@ public class PlayerListener implements Listener {
         if (user.hasElement(Elements.EARTH) && DensityShift.isSoftened(user)) {
             Block block = user.getLocation().getBlock().getRelative(BlockFace.DOWN);
             Location location = block.getLocation().add(0.5, 0.5, 0.5);
-            DensityShift.softenArea(location);
+            DensityShift.softenArea(user, location);
             event.setCancelled(true);
         }
 

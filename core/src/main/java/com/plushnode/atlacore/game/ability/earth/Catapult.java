@@ -7,6 +7,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
@@ -22,6 +24,7 @@ public class Catapult implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private boolean launched;
     private Block base;
     private long startTime;
@@ -29,6 +32,7 @@ public class Catapult implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.launched = false;
         this.startTime = System.currentTimeMillis();
 
@@ -41,15 +45,15 @@ public class Catapult implements Ability {
         if (!launched) {
             Vector3D direction = user.getDirection();
 
-            if (Vector3D.angle(Vector3D.PLUS_J, direction) > Math.toRadians(config.angle)) {
+            if (Vector3D.angle(Vector3D.PLUS_J, direction) > Math.toRadians(userConfig.angle)) {
                 direction = Vector3D.PLUS_J;
             }
 
-            Location target = user.getLocation().add(direction.scalarMultiply(config.strength));
+            Location target = user.getLocation().add(direction.scalarMultiply(userConfig.strength));
             Vector3D force = target.subtract(user.getLocation()).toVector();
 
             user.setVelocity(force);
-            user.setCooldown(this);
+            user.setCooldown(this, userConfig.cooldown);
             launched = true;
         }
 
@@ -118,8 +122,10 @@ public class Catapult implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
         public int angle;
+        @Attribute(Attributes.STRENGTH)
         public double strength;
 
         @Override

@@ -5,6 +5,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
@@ -24,7 +26,7 @@ public class Blaze implements Ability {
     public static Config config = new Config();
 
     private User user;
-
+    private Config userConfig;
     private Location location;
     private List<FireStream> fireStreams;
 
@@ -37,6 +39,8 @@ public class Blaze implements Ability {
         if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
             return false;
         }
+
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
 
         int arcBegin = 0;
         int arcEnd = 360;
@@ -53,10 +57,10 @@ public class Blaze implements Ability {
             Vector3D direction = VectorUtil.normalizeOrElse(VectorUtil.clearAxis(user.getDirection(), 1), Vector3D.PLUS_I);
             direction = VectorUtil.rotate(direction, Vector3D.PLUS_J, angle).normalize();
 
-            fireStreams.add(new FireStream(direction, config.range));
+            fireStreams.add(new FireStream(direction, userConfig.range));
         }
 
-        user.setCooldown(getDescription());
+        user.setCooldown(getDescription(), userConfig.cooldown);
         return true;
     }
 
@@ -191,7 +195,9 @@ public class Blaze implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.RANGE)
         public double range;
 
         @Override

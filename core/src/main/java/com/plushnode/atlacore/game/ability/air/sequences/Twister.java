@@ -10,6 +10,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
@@ -26,6 +28,7 @@ public class Twister implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private World world;
     private long startTime;
     private Location base;
@@ -38,6 +41,7 @@ public class Twister implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.world = user.getWorld();
         this.startTime = System.currentTimeMillis();
         this.direction = user.getDirection();
@@ -51,23 +55,23 @@ public class Twister implements Ability {
         }
 
         this.origin = base;
-        this.height = config.height;
+        this.height = userConfig.height;
 
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
 
         return true;
     }
 
     @Override
     public UpdateResult update() {
-        base = base.add(direction.scalarMultiply(config.speed));
+        base = base.add(direction.scalarMultiply(userConfig.speed));
         base = RayCaster.cast(user, new Ray(base.add(0, 3.5, 0).toVector(), Vector3D.MINUS_J), 7.0, true, false);
 
         if (!isAcceptableBase()) {
             return UpdateResult.Remove;
         }
 
-        if (base.distanceSquared(origin) > config.range * config.range) {
+        if (base.distanceSquared(origin) > userConfig.range * userConfig.range) {
             return UpdateResult.Remove;
         }
 
@@ -87,7 +91,7 @@ public class Twister implements Ability {
         colliders.clear();
         for (int i = 0; i < height - 1; ++i) {
             Location location = base.add(0, i, 0);
-            double r = config.proximity + config.radius * (i / config.height);
+            double r = userConfig.proximity + userConfig.radius * (i / userConfig.height);
             AABB aabb = new AABB(new Vector3D(-r, 0, -r), new Vector3D(r, 1, r)).at(location);
 
             colliders.add(new Disc(new OBB(aabb, world), new Sphere(location.toVector(), r, world)));
@@ -104,7 +108,7 @@ public class Twister implements Ability {
 
         for (Entity entity : affected) {
             Vector3D forceDirection = base.add(0, height, 0).subtract(entity.getLocation()).toVector().normalize();
-            Vector3D force = forceDirection.scalarMultiply(config.speed);
+            Vector3D force = forceDirection.scalarMultiply(userConfig.speed);
             entity.setVelocity(force);
         }
 
@@ -113,20 +117,20 @@ public class Twister implements Ability {
 
     private void render() {
         long time = System.currentTimeMillis();
-        double cycleMS = (1000.0 * config.height / config.renderSpeed);
+        double cycleMS = (1000.0 * userConfig.height / userConfig.renderSpeed);
 
-        for (int j = 0; j < config.streams; ++j) {
-            double thetaOffset = j * ((Math.PI * 2) / config.streams);
+        for (int j = 0; j < userConfig.streams; ++j) {
+            double thetaOffset = j * ((Math.PI * 2) / userConfig.streams);
 
-            for (int i = 0; i < config.particlesPerStream; ++i) {
-                double thisTime = time + (i / (double) config.particlesPerStream) * cycleMS;
+            for (int i = 0; i < userConfig.particlesPerStream; ++i) {
+                double thisTime = time + (i / (double) userConfig.particlesPerStream) * cycleMS;
                 double f = (thisTime - startTime) / cycleMS % 1.0;
 
-                double y = f * config.height;
+                double y = f * userConfig.height;
                 double theta = y + thetaOffset;
 
-                double x = config.radius * f * Math.cos(theta);
-                double z = config.radius * f * Math.sin(theta);
+                double x = userConfig.radius * f * Math.cos(theta);
+                double z = userConfig.radius * f * Math.sin(theta);
 
                 if (y > height) {
                     continue;
@@ -182,11 +186,17 @@ public class Twister implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.DURATION)
         public long duration;
+        @Attribute(Attributes.RADIUS)
         public double radius;
+        @Attribute(Attributes.HEIGHT)
         public double height;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
         public double proximity;
 

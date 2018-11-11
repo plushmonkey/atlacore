@@ -7,6 +7,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
@@ -20,6 +22,7 @@ public class FireJet implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private Flight flight;
     private long startTime;
     private double speed;
@@ -28,6 +31,7 @@ public class FireJet implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.startTime = System.currentTimeMillis();
 
         Block block = user.getLocation().getBlock();
@@ -41,11 +45,11 @@ public class FireJet implements Ability {
             return false;
         }
 
-        this.speed = config.speed;
-        this.duration = config.duration;
+        this.speed = userConfig.speed;
+        this.duration = userConfig.duration;
 
         this.flight = Flight.get(user);
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
 
         // Don't use getDescription in the protection check because it's not a harmless action.
         if (ignitable && Game.getProtectionSystem().canBuild(user, block.getLocation())) {
@@ -111,8 +115,11 @@ public class FireJet implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.DURATION)
         private long duration;
 
         @Override

@@ -19,6 +19,7 @@ import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
+import com.plushnode.atlacore.game.attribute.AttributeSystem;
 import com.plushnode.atlacore.game.element.Element;
 import com.plushnode.atlacore.game.element.ElementRegistry;
 import com.plushnode.atlacore.game.element.Elements;
@@ -52,6 +53,7 @@ public class Game {
     private static TempBlockService tempBlockService;
     private static SequenceService sequenceService;
     private static CollisionService collisionService;
+    private static AttributeSystem attributeSystem;
 
     private static DatabaseManager databaseManager = null;
 
@@ -65,6 +67,7 @@ public class Game {
         elementRegistry = new ElementRegistry();
         sequenceService = new SequenceService();
         collisionService = new CollisionService();
+        attributeSystem = new AttributeSystem();
 
         tempBlockService.start();
         sequenceService.start();
@@ -388,6 +391,10 @@ public class Game {
 
     public static TempBlockService getTempBlockService() {
         return tempBlockService;
+    }
+
+    public static AttributeSystem getAttributeSystem() {
+        return attributeSystem;
     }
 
     // Forces all atlacore classes to be loaded. This ensures all of them create their static Config objects.

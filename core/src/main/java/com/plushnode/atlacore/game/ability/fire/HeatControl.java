@@ -10,6 +10,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
@@ -25,6 +27,7 @@ public class HeatControl implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -32,24 +35,25 @@ public class HeatControl implements Ability {
         if (method != ActivationMethod.Punch) return false;
 
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
 
         if (melt()) {
-            user.setCooldown(this, config.meltCooldown);
+            user.setCooldown(this, userConfig.meltCooldown);
         }
 
         if (extinguish()) {
-            user.setCooldown(this, config.extinguishCooldown);
+            user.setCooldown(this, userConfig.extinguishCooldown);
         }
 
         return false;
     }
 
     private boolean melt() {
-        return act(config.meltRange, config.meltRadius, this::isIce);
+        return act(userConfig.meltRange, userConfig.meltRadius, this::isIce);
     }
 
     private boolean extinguish() {
-        return act(config.extinguishRange, config.extinguishRadius, (b) -> b.getType() == Material.FIRE);
+        return act(userConfig.extinguishRange, userConfig.extinguishRadius, (b) -> b.getType() == Material.FIRE);
     }
 
     private boolean act(double range, double radius, Predicate<Block> predicate) {
@@ -134,12 +138,18 @@ public class HeatControl implements Ability {
 
         public int maxFireTicks;
 
+        @Attribute(Attributes.COOLDOWN)
         public long extinguishCooldown;
+        @Attribute(Attributes.RANGE)
         public double extinguishRange;
+        @Attribute(Attributes.RADIUS)
         public double extinguishRadius;
 
+        @Attribute(Attributes.COOLDOWN)
         public long meltCooldown;
+        @Attribute(Attributes.RANGE)
         public double meltRange;
+        @Attribute(Attributes.RADIUS)
         public double meltRadius;
 
         @Override

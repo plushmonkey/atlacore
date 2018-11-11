@@ -9,6 +9,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
@@ -25,6 +27,7 @@ public class Collapse implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private List<Column> columns = new ArrayList<>();
     private int maxHeight;
     private int current;
@@ -33,6 +36,7 @@ public class Collapse implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
 
         Block source = getSource();
 
@@ -42,10 +46,10 @@ public class Collapse implements Ability {
 
         if (method == ActivationMethod.Punch) {
             if (createColumn(source)) {
-                user.setCooldown(this, config.punchCooldown);
+                user.setCooldown(this, userConfig.punchCooldown);
             }
         } else {
-            for (Block block : WorldUtil.getNearbyBlocks(source.getLocation(), config.radius, Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR))) {
+            for (Block block : WorldUtil.getNearbyBlocks(source.getLocation(), userConfig.radius, Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR))) {
                 if (!MaterialUtil.isEarthbendable(block)) continue;
 
                 boolean unique = !columns.stream()
@@ -57,7 +61,7 @@ public class Collapse implements Ability {
             }
 
             if (!columns.isEmpty()) {
-                user.setCooldown(this, config.sneakCooldown);
+                user.setCooldown(this, userConfig.sneakCooldown);
             }
         }
 
@@ -106,7 +110,7 @@ public class Collapse implements Ability {
     }
 
     private Block getSource() {
-        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.selectRange, true);
+        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.selectRange, true);
 
         if (block == null || !MaterialUtil.isEarthbendable(block)) return null;
         if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) return null;
@@ -115,7 +119,7 @@ public class Collapse implements Ability {
     }
 
     private Block getBase(Block block) {
-        for (int i = 0; i < config.height; ++i) {
+        for (int i = 0; i < userConfig.height; ++i) {
             Block below = block.getRelative(BlockFace.DOWN);
 
             if (!below.hasBounds() && !below.isLiquid()) {
@@ -133,10 +137,10 @@ public class Collapse implements Ability {
     }
 
     private int getHeight(Block base) {
-        int height = config.height;
+        int height = userConfig.height;
 
         // Check for empty spaces below the base.
-        for (int i = 0; i < config.height; ++i) {
+        for (int i = 0; i < userConfig.height; ++i) {
             Block current = base.getRelative(BlockFace.DOWN, i + 1);
 
             if (current.isLiquid() || current.hasBounds()) {
@@ -173,27 +177,6 @@ public class Collapse implements Ability {
 
     }
 
-    private static class Config extends Configurable {
-        public boolean enabled;
-        public double selectRange;
-        public int height;
-        public double radius;
-        public long punchCooldown;
-        public long sneakCooldown;
-
-        @Override
-        public void onConfigReload() {
-            CommentedConfigurationNode abilityNode = config.getNode("abilities", "earth", "collapse");
-
-            enabled = abilityNode.getNode("enabled").getBoolean(true);
-            selectRange = abilityNode.getNode("select-range").getDouble(10.0);
-            height = abilityNode.getNode("height").getInt(6);
-            radius = abilityNode.getNode("radius").getDouble(7.0);
-            punchCooldown = abilityNode.getNode("punch-cooldown").getLong(1000);
-            sneakCooldown = abilityNode.getNode("sneak-cooldown").getLong(4000);
-        }
-    }
-
     public static class Column {
         Block base;
         int height;
@@ -217,6 +200,32 @@ public class Collapse implements Ability {
             }
 
             base = base.getRelative(BlockFace.DOWN);
+        }
+    }
+
+    private static class Config extends Configurable {
+        public boolean enabled;
+        @Attribute(Attributes.SELECTION)
+        public double selectRange;
+        @Attribute(Attributes.HEIGHT)
+        public int height;
+        @Attribute(Attributes.RADIUS)
+        public double radius;
+        @Attribute(Attributes.COOLDOWN)
+        public long punchCooldown;
+        @Attribute(Attributes.COOLDOWN)
+        public long sneakCooldown;
+
+        @Override
+        public void onConfigReload() {
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "earth", "collapse");
+
+            enabled = abilityNode.getNode("enabled").getBoolean(true);
+            selectRange = abilityNode.getNode("select-range").getDouble(10.0);
+            height = abilityNode.getNode("height").getInt(6);
+            radius = abilityNode.getNode("radius").getDouble(7.0);
+            punchCooldown = abilityNode.getNode("punch-cooldown").getLong(1000);
+            sneakCooldown = abilityNode.getNode("sneak-cooldown").getLong(4000);
         }
     }
 }

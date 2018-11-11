@@ -6,6 +6,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.policies.removal.OutOfWorldRemovalPolicy;
 import com.plushnode.atlacore.util.VectorUtil;
@@ -29,6 +31,7 @@ public class AirSwipe implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private World world;
     private Location origin;
     private List<AirStream> streams = new ArrayList<>();
@@ -41,6 +44,7 @@ public class AirSwipe implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.world = user.getWorld();
         this.origin = user.getEyeLocation();
         this.startTime = System.currentTimeMillis();
@@ -90,7 +94,7 @@ public class AirSwipe implements Ability {
                 return UpdateResult.Remove;
             }
 
-            if (user.isSneaking() && time >= startTime + config.maxChargeTime) {
+            if (user.isSneaking() && time >= startTime + userConfig.maxChargeTime) {
                 Vector3D direction = user.getDirection();
                 Location location = user.getEyeLocation().add(direction);
 
@@ -100,18 +104,12 @@ public class AirSwipe implements Ability {
                 // Display air particles to the right of the player.
                 Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
             } else if (!user.isSneaking()) {
-                factor = Math.max(1.0, Math.min(1.0, (time - startTime) / (double)config.maxChargeTime) * config.chargeFactor);
+                factor = Math.max(1.0, Math.min(1.0, (time - startTime) / (double)userConfig.maxChargeTime) * userConfig.chargeFactor);
 
                 launch();
             }
         } else {
-            for (Iterator<AirStream> iterator = streams.iterator(); iterator.hasNext(); ) {
-                AirStream stream = iterator.next();
-
-                if (!stream.update()) {
-                    iterator.remove();
-                }
-            }
+            streams.removeIf(stream -> !stream.update());
         }
 
         return (charging || !streams.isEmpty()) ? UpdateResult.Continue : UpdateResult.Remove;
@@ -125,7 +123,7 @@ public class AirSwipe implements Ability {
     private void launch() {
         charging = false;
 
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
 
         origin = user.getEyeLocation();
 
@@ -134,9 +132,9 @@ public class AirSwipe implements Ability {
         Vector3D right = VectorUtil.normalizeOrElse(lookingDir.crossProduct(up), Vector3D.PLUS_I);
         Vector3D rotateAxis = right.crossProduct(lookingDir);
 
-        double halfArc = config.arc / 2;
+        double halfArc = userConfig.arc / 2.0;
 
-        for (double deg = -halfArc; deg <= halfArc; deg += config.arcStep) {
+        for (double deg = -halfArc; deg <= halfArc; deg += userConfig.arcStep) {
             double rads = Math.toRadians(deg);
 
             Vector3D direction = user.getDirection();
@@ -156,7 +154,7 @@ public class AirSwipe implements Ability {
     @Override
     public Collection<Collider> getColliders() {
         return streams.stream()
-                .map((stream) -> new Sphere(stream.location.toVector(), config.abilityCollisionRadius, world))
+                .map((stream) -> new Sphere(stream.location.toVector(), userConfig.abilityCollisionRadius, world))
                 .collect(Collectors.toList());
     }
 
@@ -182,19 +180,19 @@ public class AirSwipe implements Ability {
         // Return false to destroy this stream
         boolean update() {
             Location previous = location;
-            location = location.add(direction.scalarMultiply(config.speed));
+            location = location.add(direction.scalarMultiply(userConfig.speed));
 
             if (!Game.getProtectionSystem().canBuild(user, location)) {
                 return false;
             }
 
-            if (location.distanceSquared(origin) >= config.range * config.range) {
+            if (location.distanceSquared(origin) >= userConfig.range * userConfig.range) {
                 return false;
             }
 
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
 
-            Collider collider = new Sphere(location.toVector(), config.entityCollisionRadius);
+            Collider collider = new Sphere(location.toVector(), userConfig.entityCollisionRadius);
             if (collide(collider)) {
                 return false;
             }
@@ -237,7 +235,7 @@ public class AirSwipe implements Ability {
                 entity.setVelocity(direction.scalarMultiply(factor));
 
                 if (entity instanceof LivingEntity && !affectedEntities.contains(entity)) {
-                    ((LivingEntity) entity).damage(config.damage * factor, user);
+                    ((LivingEntity) entity).damage(userConfig.damage * factor, user);
                     affectedEntities.add(entity);
                     return false;
                 }
@@ -249,15 +247,23 @@ public class AirSwipe implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
         public int arc;
         public int arcStep;
+        @Attribute(Attributes.CHARGE_TIME)
         public long maxChargeTime;
+        @Attribute(Attributes.STRENGTH)
         public double chargeFactor;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
 
         @Override

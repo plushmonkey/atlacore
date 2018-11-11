@@ -7,6 +7,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.fire.FireJet;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.User;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
@@ -14,6 +16,7 @@ public class JetBlast implements Ability {
     public static Config config = new Config();
 
     private FireJet jet;
+    private Config userConfig;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -31,11 +34,13 @@ public class JetBlast implements Ability {
             return false;
         }
 
-        jet.setDuration(config.duration);
-        jet.setSpeed(config.speed);
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
 
-        user.setCooldown(jet, config.cooldown);
-        user.setCooldown(this);
+        jet.setDuration(userConfig.duration);
+        jet.setSpeed(userConfig.speed);
+
+        user.setCooldown(jet, userConfig.cooldown);
+        user.setCooldown(this, userConfig.cooldown);
 
         return true;
     }
@@ -67,8 +72,11 @@ public class JetBlast implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.DURATION)
         public long duration;
 
         @Override

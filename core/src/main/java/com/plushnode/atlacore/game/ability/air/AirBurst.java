@@ -6,6 +6,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.BurstAbility;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
@@ -17,17 +19,19 @@ public class AirBurst extends BurstAbility {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private long startTime;
     private boolean released;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.startTime = System.currentTimeMillis();
         this.released = false;
 
         if (method == ActivationMethod.Fall) {
-            if (user.getFallDistance() < config.fallThreshold || user.isSneaking()) {
+            if (user.getFallDistance() < userConfig.fallThreshold || user.isSneaking()) {
                 return false;
             }
 
@@ -71,10 +75,10 @@ public class AirBurst extends BurstAbility {
             if (!user.isSneaking()) {
                 if (sphereCharged) {
                     createBurst(user, 0.0, Math.PI, Math.toRadians(10), 0, Math.PI * 2, Math.toRadians(10), AirBlast.class);
-                    setRenderInterval(config.sphereRenderInterval);
-                    setRenderParticleCount(config.sphereParticlesPerBlast);
+                    setRenderInterval(userConfig.sphereRenderInterval);
+                    setRenderParticleCount(userConfig.sphereParticlesPerBlast);
                     this.released = true;
-                    user.setCooldown(this, config.sphereCooldown);
+                    user.setCooldown(this, userConfig.sphereCooldown);
                 }
 
                 if (!this.released && coneCharged) {
@@ -113,11 +117,11 @@ public class AirBurst extends BurstAbility {
     }
 
     public boolean isSphereCharged() {
-        return System.currentTimeMillis() >= startTime + config.sphereChargeTime;
+        return System.currentTimeMillis() >= startTime + userConfig.sphereChargeTime;
     }
 
     public boolean isConeCharged() {
-        return System.currentTimeMillis() >= startTime + config.coneChargeTime;
+        return System.currentTimeMillis() >= startTime + userConfig.coneChargeTime;
     }
 
     public static void activateCone(User user) {
@@ -132,39 +136,45 @@ public class AirBurst extends BurstAbility {
 
     private void releaseCone() {
         createCone(user, AirBlast.class);
-        setRenderInterval(config.coneRenderInterval);
-        setRenderParticleCount(config.coneParticlesPerBlast);
+        setRenderInterval(userConfig.coneRenderInterval);
+        setRenderParticleCount(userConfig.coneParticlesPerBlast);
         this.released = true;
 
-        user.setCooldown(this, config.coneCooldown);
+        user.setCooldown(this, userConfig.coneCooldown);
     }
 
     private void releaseFall() {
         createBurst(user, Math.toRadians(75), Math.toRadians(105), Math.toRadians(10), 0, Math.PI * 2, Math.toRadians(10), AirBlast.class);
 
-        setRenderInterval(config.fallRenderInterval);
-        setRenderParticleCount(config.fallParticlesPerBlast);
+        setRenderInterval(userConfig.fallRenderInterval);
+        setRenderParticleCount(userConfig.fallParticlesPerBlast);
         this.released = true;
 
-        user.setCooldown(this, config.fallCooldown);
+        user.setCooldown(this, userConfig.fallCooldown);
     }
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
 
         public int sphereParticlesPerBlast;
         public int sphereRenderInterval;
+        @Attribute(Attributes.CHARGE_TIME)
         public int sphereChargeTime;
+        @Attribute(Attributes.COOLDOWN)
         public long sphereCooldown;
 
         public int coneParticlesPerBlast;
         public int coneRenderInterval;
+        @Attribute(Attributes.CHARGE_TIME)
         public int coneChargeTime;
+        @Attribute(Attributes.COOLDOWN)
         public long coneCooldown;
 
         public int fallParticlesPerBlast;
         public int fallRenderInterval;
+        @Attribute(Attributes.COOLDOWN)
         public long fallCooldown;
         public int fallThreshold;
 

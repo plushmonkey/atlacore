@@ -12,6 +12,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.util.VectorUtil;
@@ -27,6 +29,7 @@ public class FireWheel implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private Location location;
     private Location origin;
     private Vector3D direction;
@@ -42,8 +45,9 @@ public class FireWheel implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.direction = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
-        this.location = this.user.getLocation().add(direction.scalarMultiply(config.speed));
+        this.location = this.user.getLocation().add(direction.scalarMultiply(userConfig.speed));
 
         if (this.location.getBlock().isLiquid()) {
             return false;
@@ -51,12 +55,12 @@ public class FireWheel implements Ability {
 
         World world = user.getWorld();
 
-        AABB bounds = new AABB(new Vector3D(-0.1, -config.radius, -config.radius), new Vector3D(0.1, config.radius, config.radius));
+        AABB bounds = new AABB(new Vector3D(-0.1, -userConfig.radius, -userConfig.radius), new Vector3D(0.1, userConfig.radius, userConfig.radius));
         OBB obb = new OBB(bounds, new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw())), world);
-        Sphere sphere = new Sphere(this.location.toVector(), config.radius, world);
+        Sphere sphere = new Sphere(this.location.toVector(), userConfig.radius, world);
         this.collider = new Disc(obb, sphere);
 
-        CollisionResolution resolution = resolveInitialCollisions(WorldUtil.getNearbyBlocks(location, config.radius * 5), config.radius * 2);
+        CollisionResolution resolution = resolveInitialCollisions(WorldUtil.getNearbyBlocks(location, userConfig.radius * 5), userConfig.radius * 2);
 
         if (resolution == CollisionResolution.Failure) {
             return false;
@@ -65,21 +69,21 @@ public class FireWheel implements Ability {
         this.origin = location;
 
         // Create a separate collider for colliding with entities.
-        AABB entityBounds = new AABB(new Vector3D(-config.entityCollisionRadius, -config.radius, -config.radius), new Vector3D(config.entityCollisionRadius, config.radius, config.radius));
+        AABB entityBounds = new AABB(new Vector3D(-userConfig.entityCollisionRadius, -userConfig.radius, -userConfig.radius), new Vector3D(userConfig.entityCollisionRadius, userConfig.radius, userConfig.radius));
         OBB entityOBB = new OBB(entityBounds, new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw())), world);
-        Sphere entitySphere = new Sphere(this.location.toVector(), Math.max(config.radius, config.entityCollisionRadius), world);
+        Sphere entitySphere = new Sphere(this.location.toVector(), Math.max(userConfig.radius, userConfig.entityCollisionRadius), world);
         this.entityCollider = new Disc(entityOBB, entitySphere);
 
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
 
         return true;
     }
 
     @Override
     public UpdateResult update() {
-        location = location.add(direction.scalarMultiply(config.speed));
+        location = location.add(direction.scalarMultiply(userConfig.speed));
 
-        if (location.distanceSquared(origin) > config.range * config.range) {
+        if (location.distanceSquared(origin) > userConfig.range * userConfig.range) {
             return UpdateResult.Remove;
         }
 
@@ -91,14 +95,14 @@ public class FireWheel implements Ability {
             return UpdateResult.Remove;
         }
 
-        if (location.subtract(0, config.radius + 1, 0).getBlock().isLiquid()) {
+        if (location.subtract(0, userConfig.radius + 1, 0).getBlock().isLiquid()) {
             return UpdateResult.Remove;
         }
 
         Vector3D rotationAxis = VectorUtil.normalizeOrElse(Vector3D.PLUS_J.crossProduct(direction), Vector3D.PLUS_I);
 
         for (double angle = 0; angle < 360; ++angle) {
-            Vector3D offset = VectorUtil.rotate(direction, rotationAxis, Math.toRadians(angle)).scalarMultiply(config.radius);
+            Vector3D offset = VectorUtil.rotate(direction, rotationAxis, Math.toRadians(angle)).scalarMultiply(userConfig.radius);
             Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location.add(offset), 257);
         }
 
@@ -106,7 +110,7 @@ public class FireWheel implements Ability {
 
         boolean hit = CollisionUtil.handleEntityCollisions(user, checkCollider, (entity) -> {
             if (entity instanceof LivingEntity) {
-                ((LivingEntity) entity).damage(config.damage, user);
+                ((LivingEntity) entity).damage(userConfig.damage, user);
                 return true;
             }
 
@@ -122,7 +126,7 @@ public class FireWheel implements Ability {
 
     // Try to resolve wheel location by checking collider-block intersections.
     private boolean resolveMovement() {
-        Collection<Block> nearbyBlocks = WorldUtil.getNearbyBlocks(location, config.radius * 5);
+        Collection<Block> nearbyBlocks = WorldUtil.getNearbyBlocks(location, userConfig.radius * 5);
 
         CollisionResolution resolution = resolveInitialCollisions(nearbyBlocks, 1.0);
 
@@ -221,11 +225,17 @@ public class FireWheel implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.RADIUS)
         public double radius;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
 
         @Override

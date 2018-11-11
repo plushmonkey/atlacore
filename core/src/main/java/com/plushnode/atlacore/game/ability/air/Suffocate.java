@@ -10,6 +10,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.game.conditionals.BendingConditional;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.policies.removal.*;
@@ -22,6 +24,7 @@ public class Suffocate implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private LivingEntity target;
     private long startTime;
     private long nextDamageTime;
@@ -34,10 +37,11 @@ public class Suffocate implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.startTime = System.currentTimeMillis();
         this.started = false;
 
-        target = RayCaster.entityCast(user, new Ray(user.getEyeLocation(), user.getDirection()), config.selectRange, config.selectScale, LivingEntity.class);
+        target = RayCaster.entityCast(user, new Ray(user.getEyeLocation(), user.getDirection()), userConfig.selectRange, userConfig.selectScale, LivingEntity.class);
 
         if (target == null) {
             return false;
@@ -49,7 +53,7 @@ public class Suffocate implements Ability {
 
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
-                new OutOfRangeRemovalPolicy(user, config.range, () -> target.getLocation()),
+                new OutOfRangeRemovalPolicy(user, userConfig.range, () -> target.getLocation()),
                 new SwappedSlotsRemovalPolicy<>(user, Suffocate.class),
                 new OutOfWorldRemovalPolicy(user),
                 new SneakingRemovalPolicy(user, true)
@@ -66,7 +70,7 @@ public class Suffocate implements Ability {
             return UpdateResult.Remove;
         }
 
-        if (time < this.startTime + config.chargeTime) {
+        if (time < this.startTime + userConfig.chargeTime) {
             return UpdateResult.Continue;
         }
 
@@ -76,9 +80,9 @@ public class Suffocate implements Ability {
 
         if (!this.started) {
             this.started = true;
-            this.nextDamageTime = startTime + config.damageDelay;
-            this.nextSlowTime = startTime + config.slowDelay;
-            this.nextBlindTime = startTime + config.blindDelay;
+            this.nextDamageTime = startTime + userConfig.damageDelay;
+            this.nextSlowTime = startTime + userConfig.slowDelay;
+            this.nextBlindTime = startTime + userConfig.blindDelay;
 
             if (target instanceof User) {
                 // Prevent the user from bending.
@@ -87,9 +91,9 @@ public class Suffocate implements Ability {
             }
         }
 
-        if (config.requireConstantAim) {
+        if (userConfig.requireConstantAim) {
             AABB bounds = new AABB(new Vector3D(-0.5, -0.5, -0.5), new Vector3D(0.5, 0.5, 0.5))
-                    .scale(config.constantAimRadius)
+                    .scale(userConfig.constantAimRadius)
                     .at(target.getLocation());
 
             Ray ray = new Ray(user.getEyeLocation(), user.getDirection());
@@ -109,40 +113,40 @@ public class Suffocate implements Ability {
     private void handleEffects() {
         long time = System.currentTimeMillis();
 
-        if (config.damageAmount > 0 && time > this.nextDamageTime) {
-            target.damage(config.damageAmount, user);
-            this.nextDamageTime = time + config.damageInterval;
+        if (userConfig.damageAmount > 0 && time > this.nextDamageTime) {
+            target.damage(userConfig.damageAmount, user);
+            this.nextDamageTime = time + userConfig.damageInterval;
         }
 
-        if (config.slowAmplifier > 0 && time >= this.nextSlowTime) {
+        if (userConfig.slowAmplifier > 0 && time >= this.nextSlowTime) {
             PotionEffect effect = Game.plugin.getPotionFactory().createEffect(
-                    PotionEffectType.SLOWNESS, config.slowInterval / 50, config.slowAmplifier - 1, true, false);
+                    PotionEffectType.SLOWNESS, userConfig.slowInterval / 50, userConfig.slowAmplifier - 1, true, false);
 
             target.addPotionEffect(effect);
 
             this.nextSlowTime = time + config.slowInterval;
         }
 
-        if (config.blindAmplifier > 0 && time >= this.nextBlindTime) {
+        if (userConfig.blindAmplifier > 0 && time >= this.nextBlindTime) {
             PotionEffect effect = Game.plugin.getPotionFactory().createEffect(
-                    PotionEffectType.BLINDNESS, config.blindInterval / 50, config.blindAmplifier - 1, true, false);
+                    PotionEffectType.BLINDNESS, userConfig.blindInterval / 50, userConfig.blindAmplifier - 1, true, false);
 
             target.addPotionEffect(effect);
 
-            this.nextBlindTime = time + config.blindInterval;
+            this.nextBlindTime = time + userConfig.blindInterval;
         }
     }
 
     private void render() {
         long time = System.currentTimeMillis();
-        double rt = (time - startTime) / (double)config.renderRadiusScaleTime;
-        double lt = (time - startTime) / (double)config.renderLayerScaleTime;
+        double rt = (time - startTime) / (double)userConfig.renderRadiusScaleTime;
+        double lt = (time - startTime) / (double)userConfig.renderLayerScaleTime;
         rt = Math.min(1.0, rt);
         lt = Math.min(1.0, lt);
 
-        double r = Math.max(config.renderMinRadius, config.renderMaxRadius * (1.0 - rt));
+        double r = Math.max(userConfig.renderMinRadius, userConfig.renderMaxRadius * (1.0 - rt));
         double height = r * 2;
-        double maxLayers = config.renderLayers;
+        double maxLayers = userConfig.renderLayers;
         double layers = Math.ceil(lt * maxLayers);
         double spacing = height / (maxLayers + 1);
         Location center = target.getLocation().add(0, 1.8 / 2.0, 0);
@@ -162,7 +166,7 @@ public class Suffocate implements Ability {
 
     @Override
     public void destroy() {
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
 
         if (this.started && target instanceof User) {
             // Allow the user to bend again.
@@ -194,24 +198,38 @@ public class Suffocate implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.CHARGE_TIME)
         public long chargeTime;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SELECTION)
         public double selectRange;
+        @Attribute(Attributes.SELECTION)
         public double selectScale;
         public boolean requireConstantAim;
         public double constantAimRadius;
 
+        @Attribute(Attributes.DAMAGE)
         public double damageAmount;
+        @Attribute(Attributes.DURATION)
         public int damageDelay;
+        @Attribute(Attributes.DURATION)
         public int damageInterval;
 
+        @Attribute(Attributes.STRENGTH)
         public int slowAmplifier;
+        @Attribute(Attributes.DURATION)
         public int slowDelay;
+        @Attribute(Attributes.DURATION)
         public int slowInterval;
 
+        @Attribute(Attributes.STRENGTH)
         public int blindAmplifier;
+        @Attribute(Attributes.DURATION)
         public int blindDelay;
+        @Attribute(Attributes.DURATION)
         public int blindInterval;
 
         public int renderRadiusScaleTime;

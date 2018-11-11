@@ -12,6 +12,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
@@ -33,6 +35,7 @@ public class FireShield implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private Shield shield;
     private long startTime;
     private long nextRender;
@@ -41,6 +44,7 @@ public class FireShield implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.startTime = System.currentTimeMillis();
 
         if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
@@ -54,7 +58,7 @@ public class FireShield implements Ability {
 
         if (method == ActivationMethod.Punch) {
             this.shield = new DiscShield();
-            user.setCooldown(this);
+            user.setCooldown(this, userConfig.cooldown);
         } else {
             this.shield = new SphereShield();
         }
@@ -138,9 +142,9 @@ public class FireShield implements Ability {
         @Override
         public boolean update() {
             // project disc in front of player
-            Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.discExtension));
-            double r = config.discRadius;
-            double ht = config.discThickness;
+            Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.discExtension));
+            double r = userConfig.discRadius;
+            double ht = userConfig.discThickness;
 
             AABB aabb = new AABB(new Vector3D(-r, -r, -ht), new Vector3D(r, r, ht));
 
@@ -150,21 +154,21 @@ public class FireShield implements Ability {
             Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
             rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
 
-            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).at(location), new Sphere(location.toVector(), config.discRadius, user.getWorld()));
+            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).at(location), new Sphere(location.toVector(), userConfig.discRadius, user.getWorld()));
 
-            return System.currentTimeMillis() >= startTime + config.discDuration;
+            return System.currentTimeMillis() >= startTime + userConfig.discDuration;
         }
 
         @Override
         public void render() {
-            Location center = user.getEyeLocation().add(user.getDirection().scalarMultiply(config.discExtension));
+            Location center = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.discExtension));
             for (double angle = 0; angle < 360; angle += 20) {
                 Vector3D side = VectorUtil.normalizeOrElse(Vector3D.PLUS_J.crossProduct(user.getDirection()), Vector3D.PLUS_I);
                 // Rotate it circularly around the user's direction
                 Vector3D direction = VectorUtil.rotate(side, user.getDirection(), Math.toRadians(angle));
 
-                for (int i = 0; i < config.discParticleLayers ; ++i) {
-                    Location location = center.add(direction.scalarMultiply(config.discRadius * i / config.discParticleLayers));
+                for (int i = 0; i < userConfig.discParticleLayers ; ++i) {
+                    Location location = center.add(direction.scalarMultiply(userConfig.discRadius * i / userConfig.discParticleLayers));
 
                     Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
                 }
@@ -178,12 +182,12 @@ public class FireShield implements Ability {
 
         @Override
         public long getRenderDelay() {
-            return config.discParticleRenderDelay;
+            return userConfig.discParticleRenderDelay;
         }
 
         @Override
         public int getFireTicks() {
-            return config.discFireTicks;
+            return userConfig.discFireTicks;
         }
     }
 
@@ -201,14 +205,14 @@ public class FireShield implements Ability {
 
         @Override
         public boolean update() {
-            this.sphere = new Sphere(user.getEyeLocation().toVector(), config.shieldRadius, user.getWorld());
+            this.sphere = new Sphere(user.getEyeLocation().toVector(), userConfig.shieldRadius, user.getWorld());
 
             return !user.isSneaking();
         }
 
         @Override
         public void render() {
-            for (Block block : WorldUtil.getNearbyBlocks(user.getEyeLocation(), config.shieldRadius)) {
+            for (Block block : WorldUtil.getNearbyBlocks(user.getEyeLocation(), userConfig.shieldRadius)) {
                 Location location = block.getLocation().add(0.5, 0.5, 0.5);
 
                 Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.6f, 0.6f, 0.6f, 0.0f, 1, location, 257);
@@ -221,30 +225,36 @@ public class FireShield implements Ability {
 
         @Override
         public long getRenderDelay() {
-            return config.shieldParticleRenderDelay;
+            return userConfig.shieldParticleRenderDelay;
         }
 
         @Override
         public int getFireTicks() {
-            return config.shieldFireTicks;
+            return userConfig.shieldFireTicks;
         }
     }
 
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
 
+        @Attribute(Attributes.RADIUS)
         public double discRadius;
+        @Attribute(Attributes.DURATION)
         public long discDuration;
         public double discThickness;
         public double discExtension;
         public int discParticleLayers;
         public long discParticleRenderDelay;
+        @Attribute(Attributes.DURATION)
         public int discFireTicks;
 
+        @Attribute(Attributes.RADIUS)
         public double shieldRadius;
         public long shieldParticleRenderDelay;
+        @Attribute(Attributes.DURATION)
         public int shieldFireTicks;
 
         @Override

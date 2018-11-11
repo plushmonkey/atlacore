@@ -10,6 +10,8 @@ import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.policies.removal.CompositeRemovalPolicy;
@@ -29,6 +31,7 @@ public class FireBlastCharged implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private World world;
     private long startTime;
     private boolean launched;
@@ -44,6 +47,7 @@ public class FireBlastCharged implements Ability {
         }
 
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.world = user.getWorld();
         this.launched = false;
         this.startTime = System.currentTimeMillis();
@@ -104,24 +108,24 @@ public class FireBlastCharged implements Ability {
 
         Location previous = location;
 
-        location = location.add(direction.scalarMultiply(config.speed));
+        location = location.add(direction.scalarMultiply(userConfig.speed));
 
         if (!Game.getProtectionSystem().canBuild(user, location)) {
             return UpdateResult.Remove;
         }
 
-        if (location.distanceSquared(origin) >= config.range * config.range) {
+        if (location.distanceSquared(origin) >= userConfig.range * userConfig.range) {
             return UpdateResult.Remove;
         }
 
-        double displayRadius = Math.max(config.entityCollisionRadius - 1.0, 1.0);
+        double displayRadius = Math.max(userConfig.entityCollisionRadius - 1.0, 1.0);
 
         for (Block block : WorldUtil.getNearbyBlocks(location, displayRadius)) {
             Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.5f, 0.5f, 0.5f, 0.0f, 5, block.getLocation(), 257);
             Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.5f, 0.5f, 0.5f, 0.0f, 2, block.getLocation(), 257);
         }
 
-        Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
+        Sphere collider = new Sphere(location.toVector(), userConfig.entityCollisionRadius);
 
         CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
             if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
@@ -129,7 +133,7 @@ public class FireBlastCharged implements Ability {
             }
 
             LivingEntity living = (LivingEntity) entity;
-            living.damage(config.damage, user);
+            living.damage(userConfig.damage, user);
             return false;
         }, true);
 
@@ -138,14 +142,14 @@ public class FireBlastCharged implements Ability {
 
         if (collisionResult.getFirst()) {
             // Ignite right where the collision happened.
-            FireBlast.igniteBlocks(this.user, collisionResult.getSecond());
+            FireBlast.igniteBlocks(this.user, collisionResult.getSecond(), userConfig.igniteRadius);
         }
 
         return collisionResult.getFirst() ? UpdateResult.Remove : UpdateResult.Continue;
     }
 
     public boolean isCharging() {
-        return System.currentTimeMillis() < startTime + config.chargeTime;
+        return System.currentTimeMillis() < startTime + userConfig.chargeTime;
     }
 
     public boolean isLaunched() {
@@ -162,7 +166,7 @@ public class FireBlastCharged implements Ability {
         boolean success = !origin.getBlock().isLiquid();
 
         if (success) {
-            user.setCooldown(this);
+            user.setCooldown(this, userConfig.cooldown);
         }
 
         removalPolicy.removePolicyType(SwappedSlotsRemovalPolicy.class);
@@ -181,7 +185,7 @@ public class FireBlastCharged implements Ability {
             return Collections.emptyList();
         }
 
-        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
+        return Collections.singletonList(new Sphere(location.toVector(), userConfig.abilityCollisionRadius, world));
     }
 
     @Override
@@ -208,12 +212,21 @@ public class FireBlastCharged implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.CHARGE_TIME)
         public long chargeTime;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.RADIUS)
+        public double igniteRadius;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
 
         @Override
@@ -226,6 +239,7 @@ public class FireBlastCharged implements Ability {
             speed = abilityNode.getNode("speed").getDouble(1.0);
             damage = abilityNode.getNode("damage").getDouble(4.0);
             range = abilityNode.getNode("range").getDouble(20.0);
+            igniteRadius = abilityNode.getNode("ignite-radius").getDouble(2.0);
 
             entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(3.0);
             abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(3.0);

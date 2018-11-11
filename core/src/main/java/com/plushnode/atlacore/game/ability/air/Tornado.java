@@ -10,6 +10,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
@@ -25,12 +27,14 @@ public class Tornado implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private long startTime;
     private List<Collider> colliders = new ArrayList<>();
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.startTime = System.currentTimeMillis();
 
         return true;
@@ -44,19 +48,19 @@ public class Tornado implements Ability {
 
         long time = System.currentTimeMillis();
 
-        if (config.duration > 0 && time > startTime + config.duration) {
+        if (userConfig.duration > 0 && time > startTime + userConfig.duration) {
             return UpdateResult.Remove;
         }
 
-        double t = Math.min(1.0, (time - startTime) / (double)config.growthTime);
-        double height = 2.0 + t * (config.height - 2.0);
-        double radius = 2.0 + t * (config.radius - 2.0);
+        double t = Math.min(1.0, (time - startTime) / (double)userConfig.growthTime);
+        double height = 2.0 + t * (userConfig.height - 2.0);
+        double radius = 2.0 + t * (userConfig.radius - 2.0);
 
         if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
             return UpdateResult.Remove;
         }
 
-        Location base = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), config.range, true, false);
+        Location base = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), userConfig.range, true, false);
         if (!Game.getProtectionSystem().canBuild(user, base)) {
             return UpdateResult.Remove;
         }
@@ -79,7 +83,7 @@ public class Tornado implements Ability {
             CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
                 if (entity.equals(user)) {
                     double dy = user.getLocation().getY() - base.getY();
-                    double velY = (1.0 - (dy / (config.height - base.getY()))) * 0.6;
+                    double velY = (1.0 - (dy / (userConfig.height - base.getY()))) * 0.6;
 
                     if (dy >= height * .95) {
                         velY = 0;
@@ -115,12 +119,12 @@ public class Tornado implements Ability {
 
     private void render(Location base, double t, double height, double radius) {
         long time = System.currentTimeMillis();
-        int particleCount = (int)Math.ceil(t * config.particlesPerStream);
+        int particleCount = (int)Math.ceil(t * userConfig.particlesPerStream);
 
-        double cycleMS = (1000.0 * config.height / config.renderSpeed);
+        double cycleMS = (1000.0 * userConfig.height / userConfig.renderSpeed);
 
-        for (int j = 0; j < config.streams; ++j) {
-            double thetaOffset = j * ((Math.PI * 2) / config.streams);
+        for (int j = 0; j < userConfig.streams; ++j) {
+            double thetaOffset = j * ((Math.PI * 2) / userConfig.streams);
 
             for (int i = 0; i < particleCount; ++i) {
                 double thisTime = time + (i / (double) particleCount) * cycleMS;
@@ -140,7 +144,7 @@ public class Tornado implements Ability {
 
     @Override
     public void destroy() {
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
     }
 
     @Override
@@ -167,11 +171,16 @@ public class Tornado implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.DURATION)
         public long duration;
+        @Attribute(Attributes.RADIUS)
         public double radius;
+        @Attribute(Attributes.HEIGHT)
         public double height;
         public double renderSpeed;
+        @Attribute(Attributes.RANGE)
         public double range;
         public long growthTime;
         public int streams;

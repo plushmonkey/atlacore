@@ -12,6 +12,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.LivingEntity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
@@ -33,6 +35,7 @@ public class EarthBlast implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private boolean launched;
     private Block sourceBlock;
     private Material sourceMaterial;
@@ -44,10 +47,11 @@ public class EarthBlast implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.launched = false;
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
-                new OutOfRangeRemovalPolicy(user, config.sourceSelectRange, () -> sourceBlock.getLocation().add(0.5, 0.5, 0.5)),
+                new OutOfRangeRemovalPolicy(user, userConfig.sourceSelectRange, () -> sourceBlock.getLocation().add(0.5, 0.5, 0.5)),
                 new OutOfWorldRemovalPolicy(user)
         );
 
@@ -112,11 +116,11 @@ public class EarthBlast implements Ability {
         if (location.getBlock().equals(sourceBlock)) {
             final Vector3D d = direction;
 
-            if (location.add(d.scalarMultiply(config.speed)).getBlock().hasBounds()) {
+            if (location.add(d.scalarMultiply(userConfig.speed)).getBlock().hasBounds()) {
                 // Find a new direction because the current one will end up inside of a block.
                 List<Vector3D> potential = DIRECTIONS.stream()
                         .filter((v) -> v.dotProduct(d) >= 0)
-                        .filter((v) -> !location.add(v.scalarMultiply(config.speed)).getBlock().hasBounds())
+                        .filter((v) -> !location.add(v.scalarMultiply(userConfig.speed)).getBlock().hasBounds())
                         .collect(Collectors.toCollection(ArrayList<Vector3D>::new));
 
                 if (!potential.isEmpty()) {
@@ -126,13 +130,13 @@ public class EarthBlast implements Ability {
             }
         }
 
-        if (location.distanceSquared(target) <= config.speed * config.speed) {
+        if (location.distanceSquared(target) <= userConfig.speed * userConfig.speed) {
             location = target;
         } else {
-            location = location.add(direction.scalarMultiply(config.speed));
+            location = location.add(direction.scalarMultiply(userConfig.speed));
         }
 
-        if (location.distanceSquared(sourceBlock.getLocation()) > config.range * config.range) {
+        if (location.distanceSquared(sourceBlock.getLocation()) > userConfig.range * userConfig.range) {
             return UpdateResult.Remove;
         }
 
@@ -140,10 +144,10 @@ public class EarthBlast implements Ability {
             return UpdateResult.Remove;
         }
 
-        AABB collider = AABB.BLOCK_BOUNDS.scale(config.entityCollisionRadius).at(location);
+        AABB collider = AABB.BLOCK_BOUNDS.scale(userConfig.entityCollisionRadius).at(location);
         boolean hit = CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
             if (Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
-                ((LivingEntity) entity).damage(config.damage, user);
+                ((LivingEntity) entity).damage(userConfig.damage, user);
             }
 
             return true;
@@ -189,13 +193,13 @@ public class EarthBlast implements Ability {
     }
 
     private Block getSource() {
-        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), config.sourceSelectRange, true);
+        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.sourceSelectRange, true);
 
         if (block == null || !MaterialUtil.isEarthbendable(block)) return null;
         if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) return null;
 
         // Don't select the block if the center of it is too far away.
-        if (block.getLocation().add(0.5, 0.5, 0.5).distanceSquared(user.getEyeLocation()) > config.sourceSelectRange * config.sourceSelectRange) {
+        if (block.getLocation().add(0.5, 0.5, 0.5).distanceSquared(user.getEyeLocation()) > userConfig.sourceSelectRange * userConfig.sourceSelectRange) {
             return null;
         }
 
@@ -224,7 +228,7 @@ public class EarthBlast implements Ability {
 
     private void launch() {
         this.launched = true;
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
         this.location = sourceBlock.getLocation().add(0.5, 0.5, 0.5);
         this.tempBlock = new TempBlock(sourceBlock, Material.AIR);
 
@@ -235,7 +239,7 @@ public class EarthBlast implements Ability {
 
     private void redirect() {
         this.target = RayCaster.cast(user, new Ray(user.getEyeLocation(),
-                user.getDirection()), 30.0, true, true, config.entitySelectRadius,
+                user.getDirection()), 30.0, true, true, userConfig.entitySelectRadius,
                 Collections.singletonList(location.getBlock()));
     }
 
@@ -253,7 +257,7 @@ public class EarthBlast implements Ability {
     public Collection<Collider> getColliders() {
         if (location != null) {
             AABB bounds = new AABB(Vector3D.ZERO, new Vector3D(1, 1, 1), location.getWorld())
-                    .scale(config.abilityCollisionRadius)
+                    .scale(userConfig.abilityCollisionRadius)
                     .at(location.getBlock().getLocation());
 
             return Collections.singletonList(bounds);
@@ -271,14 +275,22 @@ public class EarthBlast implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entitySelectRadius;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SELECTION)
         public double sourceSelectRange;
 
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
 
         @Override

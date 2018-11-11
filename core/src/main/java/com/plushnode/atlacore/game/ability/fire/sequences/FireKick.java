@@ -2,13 +2,14 @@ package com.plushnode.atlacore.game.ability.fire.sequences;
 
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
-import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.ParticleStream;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
@@ -26,6 +27,7 @@ public class FireKick implements Ability {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private List<ParticleStream> streams = new ArrayList<>();
 
     @Override
@@ -38,14 +40,16 @@ public class FireKick implements Ability {
             return false;
         }
 
-        user.setCooldown(this);
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+
+        user.setCooldown(this, userConfig.cooldown);
 
         Vector3D up = Vector3D.PLUS_J;
         Vector3D lookingDir = user.getDirection();
         Vector3D right = VectorUtil.normalizeOrElse(lookingDir.crossProduct(up), Vector3D.PLUS_I);
         Vector3D rotateAxis = right.crossProduct(lookingDir);
 
-        Vector3D target = user.getEyeLocation().toVector().add(user.getDirection().scalarMultiply(config.range));
+        Vector3D target = user.getEyeLocation().toVector().add(user.getDirection().scalarMultiply(userConfig.range));
         Vector3D direction = target.subtract(user.getLocation().toVector()).normalize();
 
         for (double degrees = -30; degrees <= 30; degrees += 5) {
@@ -100,8 +104,8 @@ public class FireKick implements Ability {
 
     private class FireKickStream extends ParticleStream {
         public FireKickStream(Location origin, Vector3D direction) {
-            super(user, origin, direction, config.range, config.speed,
-                    config.entityCollisionRadius, config.abilityCollisionRadius, config.damage);
+            super(user, origin, direction, userConfig.range, userConfig.speed,
+                    userConfig.entityCollisionRadius, userConfig.abilityCollisionRadius, userConfig.damage);
         }
 
         @Override
@@ -112,11 +116,17 @@ public class FireKick implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
 
         @Override

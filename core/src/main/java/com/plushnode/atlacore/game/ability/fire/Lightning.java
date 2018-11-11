@@ -11,6 +11,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.math.LineSegment;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.util.VectorUtil;
@@ -21,7 +23,9 @@ import java.util.*;
 
 public class Lightning implements Ability {
     public static Config config = new Config();
+
     private User user;
+    private Config userConfig;
     private World world;
     private Random rand;
     private State state;
@@ -30,6 +34,7 @@ public class Lightning implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.world = user.getWorld();
         this.rand = new Random();
         this.state = new ChargeState();
@@ -46,7 +51,7 @@ public class Lightning implements Ability {
                 }
 
                 if (entity instanceof LivingEntity) {
-                    ((LivingEntity) entity).damage(config.damage, user);
+                    ((LivingEntity) entity).damage(userConfig.damage, user);
                 }
                 return false;
             }, true);
@@ -115,7 +120,7 @@ public class Lightning implements Ability {
         public boolean update() {
             long time = System.currentTimeMillis();
 
-            boolean charged = time > startTime + config.chargeTime;
+            boolean charged = time > startTime + userConfig.chargeTime;
 
             if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
                 return false;
@@ -162,8 +167,8 @@ public class Lightning implements Ability {
             location = user.getEyeLocation();
             this.origin = location;
 
-            target = RayCaster.cast(user, new Ray(location, user.getDirection()), config.range, true, false);
-            Location entityTarget = RayCaster.cast(user, new Ray(location, user.getDirection()), config.range, true, true);
+            target = RayCaster.cast(user, new Ray(location, user.getDirection()), userConfig.range, true, false);
+            Location entityTarget = RayCaster.cast(user, new Ray(location, user.getDirection()), userConfig.range, true, true);
 
             // Don't add a mid point if there was no entity intersection.
             if (user.getLocation().distanceSquared(entityTarget) >= user.getLocation().distanceSquared(target)) {
@@ -174,14 +179,14 @@ public class Lightning implements Ability {
             this.startTime = System.currentTimeMillis();
             this.bolt = new Bolt(origin, target, entityTarget);
 
-            user.setCooldown(Lightning.this);
+            user.setCooldown(Lightning.this, userConfig.cooldown);
         }
 
         @Override
         public boolean update() {
             long time = System.currentTimeMillis();
             double elapsedSeconds = (time - startTime) / 1000.0;
-            double totalSeconds = distance / (config.speed * 20);
+            double totalSeconds = distance / (userConfig.speed * 20);
             double t = elapsedSeconds / totalSeconds;
             double step = 4.0 / (distance / (50.0 / 1000.0));
             double prevStart = Math.max(0.0, t - 0.5);
@@ -198,7 +203,7 @@ public class Lightning implements Ability {
                     return false;
                 }
 
-                colliders.add(new Sphere(current.toVector(), config.collisionRadius, world));
+                colliders.add(new Sphere(current.toVector(), userConfig.collisionRadius, world));
             }
 
             return t < 1.0;
@@ -216,7 +221,7 @@ public class Lightning implements Ability {
             this.end = end;
             this.distance = end.distance(start);
 
-            generateSegments(config.boltGenerations, midTarget);
+            generateSegments(userConfig.boltGenerations, midTarget);
         }
 
         public List<Location> interpolate(double t) {
@@ -241,7 +246,7 @@ public class Lightning implements Ability {
 
         // Generates segments along the main line and offsets them create some wiggle.
         private void generateSegments(int generations, Location midTarget) {
-            double maxOffset = config.boltMaxOffset;
+            double maxOffset = userConfig.boltMaxOffset;
 
             if (midTarget != null) {
                 segments.add(new LineSegment(start, midTarget));
@@ -265,9 +270,9 @@ public class Lightning implements Ability {
                     segments.add(new LineSegment(segment.start, mid));
                     segments.add(new LineSegment(mid, segment.end));
 
-                    if (Math.random() < config.boltForkChance) {
+                    if (Math.random() < userConfig.boltForkChance) {
                         Vector3D direction = mid.subtract(start.toVector()).normalize();
-                        Vector3D forkEnd = mid.add(getOffset(direction, Math.min(maxOffset * config.boltForkLength, config.boltMaxOffset * 0.75)));
+                        Vector3D forkEnd = mid.add(getOffset(direction, Math.min(maxOffset * userConfig.boltForkLength, userConfig.boltMaxOffset * 0.75)));
                         segments.add(new LineSegment(mid, forkEnd));
                     }
                 }
@@ -295,11 +300,18 @@ public class Lightning implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.DAMAGE)
         public double damage;
+        @Attribute(Attributes.CHARGE_TIME)
         public long chargeTime;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double collisionRadius;
         public int boltGenerations;
         public double boltMaxOffset;

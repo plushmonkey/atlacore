@@ -5,7 +5,7 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import java.util.Observable;
 import java.util.Observer;
 
-public abstract class Configurable implements Observer {
+public abstract class Configurable implements Observer, Cloneable {
     protected CommentedConfigurationNode config;
 
     public Configurable() {
@@ -28,4 +28,9 @@ public abstract class Configurable implements Observer {
     }
 
     public abstract void onConfigReload();
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

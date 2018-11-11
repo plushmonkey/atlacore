@@ -32,7 +32,6 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
-import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -113,6 +112,8 @@ public class PlayerListener {
 
         if (player == null) return;
 
+        Game.getAttributeSystem().clearModifiers(player);
+
         Game.getPlayerService().savePlayer(player, (p) -> {
             Game.info(p.getName() + " saved to database.");
         });
@@ -184,7 +185,7 @@ public class PlayerListener {
         if (user.hasElement(Elements.EARTH) && DensityShift.isSoftened(user)) {
             Block block = user.getLocation().getBlock().getRelative(BlockFace.DOWN);
             Location location = block.getLocation().add(0.5, 0.5, 0.5);
-            DensityShift.softenArea(location);
+            DensityShift.softenArea(user, location);
             event.setCancelled(true);
         }
 

@@ -21,9 +21,9 @@ public class BukkitParticleEffectRenderer implements ParticleEffectRenderer {
 
         if (effect == ParticleEffect.REDSTONE || effect == ParticleEffect.RED_DUST) {
             Color color = Color.fromRGB((int)(offsetX), (int)(offsetY), (int)(offsetZ));
-            world.spawnParticle(particle, ((LocationWrapper) center).getBukkitLocation(), amount, offsetX, offsetY, offsetZ, speed, new Particle.DustOptions(color, 1));
+            world.spawnParticle(particle, ((LocationWrapper) center).getBukkitLocation(), amount, offsetX, offsetY, offsetZ, speed, new Particle.DustOptions(color, 1), true);
         } else {
-            world.spawnParticle(particle, ((LocationWrapper) center).getBukkitLocation(), amount, offsetX, offsetY, offsetZ, speed);
+            world.spawnParticle(particle, ((LocationWrapper) center).getBukkitLocation(), amount, offsetX, offsetY, offsetZ, speed, null, true);
         }
     }
 

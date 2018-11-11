@@ -6,6 +6,8 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.PassiveAbility;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.PotionEffect;
 import com.plushnode.atlacore.platform.PotionEffectType;
 import com.plushnode.atlacore.platform.User;
@@ -15,12 +17,19 @@ public class AirAgility implements PassiveAbility {
     public static Config config = new Config();
 
     private User user;
+    private Config userConfig;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        recalculateConfig();
 
         return true;
+    }
+
+    @Override
+    public void recalculateConfig() {
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
     }
 
     @Override
@@ -29,12 +38,12 @@ public class AirAgility implements PassiveAbility {
             return UpdateResult.Continue;
         }
 
-        if (config.jumpAmplifier > 0) {
-            handlePotionEffect(PotionEffectType.JUMP_BOOST, config.jumpAmplifier);
+        if (userConfig.jumpAmplifier > 0) {
+            handlePotionEffect(PotionEffectType.JUMP_BOOST, userConfig.jumpAmplifier);
         }
 
-        if (config.speedAmplifier > 0) {
-            handlePotionEffect(PotionEffectType.SPEED, config.speedAmplifier);
+        if (userConfig.speedAmplifier > 0) {
+            handlePotionEffect(PotionEffectType.SPEED, userConfig.speedAmplifier);
         }
 
         return UpdateResult.Continue;
@@ -72,7 +81,9 @@ public class AirAgility implements PassiveAbility {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.STRENGTH)
         public int speedAmplifier;
+        @Attribute(Attributes.STRENGTH)
         public int jumpAmplifier;
 
         @Override

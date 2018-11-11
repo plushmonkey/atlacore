@@ -9,6 +9,8 @@ import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.Burstable;
+import com.plushnode.atlacore.game.attribute.Attribute;
+import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockSetter;
@@ -25,9 +27,10 @@ import java.util.Collections;
 
 public class AirBlast implements Ability, Burstable {
     private static final double BLOCK_COLLISION_RADIUS = 0.5;
-
     public static Config config = new Config();
+
     private User user;
+    private Config userConfig;
     private World world;
     private Location origin;
     private Location location;
@@ -58,14 +61,15 @@ public class AirBlast implements Ability, Burstable {
         }
 
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, new Config());
         this.world = user.getWorld();
         this.launched = false;
         this.selectedOrigin = false;
-        this.particleCount = config.particles;
+        this.particleCount = userConfig.particles;
 
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
-                new OutOfRangeRemovalPolicy(user, config.selectOutOfRange, () -> origin),
+                new OutOfRangeRemovalPolicy(user, userConfig.selectOutOfRange, () -> origin),
                 new SwappedSlotsRemovalPolicy<>(user, AirBlast.class),
                 new OutOfWorldRemovalPolicy(user)
         );
@@ -92,7 +96,7 @@ public class AirBlast implements Ability, Burstable {
     private void selectOrigin() {
         Ray ray = new Ray(user.getEyeLocation(), user.getDirection());
 
-        this.origin = RayCaster.cast(user.getWorld(), ray, config.selectRange, true);
+        this.origin = RayCaster.cast(user.getWorld(), ray, userConfig.selectRange, true);
         // Move origin back slightly so it doesn't collide with ground.
         this.origin = this.origin.subtract(user.getDirection().scalarMultiply(BLOCK_COLLISION_RADIUS));
 
@@ -103,14 +107,14 @@ public class AirBlast implements Ability, Burstable {
         this.launched = true;
         this.location = origin;
 
-        Location target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), config.range, true, true);
+        Location target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()), userConfig.range, true, true);
         this.direction = VectorUtil.normalizeOrElse(target.subtract(origin).toVector(), Vector3D.PLUS_I);
 
         removalPolicy.removePolicyType(IsDeadRemovalPolicy.class);
         removalPolicy.removePolicyType(OutOfRangeRemovalPolicy.class);
         removalPolicy.removePolicyType(SwappedSlotsRemovalPolicy.class);
 
-        user.setCooldown(this);
+        user.setCooldown(this, userConfig.cooldown);
     }
 
     @Override
@@ -124,11 +128,11 @@ public class AirBlast implements Ability, Burstable {
         if (!launched) {
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
                     (float)Math.random(), (float)Math.random(), (float)Math.random(), (float)Math.random(),
-                    config.selectParticles, origin, 257);
+                    userConfig.selectParticles, origin, 257);
         } else {
             Location previous = location;
 
-            location = location.add(direction.scalarMultiply(config.speed));
+            location = location.add(direction.scalarMultiply(userConfig.speed));
 
             if (time > this.nextRenderTime) {
                 Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
@@ -137,7 +141,7 @@ public class AirBlast implements Ability, Burstable {
                 this.nextRenderTime = time + this.renderInterval;
             }
 
-            if (location.distanceSquared(origin) >= config.range * config.range) {
+            if (location.distanceSquared(origin) >= userConfig.range * userConfig.range) {
                 return UpdateResult.Remove;
             }
 
@@ -147,7 +151,7 @@ public class AirBlast implements Ability, Burstable {
 
             extinguishFire(location);
 
-            Sphere collider = new Sphere(location.toVector(), config.entityCollisionRadius);
+            Sphere collider = new Sphere(location.toVector(), userConfig.entityCollisionRadius);
 
             // Handle user separately from the general entity collision.
             if (this.selectedOrigin) {
@@ -170,7 +174,7 @@ public class AirBlast implements Ability, Burstable {
     }
 
     private void extinguishFire(Location location) {
-        for (Block block : WorldUtil.getNearbyBlocks(location, config.abilityCollisionRadius)) {
+        for (Block block : WorldUtil.getNearbyBlocks(location, userConfig.abilityCollisionRadius)) {
             if (block.getType() == Material.FIRE) {
                 if (!Game.getProtectionSystem().canBuild(user, location)) {
                     continue;
@@ -189,13 +193,13 @@ public class AirBlast implements Ability, Burstable {
     }
 
     private boolean affect(Entity entity) {
-        double factor = config.otherPush;
+        double factor = userConfig.otherPush;
 
         if (entity.equals(user)) {
-            factor = config.selfPush;
+            factor = userConfig.selfPush;
         }
 
-        factor *= 1.0 - (location.distance(origin) / (2 * config.range));
+        factor *= 1.0 - (location.distance(origin) / (2 * userConfig.range));
 
         // Reduce the push if the player is on the ground.
         if (entity.equals(user) && WorldUtil.isOnGround(entity)) {
@@ -243,7 +247,7 @@ public class AirBlast implements Ability, Burstable {
             return Collections.emptyList();
         }
 
-        return Collections.singletonList(new Sphere(location.toVector(), config.abilityCollisionRadius, world));
+        return Collections.singletonList(new Sphere(location.toVector(), userConfig.abilityCollisionRadius, world));
     }
 
     @Override
@@ -260,6 +264,7 @@ public class AirBlast implements Ability, Burstable {
     // Used to initialize the blast for bursts.
     public void initialize(User user, Location location, Vector3D direction) {
         this.user = user;
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.selectedOrigin = false;
         this.launched = true;
         this.direction = direction;
@@ -281,16 +286,25 @@ public class AirBlast implements Ability, Burstable {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.SPEED)
         public double speed;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
+        @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double abilityCollisionRadius;
         public int particles;
+        @Attribute(Attributes.STRENGTH)
         public double selfPush;
+        @Attribute(Attributes.STRENGTH)
         public double otherPush;
 
+        @Attribute(Attributes.SELECTION)
         public double selectRange;
+        @Attribute(Attributes.SELECTION)
         public double selectOutOfRange;
         public int selectParticles;
 
