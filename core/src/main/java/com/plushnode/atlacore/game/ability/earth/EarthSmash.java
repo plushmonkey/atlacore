@@ -51,6 +51,10 @@ public class EarthSmash implements Ability {
         this.tick = 0;
         this.startTime = System.currentTimeMillis();
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+            return false;
+        }
+
         if (method == ActivationMethod.Sneak) {
             List<EarthSmash> earthSmashes = Game.getAbilityInstanceManager().getPlayerInstances(user, EarthSmash.class);
             if (!earthSmashes.isEmpty()) {
@@ -252,6 +256,10 @@ public class EarthSmash implements Ability {
                         return false;
                     }
 
+                    if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) {
+                        return false;
+                    }
+
                     boulder = new Boulder(block);
                     state = new RaiseState();
 
@@ -364,6 +372,14 @@ public class EarthSmash implements Ability {
                 for (int y = 0; y < boulder.getSize(); ++y) {
                     for (int x = 0; x < boulder.getSize(); ++x) {
                         Block block = prevBase.add(x, i, y).getBlock();
+                        Material type = block.getType();
+
+                        // Update the boulder so any changed blocks are reflected in the boulder state.
+                        if (boulder.canRender() && type != boulder.getLayer(i).getState(x, y)) {
+                            if (!MaterialUtil.isEarthbendable(type)) {
+                                boulder.getLayer(i).setState(x, y, Material.AIR);
+                            }
+                        }
 
                         if (initialBlocks.contains(block)) {
                             new TempBlock(block, Material.AIR);
@@ -390,6 +406,10 @@ public class EarthSmash implements Ability {
                             Location check = base.add(x, i, y);
 
                             if (!MaterialUtil.isTransparent(check.getBlock())) {
+                                return false;
+                            }
+
+                            if (!Game.getProtectionSystem().canBuild(user, check)) {
                                 return false;
                             }
                         }
@@ -559,6 +579,10 @@ public class EarthSmash implements Ability {
                 return false;
             }
 
+            if (!Game.getProtectionSystem().canBuild(user, newBase)) {
+                return false;
+            }
+
             boulder.setBase(newBase);
 
             double halfSize = Math.floor(boulder.getSize() / 2.0);
@@ -567,6 +591,10 @@ public class EarthSmash implements Ability {
             AABB bounds = boulder.getBoundingBox().at(boulder.getBaseBlockLocation());
             CollisionUtil.handleEntityCollisions(user, bounds, (entity) -> {
                 if (hitEntities.contains(entity)) return false;
+
+                if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
+                    return false;
+                }
 
                 ((LivingEntity)entity).damage(userConfig.shootDamage);
 
@@ -646,7 +674,7 @@ public class EarthSmash implements Ability {
                         Location check = base.add(x, i, y);
                         Material type = check.getBlock().getType();
 
-                        if (!MaterialUtil.isEarthbendable(type)) {
+                        if (!MaterialUtil.isEarthbendable(type) || !Game.getProtectionSystem().canBuild(user, check)) {
                             layer.setState(x, y, Material.AIR);
                             invalidColumns.add(new Vector3D(x, y, i));
                             continue;
@@ -697,7 +725,7 @@ public class EarthSmash implements Ability {
                             Location check = this.base.add(x, i, y);
                             Block block = check.getBlock();
 
-                            if (block.hasBounds() && !MaterialUtil.isEarthbendable(block)) {
+                            if (block.hasBounds() && !MaterialUtil.isEarthbendable(block) || !Game.getProtectionSystem().canBuild(user, check)) {
                                 layer.setState(x, y, Material.AIR);
                             }
                         }
@@ -747,7 +775,7 @@ public class EarthSmash implements Ability {
                     for (int i = 0; i < getSize() + 1; ++i) {
                         Block checkBlock = base.add(x, getSize() + i, y).getBlock();
 
-                        if (!MaterialUtil.isTransparent(checkBlock)) {
+                        if (!MaterialUtil.isTransparent(checkBlock) || !Game.getProtectionSystem().canBuild(user, checkBlock.getLocation())) {
                             for (int layerIndex = 0; layerIndex < getSize(); ++layerIndex) {
                                 layers.get(layerIndex).setState(x, y, Material.AIR);
                             }
