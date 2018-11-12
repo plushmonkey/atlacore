@@ -547,7 +547,11 @@ public class SpongeMaterialUtil_1_11 {
             return Material.AIR;
         }
 
-        return entry.get().getKey();
+        material = entry.get().getKey();
+        // Cache this lookup to increase performance next time.
+        reverseBlockTypes.put(type, material);
+
+        return material;
     }
 
     public static BlockType toBlockType(Material material) {

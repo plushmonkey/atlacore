@@ -49,6 +49,8 @@ public class FireWheel implements Ability {
         this.direction = VectorUtil.clearAxis(user.getDirection(), 1).normalize();
         this.location = this.user.getLocation().add(direction.scalarMultiply(userConfig.speed));
 
+        this.location = this.location.add(0, userConfig.radius, 0);
+
         if (this.location.getBlock().isLiquid()) {
             return false;
         }

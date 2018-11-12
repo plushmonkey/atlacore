@@ -563,6 +563,7 @@ public class SpongeMaterialUtil_1_12 {
         reverseBlockTypes.put(BlockTypes.LOG2, Material.ACACIA_LOG);
         reverseBlockTypes.put(BlockTypes.CARPET, Material.WHITE_CARPET);
         reverseBlockTypes.put(BlockTypes.DOUBLE_PLANT, Material.TALL_GRASS);
+
         // TODO: Item types
     }
 
@@ -595,7 +596,11 @@ public class SpongeMaterialUtil_1_12 {
             return Material.AIR;
         }
 
-        return entry.get().getKey();
+        material = entry.get().getKey();
+        // Cache this lookup to increase performance next time.
+        reverseBlockTypes.put(type, material);
+
+        return material;
     }
 
     public static BlockType toBlockType(Material material) {
