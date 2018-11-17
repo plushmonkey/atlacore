@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.util;
 
+import com.plushnode.atlacore.platform.ItemStack;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.LocationWrapper;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -35,5 +36,13 @@ public final class TypeUtil {
 
     public static Location adapt(org.bukkit.Location loc) {
         return new LocationWrapper(loc);
+    }
+
+    public static ItemStack adapt(org.bukkit.inventory.ItemStack item) {
+        return new ItemStack(TypeUtil.adapt(item.getType()), item.getAmount());
+    }
+
+    public static org.bukkit.inventory.ItemStack adapt(ItemStack item) {
+        return new org.bukkit.inventory.ItemStack(TypeUtil.adapt(item.getType()), item.getAmount());
     }
 }

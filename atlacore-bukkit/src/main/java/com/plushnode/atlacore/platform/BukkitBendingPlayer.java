@@ -99,4 +99,9 @@ public class BukkitBendingPlayer extends BukkitBendingUser implements Player {
     public boolean hasPermission(String permission) {
         return getBukkitPlayer().hasPermission(permission);
     }
+
+    @Override
+    public Inventory getInventory() {
+        return new InventoryWrapper(getBukkitPlayer().getInventory());
+    }
 }

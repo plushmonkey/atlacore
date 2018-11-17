@@ -563,24 +563,6 @@ public class SpongeMaterialUtil_1_12 {
         reverseBlockTypes.put(BlockTypes.LOG2, Material.ACACIA_LOG);
         reverseBlockTypes.put(BlockTypes.CARPET, Material.WHITE_CARPET);
         reverseBlockTypes.put(BlockTypes.DOUBLE_PLANT, Material.TALL_GRASS);
-
-        // TODO: Item types
-    }
-
-    public static int getTypeId(BlockType type) {
-        Material material = toMaterial(type);
-
-        return material.getId();
-    }
-
-    public static Material fromTypeId(int type) {
-        for (Material material : blockTypes.keySet()) {
-            if (material.getId() == type) {
-                return material;
-            }
-        }
-
-        return Material.AIR;
     }
 
     public static Material toMaterial(BlockType type) {
@@ -606,7 +588,7 @@ public class SpongeMaterialUtil_1_12 {
     public static BlockType toBlockType(Material material) {
         BlockType type = blockTypes.get(material);
 
-        if (material == null) {
+        if (type == null) {
             System.out.println("material not found: " + material);
             return BlockTypes.AIR;
         }

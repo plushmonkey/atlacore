@@ -5,6 +5,8 @@ import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public final class SpongeMaterialUtil {
-    private static Method getTypeIdMethod, fromTypeIdMethod, toMaterialMethod, toBlockTypeMethod;
+    private static Method toMaterialMethod, toBlockTypeMethod;
 
     static {
         MinecraftVersion version = Sponge.getPlatform().getMinecraftVersion();
@@ -24,8 +26,6 @@ public final class SpongeMaterialUtil {
         try {
             Class<?> implClazz = Class.forName(targetClassPath);
 
-            getTypeIdMethod = implClazz.getDeclaredMethod("getTypeId", BlockType.class);
-            fromTypeIdMethod = implClazz.getDeclaredMethod("fromTypeId", int.class);
             toMaterialMethod = implClazz.getDeclaredMethod("toMaterial", BlockType.class);
             toBlockTypeMethod = implClazz.getDeclaredMethod("toBlockType", Material.class);
 
@@ -36,25 +36,6 @@ public final class SpongeMaterialUtil {
 
     private SpongeMaterialUtil() {
 
-    }
-
-    public static int getTypeId(BlockType type) {
-        try {
-            return (int)getTypeIdMethod.invoke(null, type);
-        } catch (IllegalAccessException|InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    public static Material fromTypeId(int type) {
-        try {
-            return (Material)fromTypeIdMethod.invoke(null, type);
-        } catch (IllegalAccessException|InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        return Material.AIR;
     }
 
     public static Material toMaterial(BlockType type) {
@@ -75,5 +56,26 @@ public final class SpongeMaterialUtil {
         }
 
         return BlockTypes.AIR;
+    }
+
+    public static Material toMaterial(ItemType type) {
+        return Material.getFromId(type.getId());
+    }
+
+    public static ItemType toItemType(Material material) {
+        String id = "minecraft:" + material.toString().toLowerCase();
+        Optional<ItemType> result = Sponge.getGame().getRegistry().getType(ItemType.class, id);
+
+        if (result.isPresent()) {
+            return result.get();
+        }
+
+        Optional<BlockType> blockResult = Sponge.getGame().getRegistry().getType(BlockType.class, id);
+
+        if (blockResult.isPresent()) {
+            return blockResult.get().getItem().orElse(null);
+        }
+
+        return null;
     }
 }

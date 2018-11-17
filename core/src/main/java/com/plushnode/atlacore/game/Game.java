@@ -167,6 +167,7 @@ public class Game {
         registerAbility("RaiseEarth", RaiseEarth.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("EarthSmash", EarthSmash.class, Elements.EARTH, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("DensityShift", DensityShift.class, Elements.EARTH, ActivationMethod.Passive).setHarmless(true).setHidden(true);
+        registerAbility("EarthArmor", EarthArmor.class, Elements.EARTH, ActivationMethod.Sneak);
 
         sequenceService.registerSequence(fireKick, new Sequence(true,
                 new AbilityAction(fireBlast, Action.Punch),

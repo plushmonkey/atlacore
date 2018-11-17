@@ -519,22 +519,6 @@ public class SpongeMaterialUtil_1_11 {
         // TODO: Item types
     }
 
-    public static int getTypeId(BlockType type) {
-        Material material = toMaterial(type);
-
-        return material.getId();
-    }
-
-    public static Material fromTypeId(int type) {
-        for (Material material : blockTypes.keySet()) {
-            if (material.getId() == type) {
-                return material;
-            }
-        }
-
-        return Material.AIR;
-    }
-
     public static Material toMaterial(BlockType type) {
         Material material = reverseBlockTypes.get(type);
         if (material != null) {

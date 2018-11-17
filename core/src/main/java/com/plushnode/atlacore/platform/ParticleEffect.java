@@ -643,7 +643,7 @@ public enum ParticleEffect {
         public ParticleData(Material material, byte data) {
             this.material = material;
             this.data = data;
-            this.packetData = new int[] { material.getId(), data };
+            this.packetData = new int[] { 0, data };
         }
 
         /**
@@ -739,7 +739,7 @@ public enum ParticleEffect {
         public BlockData(Material material, byte data) throws IllegalArgumentException {
             super(material, data);
 
-            this.setPacketData(new int[] { material.getId() + (data * 4096) });
+            this.setPacketData(new int[] { 0 + (data * 4096) });
         }
     }
 

@@ -143,4 +143,9 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
     public void setBendingConditional(CompositeBendingConditional cond) {
         this.bendingConditional = cond;
     }
+
+    @Override
+    public Inventory getInventory() {
+        return new NullInventory();
+    }
 }

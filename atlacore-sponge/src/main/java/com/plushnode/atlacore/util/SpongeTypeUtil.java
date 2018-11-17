@@ -1,9 +1,14 @@
 package com.plushnode.atlacore.util;
 
 import com.flowpowered.math.vector.Vector3d;
+import com.plushnode.atlacore.material.SpongeMaterialUtil;
+import com.plushnode.atlacore.platform.ItemStack;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.LocationWrapper;
+import com.plushnode.atlacore.platform.block.Material;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -49,5 +54,33 @@ public final class SpongeTypeUtil {
 
     public static Direction adapt(BlockFace face) {
         return DIRECTIONS[face.ordinal()];
+    }
+
+    public static Material adapt(ItemType type) {
+        return SpongeMaterialUtil.toMaterial(type);
+    }
+
+    public static Material adapt(BlockType type) {
+        return SpongeMaterialUtil.toMaterial(type);
+    }
+
+    public static ItemStack adapt(org.spongepowered.api.item.inventory.ItemStack item) {
+        if (item == null) return null;
+        return new ItemStack(adapt(item.getType()), item.getQuantity());
+    }
+
+    public static org.spongepowered.api.item.inventory.ItemStack adapt(ItemStack item) {
+        if (item == null) return null;
+
+        ItemType type = SpongeMaterialUtil.toItemType(item.getType());
+
+        if (type == null) {
+            return null;
+        }
+
+        return org.spongepowered.api.item.inventory.ItemStack.builder()
+                .itemType(type)
+                .quantity(item.getAmount())
+                .build();
     }
 }

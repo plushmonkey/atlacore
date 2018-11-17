@@ -909,8 +909,8 @@ public enum Material {
         this.data = data;
     }
 
-    public int getId() {
-        return id;
+    public String getId() {
+        return "minecraft:" + this.toString().toLowerCase();
     }
 
     public BlockData createBlockData() {
@@ -921,5 +921,17 @@ public enum Material {
     public BlockData createBlockData(Consumer<BlockData> consumer) {
         // TODO: implement
         return null;
+    }
+
+    public static Material getFromId(String id) {
+        if (id.contains(":")) {
+            id = id.split(":", 2)[1];
+        }
+
+        try {
+            return Material.valueOf(id.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

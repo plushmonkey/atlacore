@@ -52,6 +52,7 @@ permissions:
       atla.command.choose.Earth: true
       atla.ability.Catapult: true
       atla.ability.Collapse: true
+      atla.ability.EarthArmor: true
       atla.ability.EarthBlast: true
       atla.ability.EarthSmash: true
       atla.ability.Shockwave: true

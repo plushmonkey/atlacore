@@ -117,4 +117,9 @@ public class SpongeBendingPlayer extends SpongeBendingUser implements Player {
     public boolean hasPermission(String permission) {
         return getSpongePlayer().hasPermission(permission);
     }
+
+    @Override
+    public Inventory getInventory() {
+        return new InventoryWrapper(getSpongePlayer());
+    }
 }
