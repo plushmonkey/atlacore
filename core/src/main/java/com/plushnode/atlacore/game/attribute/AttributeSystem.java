@@ -117,7 +117,7 @@ public class AttributeSystem {
         value = (value + addOperation) * multiplyOperation;
 
         for (double amount : multiplicativeOperations) {
-            value *= (1.0 + amount);
+            value *= amount;
         }
 
         try {
