@@ -14,6 +14,9 @@ import com.plushnode.atlacore.block.setters.BlockSetterFactory;
 import com.plushnode.atlacore.commands.BendingCommand;
 import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.listeners.PlayerListener;
+import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.platform.block.data.BlockData;
+import com.plushnode.atlacore.platform.block.data.Levelled;
 import com.plushnode.atlacore.player.PlayerFactory;
 import com.plushnode.atlacore.util.Task;
 import ninja.leaping.configurate.ConfigurationOptions;
@@ -263,5 +266,14 @@ public class AtlaPlugin implements CorePlugin {
     @Override
     public EventBus getEventBus() {
         return eventBus;
+    }
+
+    @Override
+    public BlockData createBlockData(Material material) {
+        if (material.getDataClass() == Levelled.class) {
+            return new com.plushnode.atlacore.platform.data.Levelled(material, 0);
+        }
+
+        return null;
     }
 }

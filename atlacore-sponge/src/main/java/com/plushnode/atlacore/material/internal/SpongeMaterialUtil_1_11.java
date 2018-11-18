@@ -237,6 +237,7 @@ public class SpongeMaterialUtil_1_11 {
         blockTypes.put(Material.LAPIS_ORE, BlockTypes.LAPIS_ORE);
         blockTypes.put(Material.LARGE_FERN, BlockTypes.DOUBLE_PLANT);
         blockTypes.put(Material.LAVA, BlockTypes.LAVA);
+        blockTypes.put(Material.LAVA, BlockTypes.FLOWING_LAVA);
         blockTypes.put(Material.LEVER, BlockTypes.LEVER);
         blockTypes.put(Material.LIGHT_BLUE_BANNER, BlockTypes.STANDING_BANNER);
         blockTypes.put(Material.LIGHT_BLUE_BED, BlockTypes.BED);
@@ -468,6 +469,7 @@ public class SpongeMaterialUtil_1_11 {
         blockTypes.put(Material.WALL_SIGN, BlockTypes.WALL_SIGN);
         blockTypes.put(Material.WALL_TORCH, BlockTypes.TORCH);
         blockTypes.put(Material.WATER, BlockTypes.WATER);
+        blockTypes.put(Material.WATER, BlockTypes.FLOWING_WATER);
         blockTypes.put(Material.WET_SPONGE, BlockTypes.SPONGE);
         blockTypes.put(Material.WHEAT, BlockTypes.WHEAT);
         blockTypes.put(Material.WHITE_BANNER, BlockTypes.STANDING_BANNER);
@@ -515,6 +517,8 @@ public class SpongeMaterialUtil_1_11 {
         reverseBlockTypes.put(BlockTypes.LOG2, Material.ACACIA_LOG);
         reverseBlockTypes.put(BlockTypes.CARPET, Material.WHITE_CARPET);
         reverseBlockTypes.put(BlockTypes.DOUBLE_PLANT, Material.TALL_GRASS);
+        reverseBlockTypes.put(BlockTypes.WATER, Material.WATER);
+        reverseBlockTypes.put(BlockTypes.LAVA, Material.LAVA);
 
         // TODO: Item types
     }

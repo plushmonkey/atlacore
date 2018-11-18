@@ -8,12 +8,18 @@ import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.platform.block.data.BlockData;
+import com.plushnode.atlacore.platform.data.Levelled;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.material.SpongeMaterialUtil;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
 import com.plushnode.atlacore.util.SpongeVersionUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.mutable.block.FluidLevelData;
 import org.spongepowered.api.util.Direction;
+
+import java.util.Optional;
 
 public class BlockWrapper implements Block {
     private org.spongepowered.api.world.Location<org.spongepowered.api.world.World> location;
@@ -51,7 +57,12 @@ public class BlockWrapper implements Block {
 
     @Override
     public BlockData getBlockData() {
-        // todo: impl
+        Optional<FluidLevelData> fluidLevel = location.get(FluidLevelData.class);
+
+        if (fluidLevel.isPresent()) {
+            return new Levelled(location, fluidLevel.get());
+        }
+
         return null;
     }
 
@@ -115,7 +126,23 @@ public class BlockWrapper implements Block {
 
     @Override
     public void setBlockData(BlockData data) {
+        if (data instanceof Levelled) {
+            Levelled levelled = (Levelled)data;
 
+            // Fluid level seems to not be implemented... ?
+            /*System.out.println("block key present: " + location.getBlock().get(Keys.FLUID_LEVEL).isPresent());
+
+            FluidLevelData fluidData =
+                    Sponge.getDataManager().getManipulatorBuilder(FluidLevelData.class).get().create();
+
+            fluidData.set(fluidData.level().set(levelled.getLevel()));
+
+            org.spongepowered.api.block.BlockState newState =
+                    SpongeMaterialUtil.toBlockType(data.getMaterial()).getDefaultState()
+                    .with(fluidData.asImmutable()).get();
+
+            SpongeVersionUtil.setBlock(location, newState);*/
+        }
     }
 
     @Override

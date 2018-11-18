@@ -1,10 +1,11 @@
 package com.plushnode.atlacore.util;
 
-import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.collision.geometry.AABB;
+import com.plushnode.atlacore.platform.block.data.BlockData;
+import com.plushnode.atlacore.platform.block.data.Levelled;
 
 import java.util.Arrays;
 import java.util.List;
@@ -124,5 +125,15 @@ public final class MaterialUtil {
 
     public static boolean isAir(Material material) {
         return material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR;
+    }
+
+    public static boolean isSourceBlock(Block block) {
+        BlockData blockData = block.getBlockData();
+
+        if (blockData instanceof Levelled) {
+            return ((Levelled)blockData).getLevel() == 0;
+        }
+
+        return false;
     }
 }
