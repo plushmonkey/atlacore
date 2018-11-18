@@ -17,6 +17,7 @@ import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,14 +73,15 @@ public class TempArmorListener {
             Slot slot = transaction.getSlot();
 
             // Seems like the equipment properties don't work? Default to using SlotIndex, but equipment properties would be better.
-            Optional<SlotIndex> result = slot.getInventoryProperty(SlotIndex.class);
-
-            if (!result.isPresent()) {
+            Collection<SlotIndex> indices = slot.getProperties(SlotIndex.class);
+            if (indices.isEmpty()) {
                 continue;
             }
 
-            Integer index = result.get().getValue();
-            if (index == null) continue;
+            Integer index = indices.iterator().next().getValue();
+            if (index == null) {
+                continue;
+            }
 
             int slotIndex = index;
 
