@@ -41,4 +41,14 @@ public interface Inventory {
     void setChestplate(ItemStack item);
     void setLeggings(ItemStack item);
     void setBoots(ItemStack item);
+
+    ItemSnapshot getHelmetSnapshot();
+    ItemSnapshot getChestplateSnapshot();
+    ItemSnapshot getLeggingsSnapshot();
+    ItemSnapshot getBootsSnapshot();
+
+    void setHelmet(ItemSnapshot item);
+    void setChestplate(ItemSnapshot item);
+    void setLeggings(ItemSnapshot item);
+    void setBoots(ItemSnapshot item);
 }

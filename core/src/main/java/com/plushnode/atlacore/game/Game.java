@@ -33,6 +33,7 @@ import com.plushnode.atlacore.protection.ProtectionSystem;
 import com.plushnode.atlacore.store.sql.DatabaseManager;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.block.TempBlockService;
+import com.plushnode.atlacore.util.TempArmorService;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 import java.beans.PropertyVetoException;
@@ -54,6 +55,7 @@ public class Game {
     private static SequenceService sequenceService;
     private static CollisionService collisionService;
     private static AttributeSystem attributeSystem;
+    private static TempArmorService tempArmorService;
 
     private static DatabaseManager databaseManager = null;
 
@@ -68,6 +70,7 @@ public class Game {
         sequenceService = new SequenceService();
         collisionService = new CollisionService();
         attributeSystem = new AttributeSystem();
+        tempArmorService = new TempArmorService();
 
         tempBlockService.start();
         sequenceService.start();
@@ -96,6 +99,7 @@ public class Game {
         sequenceService.clear();
         collisionService.clear();
         tempBlockService.resetAll();
+        tempArmorService.reload();
 
         elementRegistry.registerElement(Elements.AIR);
         elementRegistry.registerElement(Elements.EARTH);
@@ -396,6 +400,10 @@ public class Game {
 
     public static AttributeSystem getAttributeSystem() {
         return attributeSystem;
+    }
+
+    public static TempArmorService getTempArmorService() {
+        return tempArmorService;
     }
 
     // Forces all atlacore classes to be loaded. This ensures all of them create their static Config objects.

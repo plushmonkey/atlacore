@@ -22,13 +22,11 @@ import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
-import com.plushnode.atlacore.util.Flight;
-import com.plushnode.atlacore.util.Task;
-import com.plushnode.atlacore.util.TypeUtil;
-import com.plushnode.atlacore.util.WorldUtil;
+import com.plushnode.atlacore.util.*;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
@@ -88,7 +86,7 @@ public class PlayerListener implements Listener {
         }, 1);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerLogout(PlayerQuitEvent event) {
         com.plushnode.atlacore.platform.Player player =
                 Game.getPlayerService().getPlayerByName(event.getPlayer().getName());

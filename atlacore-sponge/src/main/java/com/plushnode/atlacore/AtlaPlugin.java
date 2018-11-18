@@ -7,6 +7,7 @@ import com.plushnode.atlacore.events.BendingEventBus;
 import com.plushnode.atlacore.events.SneakEventDispatcher;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.listeners.BlockListener;
+import com.plushnode.atlacore.listeners.TempArmorListener;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
@@ -23,7 +24,6 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
@@ -76,6 +76,7 @@ public class AtlaPlugin implements CorePlugin {
 
         Sponge.getEventManager().registerListeners(this, new PlayerListener(this));
         Sponge.getEventManager().registerListeners(this, new BlockListener(this));
+        Sponge.getEventManager().registerListeners(this, new TempArmorListener());
 
         // Save the config after loading everything so the defaults are saved.
         try {
@@ -110,6 +111,7 @@ public class AtlaPlugin implements CorePlugin {
 
     @Listener
     public void onGameStoppingServer(GameStoppingServerEvent event) {
+        Game.getTempArmorService().reload();
         Game.getTempBlockService().resetAll();
     }
 

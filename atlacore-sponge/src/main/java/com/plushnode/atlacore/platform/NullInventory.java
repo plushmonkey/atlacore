@@ -104,6 +104,46 @@ public class NullInventory implements Inventory {
     }
 
     @Override
+    public ItemSnapshot getHelmetSnapshot() {
+        return null;
+    }
+
+    @Override
+    public ItemSnapshot getChestplateSnapshot() {
+        return null;
+    }
+
+    @Override
+    public ItemSnapshot getLeggingsSnapshot() {
+        return null;
+    }
+
+    @Override
+    public ItemSnapshot getBootsSnapshot() {
+        return null;
+    }
+
+    @Override
+    public void setHelmet(ItemSnapshot item) {
+
+    }
+
+    @Override
+    public void setChestplate(ItemSnapshot item) {
+
+    }
+
+    @Override
+    public void setLeggings(ItemSnapshot item) {
+
+    }
+
+    @Override
+    public void setBoots(ItemSnapshot item) {
+
+    }
+
+    @Override
     public void removeAll(ItemStack item) {
 
     }

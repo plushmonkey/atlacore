@@ -3,8 +3,10 @@ package com.plushnode.atlacore;
 import com.plushnode.atlacore.command.*;
 import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.events.BendingEventBus;
+import com.plushnode.atlacore.events.armor.ArmorListener;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.listeners.BlockListener;
+import com.plushnode.atlacore.listeners.TempArmorListener;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.block.setters.BlockSetterFactory;
@@ -26,6 +28,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.UUID;
 
 public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
@@ -57,6 +60,8 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new BlockListener(), this);
+        getServer().getPluginManager().registerEvents(new TempArmorListener(), this);
+        getServer().getPluginManager().registerEvents(new ArmorListener(Collections.emptyList()), this);
 
         CoreExecutor executor = new CoreExecutor();
 
@@ -86,6 +91,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
     @Override
     public void onDisable() {
+        Game.getTempArmorService().reload();
         Game.getTempBlockService().resetAll();
     }
 

@@ -227,4 +227,44 @@ public class InventoryWrapper implements Inventory {
     public void setBoots(ItemStack item) {
         player.setBoots(SpongeTypeUtil.adapt(item));
     }
+
+    @Override
+    public ItemSnapshot getHelmetSnapshot() {
+        return new ItemSnapshotWrapper(player.getHelmet().orElse(null));
+    }
+
+    @Override
+    public ItemSnapshot getChestplateSnapshot() {
+        return new ItemSnapshotWrapper(player.getChestplate().orElse(null));
+    }
+
+    @Override
+    public ItemSnapshot getLeggingsSnapshot() {
+        return new ItemSnapshotWrapper(player.getLeggings().orElse(null));
+    }
+
+    @Override
+    public ItemSnapshot getBootsSnapshot() {
+        return new ItemSnapshotWrapper(player.getBoots().orElse(null));
+    }
+
+    @Override
+    public void setHelmet(ItemSnapshot item) {
+        player.setHelmet(((ItemSnapshotWrapper)item).getSpongeItem());
+    }
+
+    @Override
+    public void setChestplate(ItemSnapshot item) {
+        player.setChestplate(((ItemSnapshotWrapper)item).getSpongeItem());
+    }
+
+    @Override
+    public void setLeggings(ItemSnapshot item) {
+        player.setLeggings(((ItemSnapshotWrapper)item).getSpongeItem());
+    }
+
+    @Override
+    public void setBoots(ItemSnapshot item) {
+        player.setBoots(((ItemSnapshotWrapper)item).getSpongeItem());
+    }
 }

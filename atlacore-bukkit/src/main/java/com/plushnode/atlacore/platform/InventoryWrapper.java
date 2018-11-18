@@ -134,6 +134,46 @@ public class InventoryWrapper implements Inventory {
     }
 
     @Override
+    public ItemSnapshot getHelmetSnapshot() {
+        return new ItemSnapshotWrapper(inventory.getHelmet());
+    }
+
+    @Override
+    public ItemSnapshot getChestplateSnapshot() {
+        return new ItemSnapshotWrapper(inventory.getChestplate());
+    }
+
+    @Override
+    public ItemSnapshot getLeggingsSnapshot() {
+        return new ItemSnapshotWrapper(inventory.getLeggings());
+    }
+
+    @Override
+    public ItemSnapshot getBootsSnapshot() {
+        return new ItemSnapshotWrapper(inventory.getBoots());
+    }
+
+    @Override
+    public void setHelmet(ItemSnapshot item) {
+        inventory.setHelmet(((ItemSnapshotWrapper)item).getBukkitItem());
+    }
+
+    @Override
+    public void setChestplate(ItemSnapshot item) {
+        inventory.setChestplate(((ItemSnapshotWrapper)item).getBukkitItem());
+    }
+
+    @Override
+    public void setLeggings(ItemSnapshot item) {
+        inventory.setLeggings(((ItemSnapshotWrapper)item).getBukkitItem());
+    }
+
+    @Override
+    public void setBoots(ItemSnapshot item) {
+        inventory.setBoots(((ItemSnapshotWrapper)item).getBukkitItem());
+    }
+
+    @Override
     public void removeAll(ItemStack item) {
         inventory.remove(TypeUtil.adapt(item));
     }
