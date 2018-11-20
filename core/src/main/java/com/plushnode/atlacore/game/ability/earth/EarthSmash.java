@@ -60,6 +60,8 @@ public class EarthSmash implements Ability {
             if (!earthSmashes.isEmpty()) {
                 EarthSmash eSmash = earthSmashes.get(0);
 
+                if (eSmash.userConfig == null) return false;
+
                 double halfSize = eSmash.boulder.getSize() / 2.0;
                 Location center = eSmash.boulder.getBaseBlockLocation().add(halfSize, halfSize, halfSize);
 

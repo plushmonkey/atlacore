@@ -94,4 +94,48 @@ public final class CollisionUtil {
 
         return new Pair<>(false, null);
     }
+
+    public static Optional<Pair<Double, Double>> sweepAABB(AABB a, Vector3D aPrevPos, Vector3D aCurPos, AABB b, Vector3D bPrevPos, Vector3D bCurPos) {
+        AABB aPrev = a.at(aPrevPos);
+        AABB bPrev = b.at(bPrevPos);
+
+        Vector3D da = aCurPos.subtract(aPrevPos);
+        Vector3D db = bCurPos.subtract(bPrevPos);
+
+        Vector3D v = db.subtract(da);
+
+        Vector3D overlapFirst = Vector3D.ZERO;
+        Vector3D overlapLast = Vector3D.ZERO;
+
+        if (aPrev.intersects(bPrev)) {
+            return Optional.of(new Pair<>(0.0, 0.0));
+        }
+
+        for (int i = 0; i < 3; ++i) {
+            double aMax = VectorUtil.component(a.max(), i);
+            double aMin = VectorUtil.component(a.min(), i);
+            double bMax = VectorUtil.component(b.max(), i);
+            double bMin = VectorUtil.component(b.min(), i);
+            double vi = VectorUtil.component(v, i);
+
+            if (aMax < bMin && vi < 0) {
+                VectorUtil.setComponent(overlapFirst, i, (aMax - bMin) / vi);
+            } else if (bMax < aMin && vi > 0) {
+                VectorUtil.setComponent(overlapFirst, i, (aMin - bMax) / vi);
+            } else if (bMax > aMin && vi < 0) {
+                VectorUtil.setComponent(overlapLast, i, (aMin - bMax) / vi);
+            } else if (aMax > bMin && vi > 0) {
+                VectorUtil.setComponent(overlapLast, i, (aMax - bMin) / vi);
+            }
+        }
+
+        double t1 = VectorUtil.getMaxComponent(overlapFirst);
+        double t2 = VectorUtil.getMinComponent(overlapLast);
+
+        if (t1 <= t2) {
+            return Optional.of(new Pair<>(t1, t2));
+        }
+
+        return Optional.empty();
+    }
 }

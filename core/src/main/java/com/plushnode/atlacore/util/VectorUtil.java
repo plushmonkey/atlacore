@@ -22,6 +22,12 @@ public final class VectorUtil {
         return vec.toArray()[axis];
     }
 
+    public static Vector3D setComponent(Vector3D vec, int axis, double value) {
+        double[] values = vec.toArray();
+        values[axis] = value;
+        return new Vector3D(values);
+    }
+
     public static Vector3D setX(Vector3D vec, double x) {
         return new Vector3D(x, vec.getY(), vec.getZ());
     }
@@ -56,6 +62,10 @@ public final class VectorUtil {
 
     public static Vector3D getBlockVector(Vector3D vector) {
         return new Vector3D(Math.floor(vector.getX()), Math.floor(vector.getY()), Math.floor(vector.getZ()));
+    }
+
+    public static double getMinComponent(Vector3D vector) {
+        return Math.min(vector.getX(), Math.min(vector.getY(), vector.getZ()));
     }
 
     public static double getMaxComponent(Vector3D vector) {
