@@ -50,6 +50,7 @@ public class AttributeSystem {
         Game.getAbilityInstanceManager().getPlayerInstances(user).forEach(Ability::recalculateConfig);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Configurable> T calculate(Ability ability, T oldConfig) {
         T config;
         try {
