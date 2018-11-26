@@ -202,6 +202,11 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
     }
 
     @Override
+    public boolean isVisible() {
+        return true;
+    }
+
+    @Override
     public void damage(double amount) {
         getSpongeEntity().damage(amount, DamageSources.GENERIC);
     }

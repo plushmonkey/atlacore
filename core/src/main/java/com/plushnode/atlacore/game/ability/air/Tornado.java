@@ -142,7 +142,7 @@ public class Tornado implements Ability {
                 double z = (2.0 + ((radius - 2.0) * f)) * Math.sin(theta);
 
                 Location current = base.add(x, y, z);
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, current, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, current);
             }
         }
     }

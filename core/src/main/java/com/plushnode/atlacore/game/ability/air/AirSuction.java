@@ -106,14 +106,14 @@ public class AirSuction implements Ability {
         if (!launched) {
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
                     (float)Math.random(), (float)Math.random(), (float)Math.random(), (float)Math.random(),
-                    userConfig.selectParticles, origin, 257);
+                    userConfig.selectParticles, origin);
         } else {
             Location previous = location;
 
             location = location.add(direction.scalarMultiply(userConfig.speed));
 
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
-                    0.275f, 0.275f, 0.275f, 0.0f, userConfig.particles, location, 257);
+                    0.275f, 0.275f, 0.275f, 0.0f, userConfig.particles, location);
 
             if (location.distanceSquared(origin) <= userConfig.speed * userConfig.speed) {
                 return UpdateResult.Remove;

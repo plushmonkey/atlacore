@@ -51,6 +51,10 @@ public final class CollisionUtil {
                 continue;
             }
 
+            if (livingOnly) {
+                if (!((LivingEntity)entity).isVisible()) continue;
+            }
+
             AABB entityBounds = entity.getBounds().at(entity.getLocation());
             if (collider.intersects(entityBounds)) {
                 if (callback.onCollision(entity)) {

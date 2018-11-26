@@ -104,7 +104,7 @@ public class AirSpout implements Ability {
 
         for (int i = 0; i < dy; ++i) {
             Location location = ground.add(0, i, 0);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.4f, 0.4f, 0.4f, 0.0f, 3, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.4f, 0.4f, 0.4f, 0.0f, 3, location);
         }
 
         nextRenderTime = time + userConfig.renderDelay;

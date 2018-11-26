@@ -93,15 +93,22 @@ public class EarthSmash implements Ability {
 
                 return false;
             }
-        } else if (method == ActivationMethod.Punch) {
+        } else if (method == ActivationMethod.Punch || method == ActivationMethod.Use) {
             List<EarthSmash> earthSmashes = Game.getAbilityInstanceManager().getPlayerInstances(user, EarthSmash.class);
             if (!earthSmashes.isEmpty()) {
                 EarthSmash eSmash = earthSmashes.get(0);
 
-                if (eSmash.state instanceof HoldState) {
-                    Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), eSmash.userConfig.grabRange, true);
-                    if (block != null && eSmash.isBoulderBlock(block)) {
-                        eSmash.enterTravelState();
+                Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), eSmash.userConfig.grabRange, true);
+                if (block != null && eSmash.isBoulderBlock(block)) {
+                    if (eSmash.state instanceof HoldState) {
+                        if (method == ActivationMethod.Punch) {
+                            eSmash.enterTravelState();
+                        } else {
+                            int size = eSmash.boulder.getSize();
+
+                            user.teleport(eSmash.boulder.getBaseBlockLocation().add(size / 2.0, size - 1, size/2.0));
+                            eSmash.enterFlyState();
+                        }
                     }
                 }
             }
@@ -246,7 +253,7 @@ public class EarthSmash implements Ability {
                 Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 location = location.add(side.scalarMultiply(0.5));
 
-                Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
 
                 if (!user.isSneaking()) {
                     Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.selectRange, true);

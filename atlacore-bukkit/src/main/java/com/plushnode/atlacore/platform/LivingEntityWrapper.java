@@ -5,6 +5,7 @@ import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.PotionUtil;
 import com.plushnode.atlacore.util.TypeUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.bukkit.entity.ArmorStand;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -239,6 +240,14 @@ public class LivingEntityWrapper extends EntityWrapper implements LivingEntity {
     @Override
     public void setRemainingAir(int ticks) {
         ((org.bukkit.entity.LivingEntity)entity).setRemainingAir(ticks);
+    }
+
+    @Override
+    public boolean isVisible() {
+        if (entity instanceof ArmorStand) {
+            return ((ArmorStand)entity).isVisible();
+        }
+        return true;
     }
 
     @Override

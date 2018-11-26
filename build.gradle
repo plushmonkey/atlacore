@@ -11,8 +11,8 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 
 allprojects {
-  group = 'com.plushnode.atlacore'
-  version = '0.3'
+  group = 'com.plushnode'
+  version = '0.4'
 }
 
 description = 'Avatar bending plugin'

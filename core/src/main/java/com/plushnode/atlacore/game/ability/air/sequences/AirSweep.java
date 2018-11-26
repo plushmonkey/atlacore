@@ -138,7 +138,7 @@ public class AirSweep implements Ability {
 
         @Override
         public void render() {
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
         }
 
         @Override

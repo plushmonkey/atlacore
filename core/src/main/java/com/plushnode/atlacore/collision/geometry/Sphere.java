@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.World;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -11,6 +12,10 @@ public class Sphere implements Collider {
 
     public Sphere(Vector3D center, double radius) {
         this(center, radius, null);
+    }
+
+    public Sphere(Location center, double radius) {
+        this(center.toVector(), radius, center.getWorld());
     }
 
     public Sphere(Vector3D center, double radius, World world) {

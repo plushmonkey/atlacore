@@ -175,7 +175,7 @@ public class FireShield implements Ability {
                 for (int i = 0; i < userConfig.discParticleLayers ; ++i) {
                     Location location = center.add(direction.scalarMultiply(userConfig.discRadius * i / userConfig.discParticleLayers));
 
-                    Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                    Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
                 }
             }
         }
@@ -220,10 +220,10 @@ public class FireShield implements Ability {
             for (Block block : WorldUtil.getNearbyBlocks(user.getEyeLocation(), userConfig.shieldRadius)) {
                 Location location = block.getLocation().add(0.5, 0.5, 0.5);
 
-                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.6f, 0.6f, 0.6f, 0.0f, 1, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.6f, 0.6f, 0.6f, 0.0f, 1, location);
 
                 if (Math.random() < 1.0 / 3.0) {
-                    Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.6f, 0.6f, 0.6f, 0.0f, 1, location, 257);
+                    Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.6f, 0.6f, 0.6f, 0.0f, 1, location);
                 }
             }
         }

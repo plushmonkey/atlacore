@@ -107,7 +107,7 @@ public class AirSwipe implements Ability {
                 location = location.add(side.scalarMultiply(0.5));
 
                 // Display air particles to the right of the player.
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
             } else if (!user.isSneaking()) {
                 factor = Math.max(1.0, Math.min(1.0, (time - startTime) / (double)userConfig.maxChargeTime) * userConfig.chargeFactor);
 
@@ -195,7 +195,7 @@ public class AirSwipe implements Ability {
                 return false;
             }
 
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
 
             Collider collider = new Sphere(location.toVector(), userConfig.entityCollisionRadius);
             if (collide(collider)) {

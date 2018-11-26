@@ -157,7 +157,7 @@ public class Combustion implements Ability {
                 }
 
                 if (charged) {
-                    Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 1.0f, 1.0f, 1.0f, 0.1f, 1, user.getLocation(), 257);
+                    Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 1.0f, 1.0f, 1.0f, 0.1f, 1, user.getLocation());
                 }
             } else {
                 if (charged) {
@@ -183,8 +183,8 @@ public class Combustion implements Ability {
 
                 Location location = user.getLocation().add(x, 1, z);
 
-                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 3, location, 257);
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.0f, 0.0f, 0.0f, 0.0f, 4, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 3, location);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.0f, 0.0f, 0.0f, 0.0f, 4, location);
             }
         }
     }
@@ -268,9 +268,9 @@ public class Combustion implements Ability {
         }
 
         private void render() {
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.03f, 1, location, 257);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 0.0f, 0.0f, 0.0f, 0.06f, 1, location, 257);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FIREWORKS_SPARK, 0.0f, 0.0f, 0.0f, 0.06f, 1, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.03f, 1, location);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, 0.0f, 0.0f, 0.0f, 0.06f, 1, location);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FIREWORKS_SPARK, 0.0f, 0.0f, 0.0f, 0.06f, 1, location);
         }
     }
 
@@ -364,14 +364,14 @@ public class Combustion implements Ability {
         }
 
         private void render(Location location) {
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.03f, 1, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.03f, 1, location);
 
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, (float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 20, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, (float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 20, location);
 
-            Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, (float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 20, location, 257);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FIREWORKS_SPARK ,(float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 20, location, 257);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, (float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 20, location, 257);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.EXPLOSION_HUGE, (float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 5, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, (float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 20, location);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FIREWORKS_SPARK ,(float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 20, location);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE, (float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 20, location);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.EXPLOSION_HUGE, (float) Math.random(), (float) Math.random(), (float) Math.random(), 0.5f, 5, location);
         }
 
         private int destroyBlocks(Location location, int size) {

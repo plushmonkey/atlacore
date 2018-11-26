@@ -167,6 +167,7 @@ public class PlayerListener implements Listener {
                 Game.getSequenceService().registerAction(user, Action.Interact);
             } else if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
                 Game.getSequenceService().registerAction(user, Action.InteractBlock);
+                activateAbility(user, ActivationMethod.Use);
             }
         }
     }

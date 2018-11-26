@@ -164,7 +164,7 @@ public class Suffocate implements Ability {
                 double x = r * f * Math.cos(theta);
                 double z = r * f * Math.sin(theta);
 
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, center.add(x, y, z), 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, center.add(x, y, z));
             }
         }
     }

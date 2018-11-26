@@ -91,8 +91,8 @@ public class FireWall implements Ability {
         if (time > this.nextRenderTime) {
             for (Block block : blocks) {
                 Location location = block.getLocation().add(0.5, 0.5, 0.5);
-                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.6f, 0.6f, 0.6f, 0.0f, 3, location, 257);
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.6f, 0.6f, 0.6f, 0.0f, 1, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.6f, 0.6f, 0.6f, 0.0f, 3, location);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.6f, 0.6f, 0.6f, 0.0f, 1, location);
             }
 
             this.nextRenderTime = time + userConfig.renderDelay;

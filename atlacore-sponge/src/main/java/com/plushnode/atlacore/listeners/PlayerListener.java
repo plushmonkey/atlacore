@@ -163,6 +163,7 @@ public class PlayerListener {
             Game.getSequenceService().registerAction(user, Action.Interact);
         } else {
             Game.getSequenceService().registerAction(user, Action.InteractBlock);
+            activateAbility(user, ActivationMethod.Use);
         }
     }
 

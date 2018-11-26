@@ -1,10 +1,13 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.util.TypeUtil;
 import org.bukkit.*;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.inventory.ItemStack;
 
 public class BukkitParticleEffectRenderer implements ParticleEffectRenderer {
     @Override
-    public void display(ParticleEffect effect, float offsetX, float offsetY, float offsetZ, float speed, int amount, Location center, double range) {
+    public void display(ParticleEffect effect, float offsetX, float offsetY, float offsetZ, float speed, int amount, Location center) {
         if (effect.getRequiresData()) {
             return;
         }
@@ -28,8 +31,31 @@ public class BukkitParticleEffectRenderer implements ParticleEffectRenderer {
     }
 
     @Override
-    public void displayColored(ParticleEffect effect, int red, int green, int blue, float speed, int amount, Location center, double range) {
-        display(effect, (float)red, (float)green, (float)blue, speed, amount, center, range);
+    public void display(ParticleEffect effect, float offsetX, float offsetY, float offsetZ, float speed, int amount, Location center, com.plushnode.atlacore.platform.block.Material material) {
+        org.bukkit.Location bukkitCenter = ((LocationWrapper)center).getBukkitLocation();
+
+        if (effect.getRequiresWater() && !isWater(bukkitCenter)) {
+            throw new IllegalArgumentException("There is no water at the center location");
+        }
+
+        Particle particle = mapParticleType(effect);
+        org.bukkit.World world = ((WorldWrapper)center.getWorld()).getBukkitWorld();
+
+        if (effect == ParticleEffect.ITEM_CRACK) {
+            ItemStack data = new ItemStack(TypeUtil.adapt(material), 1);
+            world.spawnParticle(particle, ((LocationWrapper) center).getBukkitLocation(), amount, offsetX, offsetY, offsetZ, speed, data, true);
+        } else if (effect == ParticleEffect.BLOCK_CRACK) {
+            BlockData data = TypeUtil.adapt(material).createBlockData();
+
+            world.spawnParticle(particle, ((LocationWrapper) center).getBukkitLocation(), amount, offsetX, offsetY, offsetZ, speed, data, true);
+        } else {
+            display(effect, offsetX, offsetY, offsetZ, speed, amount, center);
+        }
+    }
+
+    @Override
+    public void displayColored(ParticleEffect effect, int red, int green, int blue, float speed, int amount, Location center) {
+        display(effect, (float)red, (float)green, (float)blue, speed, amount, center);
     }
 
     private static boolean isWater(org.bukkit.Location location) {

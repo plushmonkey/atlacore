@@ -39,4 +39,5 @@ public interface LivingEntity extends Entity, Damageable {
     void setMaximumNoDamageTicks(int ticks);
     void setNoDamageTicks(int ticks);
     void setRemainingAir(int ticks);
+    boolean isVisible();
 }

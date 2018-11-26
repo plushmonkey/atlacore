@@ -150,7 +150,7 @@ public class AirScooter implements Ability {
             double y = radius * Math.cos(verticalPosition);
             double z = radius * Math.sin(angle) * Math.sin(verticalPosition);
 
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 2, base.add(x, y, z), 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 2, base.add(x, y, z));
         }
     }
 

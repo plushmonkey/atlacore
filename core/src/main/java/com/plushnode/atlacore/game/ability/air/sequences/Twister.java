@@ -142,7 +142,7 @@ public class Twister implements Ability {
                 }
 
                 Location current = base.add(x, y, z);
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, current, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, current);
             }
         }
     }

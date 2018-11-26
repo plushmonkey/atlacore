@@ -84,8 +84,8 @@ public class FireJet implements Ability {
         this.user.setFallDistance(0.0f);
 
         Location location = user.getLocation();
-        Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.6f, 0.6f, 0.6f, 0.0f, 20, location, 257);
-        Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.6f, 0.6f, 0.6f, 0.0f, 20, location, 257);
+        Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.6f, 0.6f, 0.6f, 0.0f, 20, location);
+        Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.6f, 0.6f, 0.6f, 0.0f, 20, location);
 
         return UpdateResult.Continue;
     }

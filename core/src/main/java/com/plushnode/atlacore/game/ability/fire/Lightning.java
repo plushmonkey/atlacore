@@ -97,7 +97,7 @@ public class Lightning implements Ability {
     }
 
     private void displayParticle(Location location) {
-        Game.plugin.getParticleRenderer().displayColored(ParticleEffect.REDSTONE, 1, 225, 255, 0.004f, 0, location, 257);
+        Game.plugin.getParticleRenderer().displayColored(ParticleEffect.REDSTONE, 1, 225, 255, 0.004f, 0, location);
     }
 
     private void displayParticle(Location location, double deviation) {
@@ -107,7 +107,7 @@ public class Lightning implements Ability {
                 (rand.nextDouble() * deviation) - (deviation / 2.0)
         );
 
-        Game.plugin.getParticleRenderer().displayColored(ParticleEffect.REDSTONE, 1, 225, 255, 0.004f, 0, location.add(offset), 257);
+        Game.plugin.getParticleRenderer().displayColored(ParticleEffect.REDSTONE, 1, 225, 255, 0.004f, 0, location.add(offset));
     }
 
     private interface State {

@@ -101,7 +101,7 @@ public class FireBlastCharged implements Ability {
                 Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 displayLocation = displayLocation.add(side.scalarMultiply(0.5));
 
-                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.25f, 0.25f, 0.25f, 0.0f, 3, displayLocation, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.25f, 0.25f, 0.25f, 0.0f, 3, displayLocation);
 
                 return UpdateResult.Continue;
             } else {
@@ -126,8 +126,8 @@ public class FireBlastCharged implements Ability {
         double displayRadius = Math.max(userConfig.entityCollisionRadius - 1.0, 1.0);
 
         for (Block block : WorldUtil.getNearbyBlocks(location, displayRadius)) {
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.5f, 0.5f, 0.5f, 0.0f, 5, block.getLocation(), 257);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.5f, 0.5f, 0.5f, 0.0f, 2, block.getLocation(), 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.5f, 0.5f, 0.5f, 0.0f, 5, block.getLocation());
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.5f, 0.5f, 0.5f, 0.0f, 2, block.getLocation());
         }
 
         Sphere collider = new Sphere(location.toVector(), userConfig.entityCollisionRadius);

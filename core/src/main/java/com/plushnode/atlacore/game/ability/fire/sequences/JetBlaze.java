@@ -68,7 +68,7 @@ public class JetBlaze implements Ability {
 
         Game.plugin.getParticleRenderer().display(ParticleEffect.LARGE_SMOKE,
                 0.6f, 0.6f, 0.6f, 0.0f, 20,
-                getUser().getLocation(), 257);
+                getUser().getLocation());
 
         Sphere collider = new Sphere(getUser().getLocation().toVector(), userConfig.entityCollisionRadius);
         

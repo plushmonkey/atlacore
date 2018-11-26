@@ -115,8 +115,8 @@ public class FireBlast implements Ability, Burstable {
         }
 
         if (time > this.nextRenderTime) {
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.275f, 0.275f, 0.275f, 0.0f, particleCount, location, 257);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.3f, 0.3f, 0.3f, 0.0f, particleCount / 2, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.275f, 0.275f, 0.275f, 0.0f, particleCount, location);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.3f, 0.3f, 0.3f, 0.0f, particleCount / 2, location);
 
             this.nextRenderTime = time + renderInterval;
         }

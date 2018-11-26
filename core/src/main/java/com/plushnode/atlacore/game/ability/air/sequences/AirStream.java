@@ -151,7 +151,7 @@ public class AirStream implements Ability {
             for (double theta = 0; theta < Math.PI * 2; theta += Math.toRadians(45)) {
                 Vector3D offset = VectorUtil.rotate(side, data.direction, theta).normalize().scalarMultiply(userConfig.radius);
 
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, data.location.add(offset), 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, data.location.add(offset));
             }
         }
     }

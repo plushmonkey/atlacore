@@ -133,7 +133,7 @@ public class AirBlast implements Ability, Burstable {
         if (!launched) {
             Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
                     (float)Math.random(), (float)Math.random(), (float)Math.random(), (float)Math.random(),
-                    userConfig.selectParticles, origin, 257);
+                    userConfig.selectParticles, origin);
         } else {
             Location previous = location;
 
@@ -142,7 +142,7 @@ public class AirBlast implements Ability, Burstable {
             if (time > this.nextRenderTime) {
                 Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL,
                         0.275f, 0.275f, 0.275f, 0.0f,
-                        particleCount, location, 257);
+                        particleCount, location);
                 this.nextRenderTime = time + this.renderInterval;
             }
 

@@ -110,7 +110,7 @@ public class FireWheel implements Ability {
 
         for (double angle = 0; angle < 360; ++angle) {
             Vector3D offset = VectorUtil.rotate(direction, rotationAxis, Math.toRadians(angle)).scalarMultiply(userConfig.radius);
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location.add(offset), 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location.add(offset));
         }
 
         Disc checkCollider = this.entityCollider.at(location.toVector());

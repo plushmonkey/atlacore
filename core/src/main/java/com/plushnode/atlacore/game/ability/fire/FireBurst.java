@@ -54,8 +54,8 @@ public class FireBurst extends BurstAbility {
                 Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 location = location.subtract(side.scalarMultiply(0.5));
 
-                // Display air particles to the left of the player.
-                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                // Display particles to the left of the player.
+                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
             }
 
             if (sphereCharged) {
@@ -65,8 +65,8 @@ public class FireBurst extends BurstAbility {
                 Vector3D side = VectorUtil.normalizeOrElse(direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
                 location = location.add(side.scalarMultiply(0.5));
 
-                // Display air particles to the right of the player.
-                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                // Display particles to the right of the player.
+                Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
             }
 
             if (!user.isSneaking()) {

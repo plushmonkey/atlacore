@@ -93,7 +93,7 @@ public class AirShield implements Ability {
 
             Location location = center.add(offset);
 
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.2f, 0.2f, 0.2f, 0.0f, userConfig.renderParticleCount, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.2f, 0.2f, 0.2f, 0.0f, userConfig.renderParticleCount, location);
         }
 
         CollisionUtil.handleEntityCollisions(user, new Sphere(center.toVector(), userConfig.radius), (entity) -> {

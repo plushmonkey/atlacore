@@ -109,7 +109,7 @@ public class FireKick implements Ability {
 
         @Override
         public void render() {
-            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.2f, 0.2f, 0.2f, 0.0f, 5, location, 257);
+            Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.2f, 0.2f, 0.2f, 0.0f, 5, location);
         }
     }
 

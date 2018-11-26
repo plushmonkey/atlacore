@@ -11,6 +11,7 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.ability.common.RisingColumn;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
@@ -33,7 +34,7 @@ public class RaiseEarth implements Ability {
     private User user;
     private Config userConfig;
     private List<Block> affected = new ArrayList<>();
-    private List<Column> columns = new ArrayList<>();
+    private List<RisingColumn> columns = new ArrayList<>();
     private long duration;
     private long interval;
     private int maxHeight;
@@ -98,7 +99,7 @@ public class RaiseEarth implements Ability {
             return false;
         }
 
-        Column column = new Column(base);
+        RisingColumn column = new RisingColumn(user, base, maxHeight, (int)duration, true);
 
         columns.add(column);
 
@@ -119,7 +120,7 @@ public class RaiseEarth implements Ability {
                 continue;
             }
 
-            columns.add(new Column(base));
+            columns.add(new RisingColumn(user, base, maxHeight, (int)duration, true));
         }
 
         for (int i = 0; i < secondSideSize; ++i) {
@@ -130,7 +131,7 @@ public class RaiseEarth implements Ability {
                 continue;
             }
 
-            columns.add(new Column(base));
+            columns.add(new RisingColumn(user, base, maxHeight, (int)duration, true));
         }
     }
 
@@ -157,14 +158,14 @@ public class RaiseEarth implements Ability {
         if (time > lastTime + interval) {
             affected.clear();
 
-            for (Iterator<Column> iterator = columns.iterator(); iterator.hasNext(); ) {
-                Column column = iterator.next();
-                if (!column.update()) {
+            for (Iterator<RisingColumn> iterator = columns.iterator(); iterator.hasNext(); ) {
+                RisingColumn column = iterator.next();
+                if (column.update()) {
                     iterator.remove();
                     continue;
                 }
 
-                affected.addAll(column.affected);
+                affected.addAll(column.getAffected());
             }
 
             this.lastTime = time;
@@ -199,7 +200,7 @@ public class RaiseEarth implements Ability {
 
     }
 
-    private class Column {
+    /*private class Column {
         private Block base;
         private int height;
         private int currentHeight;
@@ -292,7 +293,7 @@ public class RaiseEarth implements Ability {
             new TempBlock(top.getRelative(BlockFace.DOWN, height - 1), Material.AIR, duration);
             return true;
         }
-    }
+    }*/
 
     public static class Config extends Configurable {
         public boolean enabled;

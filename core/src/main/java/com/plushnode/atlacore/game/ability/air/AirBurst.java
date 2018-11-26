@@ -63,7 +63,7 @@ public class AirBurst extends BurstAbility {
                 location = location.subtract(side.scalarMultiply(0.5));
 
                 // Display air particles to the left of the player.
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
             }
 
             if (sphereCharged) {
@@ -74,7 +74,7 @@ public class AirBurst extends BurstAbility {
                 location = location.add(side.scalarMultiply(0.5));
 
                 // Display air particles to the right of the player.
-                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location, 257);
+                Game.plugin.getParticleRenderer().display(ParticleEffect.SPELL, 0.0f, 0.0f, 0.0f, 0.0f, 1, location);
             }
 
             if (!user.isSneaking()) {
