@@ -254,7 +254,6 @@ public class SpongeMaterialUtil_1_12 {
         blockTypes.put(Material.LAPIS_ORE, BlockTypes.LAPIS_ORE);
         blockTypes.put(Material.LARGE_FERN, BlockTypes.DOUBLE_PLANT);
         blockTypes.put(Material.LAVA, BlockTypes.LAVA);
-        blockTypes.put(Material.LAVA, BlockTypes.FLOWING_LAVA);
         blockTypes.put(Material.LEVER, BlockTypes.LEVER);
         blockTypes.put(Material.LIGHT_BLUE_BANNER, BlockTypes.STANDING_BANNER);
         blockTypes.put(Material.LIGHT_BLUE_BED, BlockTypes.BED);
@@ -510,7 +509,6 @@ public class SpongeMaterialUtil_1_12 {
         blockTypes.put(Material.WALL_SIGN, BlockTypes.WALL_SIGN);
         blockTypes.put(Material.WALL_TORCH, BlockTypes.TORCH);
         blockTypes.put(Material.WATER, BlockTypes.WATER);
-        blockTypes.put(Material.WATER, BlockTypes.FLOWING_WATER);
         blockTypes.put(Material.WET_SPONGE, BlockTypes.SPONGE);
         blockTypes.put(Material.WHEAT, BlockTypes.WHEAT);
         blockTypes.put(Material.WHITE_BANNER, BlockTypes.STANDING_BANNER);
@@ -539,7 +537,6 @@ public class SpongeMaterialUtil_1_12 {
         blockTypes.put(Material.YELLOW_WALL_BANNER, BlockTypes.WALL_BANNER);
         blockTypes.put(Material.YELLOW_WOOL, BlockTypes.WOOL);
 
-
         reverseBlockTypes.put(BlockTypes.STONE, Material.STONE);
         reverseBlockTypes.put(BlockTypes.DIRT, Material.DIRT);
         reverseBlockTypes.put(BlockTypes.PLANKS, Material.OAK_PLANKS);
@@ -567,6 +564,8 @@ public class SpongeMaterialUtil_1_12 {
         reverseBlockTypes.put(BlockTypes.DOUBLE_PLANT, Material.TALL_GRASS);
         reverseBlockTypes.put(BlockTypes.WATER, Material.WATER);
         reverseBlockTypes.put(BlockTypes.LAVA, Material.LAVA);
+        reverseBlockTypes.put(BlockTypes.FLOWING_LAVA, Material.LAVA);
+        reverseBlockTypes.put(BlockTypes.FLOWING_WATER, Material.WATER);
     }
 
     public static Material toMaterial(BlockType type) {
@@ -594,6 +593,7 @@ public class SpongeMaterialUtil_1_12 {
 
         if (type == null) {
             System.out.println("material not found: " + material);
+            new Throwable().printStackTrace();
             return BlockTypes.AIR;
         }
 

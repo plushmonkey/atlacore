@@ -15,6 +15,7 @@ import com.plushnode.atlacore.util.SpongeTypeUtil;
 import com.plushnode.atlacore.util.SpongeVersionUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.block.FluidLevelData;
 import org.spongepowered.api.util.Direction;
@@ -158,7 +159,7 @@ public class BlockWrapper implements Block {
     @Override
     public AABB getBounds() {
         // todo: get actual block bounding box instead of binary solid
-        if (MaterialUtil.isTransparent(this)) {
+        if (MaterialUtil.isTransparent(this) || location.getBlockType() == BlockTypes.WATER || location.getBlockType() == BlockTypes.FLOWING_WATER) {
             return new AABB(null, null);
         }
 

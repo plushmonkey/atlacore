@@ -66,6 +66,17 @@ public final class MaterialUtil {
             Material.PURPLE_TERRACOTTA, Material.RED_TERRACOTTA, Material.WHITE_TERRACOTTA, Material.YELLOW_TERRACOTTA
     );
 
+    private static final Material[] PLANT_MATERIALS = {
+            Material.ACACIA_SAPLING, Material.BIRCH_SAPLING, Material.DARK_OAK_SAPLING, Material.JUNGLE_SAPLING,
+            Material.SPRUCE_SAPLING, Material.ACACIA_LEAVES, Material.BIRCH_LEAVES, Material.DARK_OAK_LEAVES,
+            Material.JUNGLE_LEAVES, Material.OAK_LEAVES, Material.SPRUCE_LEAVES, Material.DEAD_BUSH, Material.DANDELION,
+            Material.POPPY, Material.RED_MUSHROOM, Material.BROWN_MUSHROOM, Material.CACTUS, Material.PUMPKIN,
+            Material.RED_MUSHROOM_BLOCK, Material.BROWN_MUSHROOM_BLOCK, Material.MELON, Material.VINE,
+            Material.LILY_PAD, Material.SUNFLOWER, Material.LILAC, Material.LARGE_FERN, Material.ROSE_BUSH,
+            Material.PEONY, Material.WHEAT, Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.SUGAR_CANE,
+            Material.PUMPKIN_STEM, Material.MELON_STEM
+    };
+
     private MaterialUtil() {
 
     }
@@ -107,6 +118,18 @@ public final class MaterialUtil {
     public static boolean isLava(Block block) {
         Material type = block.getType();
         return type == Material.LAVA;
+    }
+
+    public static boolean isPlant(Block block) {
+        return isPlant(block.getType());
+    }
+
+    public static boolean isPlant(Material type) {
+        return Arrays.asList(PLANT_MATERIALS).contains(type);
+    }
+
+    public static Material[] getPlantMaterials() {
+        return PLANT_MATERIALS;
     }
 
     // Finds a suitable solid block type to replace a falling-type block with.

@@ -4,10 +4,16 @@ import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.BlockWrapper;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.TickBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -38,7 +44,7 @@ public class BlockListener {
     }
 
     @Listener
-    public void onBlockPlace(ChangeBlockEvent.Place event) {
+    public void onBlockPlace(ChangeBlockEvent.Place event, @First Player player) {
         event.getTransactions().stream().forEach((transaction) -> {
             Optional<Location<World>> result = transaction.getFinal().getLocation();
 
@@ -52,6 +58,40 @@ public class BlockListener {
                 }
             }
         });
+    }
+
+    @Listener
+    public void onBlockFlow(ChangeBlockEvent.Place event, @First LocatableBlock from) {
+        if (Game.getTempBlockService().isTempBlock(new BlockWrapper(from.getLocation()))) {
+            event.setCancelled(true);
+            return;
+        }
+
+        for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+            Location<World> location = transaction.getOriginal().getLocation().orElse(null);
+
+            if (location != null && Game.getTempBlockService().isTempBlock(new BlockWrapper(location))) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    // This is needed for 1.11.2
+    @Listener
+    public void onBlockFlow(ChangeBlockEvent.Place event, @First PluginContainer container) {
+        if (!(container.getInstance().orElse(null) instanceof AtlaPlugin)) {
+            return;
+        }
+
+        for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+            Location<World> original = transaction.getOriginal().getLocation().orElse(null);
+
+            if (original != null && Game.getTempBlockService().isTempBlock(new BlockWrapper(original))) {
+                event.setCancelled(true);
+                return;
+            }
+        }
     }
 
     @Listener

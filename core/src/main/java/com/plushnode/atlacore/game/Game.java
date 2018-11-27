@@ -19,6 +19,9 @@ import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
+import com.plushnode.atlacore.game.ability.water.Surge;
+import com.plushnode.atlacore.game.ability.water.SurgeWall;
+import com.plushnode.atlacore.game.ability.water.SurgeWave;
 import com.plushnode.atlacore.game.attribute.AttributeSystem;
 import com.plushnode.atlacore.game.element.Element;
 import com.plushnode.atlacore.game.element.ElementRegistry;
@@ -174,6 +177,10 @@ public class Game {
         registerAbility("EarthArmor", EarthArmor.class, Elements.EARTH, ActivationMethod.Sneak);
         registerAbility("EarthTunnel", EarthTunnel.class, Elements.EARTH, ActivationMethod.Sneak);
         registerAbility("EarthGrab", EarthGrab.class, Elements.EARTH, ActivationMethod.Punch);
+
+        registerAbility("Surge", Surge.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak).setCanBypassCooldown(true);
+        registerAbility("SurgeWall", SurgeWall.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
+        registerAbility("SurgeWave", SurgeWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
 
         sequenceService.registerSequence(fireKick, new Sequence(true,
                 new AbilityAction(fireBlast, Action.Punch),

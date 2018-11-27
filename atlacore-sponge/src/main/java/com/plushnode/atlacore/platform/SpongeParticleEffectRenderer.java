@@ -25,8 +25,6 @@ public class SpongeParticleEffectRenderer implements ParticleEffectRenderer {
 
         if (amount <= 0) amount = 1;
 
-        BlockState blockState = SpongeMaterialUtil.toBlockType(material).getDefaultState();
-
         org.spongepowered.api.effect.particle.ParticleEffect.Builder builder = org.spongepowered.api.effect.particle.ParticleEffect.builder()
                 .type(type)
                 .quantity(amount)
@@ -35,6 +33,7 @@ public class SpongeParticleEffectRenderer implements ParticleEffectRenderer {
 
         if (material != null) {
             if (effect == ParticleEffect.BLOCK_CRACK) {
+                BlockState blockState = SpongeMaterialUtil.toBlockType(material).getDefaultState();
                 builder = builder.option(ParticleOptions.BLOCK_STATE, blockState);
             } else if (effect == ParticleEffect.ITEM_CRACK) {
                 ItemType itemType = SpongeMaterialUtil.toItemType(material);

@@ -4,6 +4,7 @@ import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
+import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.VectorUtil;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -169,6 +170,18 @@ public final class RayCaster {
     }
 
     public static Block blockCast(World world, Ray ray, double maxRange, boolean liquidCollision) {
+        if (liquidCollision) {
+            return blockCast(world, ray, maxRange, Material.WATER);
+        } else {
+            return blockCast(world, ray, maxRange);
+        }
+    }
+
+    public static Block blockCast(World world, Ray ray, double maxRange, List<Material> solids) {
+        return blockCast(world, ray, maxRange, solids.toArray(new Material[0]));
+    }
+
+    public static Block blockCast(World world, Ray ray, double maxRange, Material... solids) {
         Location origin = world.getLocation(ray.origin);
         double closestDistance = Double.MAX_VALUE;
         Block closestBlock = null;
@@ -181,7 +194,7 @@ public final class RayCaster {
                 Block block = check.getBlock();
                 AABB localBounds = block.getBounds();
 
-                if (liquidCollision && block.isLiquid()) {
+                if (Arrays.asList(solids).contains(block.getType())) {
                     localBounds = AABB.BLOCK_BOUNDS;
                 }
 
