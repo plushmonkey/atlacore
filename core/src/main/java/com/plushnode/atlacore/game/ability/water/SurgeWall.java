@@ -10,18 +10,17 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.ability.common.source.SourceType;
+import com.plushnode.atlacore.game.ability.common.source.SourceTypes;
+import com.plushnode.atlacore.game.ability.common.source.SourceUtil;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.MaterialUtil;
-import com.plushnode.atlacore.util.VectorUtil;
-import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.*;
@@ -31,7 +30,7 @@ public class SurgeWall implements Ability {
 
     private User user;
     private Config userConfig;
-    private State state = null;
+    private Surge.State state = null;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -43,18 +42,15 @@ public class SurgeWall implements Ability {
         }
 
         if (method == ActivationMethod.Punch) {
-            if (this.state == null || this.state instanceof SourceState) {
+            if (this.state == null || this.state instanceof WallSourceState) {
+                SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant);
+                Optional<Block> newSource = SourceUtil.getSource(user, userConfig.selectRange, types);
 
-                List<Material> materials = new ArrayList<>(Arrays.asList(MaterialUtil.getPlantMaterials()));
-                materials.add(Material.WATER);
-
-                Block newSource = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.selectRange, materials);
-
-                if (newSource == null || (newSource.getType() != Material.WATER && !MaterialUtil.isPlant(newSource.getType()))) {
+                if (!newSource.isPresent()) {
                     return false;
                 }
 
-                this.state = new SourceState(newSource);
+                this.state = new WallSourceState(newSource.get());
             } else {
                 this.state.onPunch();
             }
@@ -112,33 +108,9 @@ public class SurgeWall implements Ability {
         this.userConfig = Game.getAttributeSystem().calculate(this, config);
     }
 
-    private interface State {
-        boolean update();
-        void onPunch();
-        void onSneak();
-        Collider getCollider();
-    }
-
-    private class SourceState implements State {
-        private Block sourceBlock;
-        private long startTime;
-
-        SourceState(Block source) {
-            this.startTime = System.currentTimeMillis();
-            this.sourceBlock = source;
-        }
-
-        @Override
-        public boolean update() {
-            if (user.getLocation().distanceSquared(sourceBlock.getLocation()) > userConfig.selectMaxDistance * userConfig.selectMaxDistance) {
-                return false;
-            }
-
-            Location renderLocation = this.sourceBlock.getLocation().add(0.5, 1, 0.5);
-
-            Game.plugin.getParticleRenderer().display(ParticleEffect.SMOKE, 0.0f, 0.0f, 0.0f, 0.0f, 1, renderLocation);
-
-            return System.currentTimeMillis() < startTime + userConfig.selectTimeout;
+    private class WallSourceState extends Surge.SourceState {
+        WallSourceState(Block sourceBlock) {
+            super(SurgeWall.this.user, sourceBlock, userConfig.selectMaxDistance, userConfig.selectTimeout);
         }
 
         @Override
@@ -150,14 +122,9 @@ public class SurgeWall implements Ability {
         public void onSneak() {
             state = new TravelState(sourceBlock.getLocation());
         }
-
-        @Override
-        public Collider getCollider() {
-            return null;
-        }
     }
 
-    private class TravelState implements State {
+    private class TravelState implements Surge.State {
         private Location location;
         private TempBlock tempBlock;
 
@@ -211,60 +178,26 @@ public class SurgeWall implements Ability {
         }
     }
 
-    private class WallState implements State {
+    private class WallState extends Surge.RenderState {
         private Location location;
-        private Disc disc;
-        private List<TempBlock> tempBlocks = new ArrayList<>();
-        private Material type;
         private long nextToggle;
 
         WallState() {
-            this.type = Material.WATER;
-            this.nextToggle = 0;
+            super(user, userConfig.radius);
         }
 
         @Override
         public boolean update() {
-            tempBlocks.forEach(TempBlock::reset);
-            tempBlocks.clear();
+            clear();
 
-            double dist = RayCaster.cast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.extension, false).distance(user.getEyeLocation());
+            double extension = RayCaster.cast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.extension, false).distance(user.getEyeLocation());
 
-            updateDisc(dist);
+            this.location = user.getEyeLocation().add(user.getDirection().scalarMultiply(extension));
 
-            List<Block> blocks = new ArrayList<>();
-
-            for (Block block : WorldUtil.getNearbyBlocks(location, userConfig.radius + 1)) {
-                if (MaterialUtil.isTransparent(block)) {
-                    if (disc.intersects(AABB.BLOCK_BOUNDS.at(block.getLocation()))) {
-                        // Check line of sight to the target block if it's not the center one.
-                        if (!block.equals(location.getBlock())) {
-                            Location target = block.getLocation().add(0.5, 0.5, 0.5);
-                            Vector3D toTarget = target.subtract(location).toVector();
-                            Vector3D direction = toTarget.normalize();
-                            double distance = toTarget.getNorm();
-
-                            double distSq = RayCaster.cast(user.getWorld(), new Ray(location, direction), distance, false).distanceSquared(location);
-
-                            if (Math.abs(distSq - (distance * distance)) > 0.01) {
-                                continue;
-                            }
-                        }
-
-                        // Only add blocks to the wall if they aren't intersecting the user.
-                        if (!AABB.BLOCK_BOUNDS.at(block.getLocation()).intersects(user.getBounds().at(user.getLocation()))) {
-                            blocks.add(block);
-                        }
-                    }
-                }
-            }
-
-            for (Block block : blocks) {
-                tempBlocks.add(new TempBlock(block, type));
-            }
+            render(this.location, false);
 
             if (!user.isSneaking()) {
-                tempBlocks.forEach(TempBlock::reset);
+                clear();
                 user.setCooldown(SurgeWall.this, userConfig.cooldown);
                 return false;
             }
@@ -289,21 +222,7 @@ public class SurgeWall implements Ability {
 
         @Override
         public Collider getCollider() {
-            return disc;
-        }
-
-        private void updateDisc(double extension) {
-            final double r = userConfig.radius;
-            final double ht = 0.25;
-
-            this.location = user.getEyeLocation().add(user.getDirection().scalarMultiply(extension));
-
-            AABB aabb = new AABB(new Vector3D(-r, -r, -ht), new Vector3D(r, r, ht));
-            Vector3D right = VectorUtil.normalizeOrElse(user.getDirection().crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
-            Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
-            rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
-
-            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).at(location), new Sphere(location, r));
+            return this.disc;
         }
     }
 
