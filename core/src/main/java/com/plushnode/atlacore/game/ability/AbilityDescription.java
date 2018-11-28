@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.game.ability;
 
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.platform.User;
 
 public interface AbilityDescription {
     String getName();
@@ -31,4 +32,5 @@ public interface AbilityDescription {
     Element getElement();
 
     boolean canBypassCooldown();
+    boolean canSourcePlant(User user);
 }

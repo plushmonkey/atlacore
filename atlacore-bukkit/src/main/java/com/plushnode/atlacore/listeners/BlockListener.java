@@ -2,7 +2,10 @@ package com.plushnode.atlacore.listeners;
 
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.platform.BlockWrapper;
+import com.plushnode.atlacore.platform.Player;
+import com.plushnode.atlacore.util.MaterialUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -47,6 +50,16 @@ public class BlockListener implements Listener {
         if (tempBlock != null) {
             Game.getTempBlockService().reset(tempBlock);
             event.setCancelled(true);
+            return;
+        }
+
+        if (MaterialUtil.isPlant(bw.getType())) {
+            Player player = Game.getPlayerService().getPlayerByUUID(event.getPlayer().getUniqueId());
+
+            AbilityDescription desc = player.getSelectedAbility();
+            if (desc != null && desc.canSourcePlant(player)) {
+                event.setCancelled(true);
+            }
         }
     }
 

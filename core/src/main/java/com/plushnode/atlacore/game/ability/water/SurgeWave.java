@@ -7,6 +7,7 @@ import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.RayCaster;
 import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.collision.geometry.Ray;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -142,9 +143,9 @@ public class SurgeWave implements Ability {
             this.origin = origin;
             this.location = origin;
 
-            Location target = RayCaster.cast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.range, false);
+            Location target = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.range));
 
-            this.direction = VectorUtil.normalizeOrElse(target.subtract(user.getEyeLocation()).toVector(), Vector3D.PLUS_I);
+            this.direction = VectorUtil.normalizeOrElse(target.subtract(origin).toVector(), Vector3D.PLUS_I);
             this.freeze = false;
 
             user.setCooldown(SurgeWave.this, userConfig.cooldown);
@@ -152,6 +153,7 @@ public class SurgeWave implements Ability {
 
         @Override
         public boolean update() {
+            Location previous = this.location;
             this.location = this.location.add(direction.scalarMultiply(userConfig.speed));
 
             render(location, true);
@@ -178,9 +180,21 @@ public class SurgeWave implements Ability {
                 return !freeze;
             }, true, true);
 
-            if (hit || this.location.distanceSquared(origin) > userConfig.range * userConfig.range) {
+            double distanceSq = this.location.distanceSquared(origin);
+            if (hit || distanceSq > userConfig.range * userConfig.range) {
                 clear();
                 return false;
+            }
+
+            // Don't do block collision for the beginning movement.
+            double beginDistanceSq = (userConfig.speed * 2) * (userConfig.speed * 2);
+            if (distanceSq > beginDistanceSq) {
+                Sphere collider = new Sphere(location, userConfig.speed);
+
+                if (CollisionUtil.handleBlockCollisions(collider, previous, location, false).getFirst()) {
+                    clear();
+                    return false;
+                }
             }
 
             return true;

@@ -47,7 +47,7 @@ public class Surge implements Ability {
             }
 
             // Nothing was sourced, so try to activate SurgeWave.
-            activateSurgeWave();
+            activate(SurgeWave.class, method);
         } else if (method == ActivationMethod.Sneak) {
             // Prioritize sourcing SurgeWave. Exit if it was sourced.
             if (sourceSurgeWave()) {
@@ -55,24 +55,34 @@ public class Surge implements Ability {
             }
 
             // Nothing was sourced, so try to activate SurgeWall.
-            activateSurgeWall();
+            activate(SurgeWall.class, method);
         }
 
         return false;
+    }
+
+    private <T extends Ability> void activate(Class<T> clazz, ActivationMethod method) {
+        List<T> instances = Game.getAbilityInstanceManager().getPlayerInstances(user, clazz);
+
+        if (!instances.isEmpty()) {
+            T ability = instances.get(0);
+
+            ability.activate(user, method);
+        }
     }
 
     private boolean sourceSurgeWall() {
         if (SurgeWall.config.enabled) {
             List<SurgeWall> instances = Game.getAbilityInstanceManager().getPlayerInstances(user, SurgeWall.class);
 
-            if (instances.isEmpty() && SurgeWall.config.enabled) {
+            if (instances.isEmpty()) {
                 SurgeWall wall = new SurgeWall();
 
                 if (wall.activate(user, ActivationMethod.Punch)) {
                     Game.getAbilityInstanceManager().addAbility(user, wall);
                     return true;
                 }
-            } else if (SurgeWall.config.enabled) {
+            } else {
                 SurgeWall wall = instances.get(0);
 
                 // Reactivate the wall so it can try to re-source.
@@ -85,28 +95,18 @@ public class Surge implements Ability {
         return false;
     }
 
-    private void activateSurgeWall() {
-        List<SurgeWall> instances = Game.getAbilityInstanceManager().getPlayerInstances(user, SurgeWall.class);
-
-        if (!instances.isEmpty()) {
-            SurgeWall wall = instances.get(0);
-
-            wall.activate(user, ActivationMethod.Sneak);
-        }
-    }
-
     private boolean sourceSurgeWave() {
         if (SurgeWave.config.enabled) {
             List<SurgeWave> instances = Game.getAbilityInstanceManager().getPlayerInstances(user, SurgeWave.class);
 
-            if (instances.isEmpty() && SurgeWave.config.enabled) {
+            if (instances.isEmpty()) {
                 SurgeWave wave = new SurgeWave();
 
                 if (wave.activate(user, ActivationMethod.Sneak)) {
                     Game.getAbilityInstanceManager().addAbility(user, wave);
                     return true;
                 }
-            } else if (SurgeWave.config.enabled) {
+            } else {
                 SurgeWave wave = instances.get(0);
 
                 // Reactivate the wave so it can try to re-source.
@@ -117,18 +117,6 @@ public class Surge implements Ability {
         }
 
         return false;
-    }
-
-    private void activateSurgeWave() {
-        List<SurgeWave> instances = Game.getAbilityInstanceManager().getPlayerInstances(user, SurgeWave.class);
-
-        if (instances.isEmpty()) {
-            return;
-        }
-
-        SurgeWave wave = instances.get(0);
-
-        wave.activate(user, ActivationMethod.Punch);
     }
 
     @Override

@@ -3,7 +3,11 @@ package com.plushnode.atlacore.listeners;
 import com.plushnode.atlacore.AtlaPlugin;
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.platform.BlockWrapper;
+import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.util.MaterialUtil;
+import com.plushnode.atlacore.util.SpongeTypeUtil;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
@@ -38,6 +42,30 @@ public class BlockListener {
                 if (tempBlock != null) {
                     Game.plugin.createTask(tempBlock::reset, 1);
                     transaction.setValid(false);
+                }
+            }
+        });
+    }
+
+    @Listener
+    public void onPlayerBlockBreak(ChangeBlockEvent.Break event, @First Player player) {
+        event.getTransactions().stream().forEach(transaction -> {
+            Optional<Location<World>> result = transaction.getFinal().getLocation();
+
+            if (result.isPresent()) {
+                Material type = SpongeTypeUtil.adapt(transaction.getOriginal().getState().getType());
+
+                if (MaterialUtil.isPlant(type)) {
+                    com.plushnode.atlacore.platform.Player gamePlayer = Game.getPlayerService().getPlayerByUUID(player.getUniqueId());
+
+                    if (gamePlayer != null) {
+                        AbilityDescription desc = gamePlayer.getSelectedAbility();
+
+                        if (desc != null && desc.canSourcePlant(gamePlayer)) {
+                            transaction.setValid(false);
+                            event.setCancelled(true);
+                        }
+                    }
                 }
             }
         });

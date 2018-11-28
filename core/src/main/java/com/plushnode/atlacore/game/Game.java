@@ -178,7 +178,9 @@ public class Game {
         registerAbility("EarthTunnel", EarthTunnel.class, Elements.EARTH, ActivationMethod.Sneak);
         registerAbility("EarthGrab", EarthGrab.class, Elements.EARTH, ActivationMethod.Punch);
 
-        registerAbility("Surge", Surge.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak).setCanBypassCooldown(true);
+        GenericAbilityDescription surgeDesc = registerAbility("Surge", Surge.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
+        surgeDesc.setCanBypassCooldown(true);
+        surgeDesc.setSourcesPlants(true);
         registerAbility("SurgeWall", SurgeWall.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
         registerAbility("SurgeWave", SurgeWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
 

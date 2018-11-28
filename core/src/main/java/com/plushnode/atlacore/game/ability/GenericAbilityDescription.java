@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.game.ability;
 
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.ChatColor;
 
 import java.util.Arrays;
@@ -18,6 +19,7 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     private boolean harmless;
     private boolean hidden;
     private boolean cooldownBypass;
+    private boolean sourcesPlants;
 
     public GenericAbilityDescription(String name, Element element, int cooldown, Class<T> type, ActivationMethod... activations) {
         super();
@@ -142,5 +144,14 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     @Override
     public String toString() {
         return element.getColor() + getName();
+    }
+
+    public void setSourcesPlants(boolean sources) {
+        this.sourcesPlants = sources;
+    }
+
+    @Override
+    public boolean canSourcePlant(User user) {
+        return this.sourcesPlants && !user.isOnCooldown(this);
     }
 }

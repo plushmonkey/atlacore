@@ -77,3 +77,7 @@ permissions:
       atla.ability.FireWheel: true
       atla.ability.JetBlast: true
       atla.ability.JetBlaze: true
+  atla.water:
+    children:
+      atla.command.choose.Water: true
+      atla.ability.Surge: true
