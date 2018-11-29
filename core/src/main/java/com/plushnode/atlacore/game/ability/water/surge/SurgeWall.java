@@ -1,4 +1,4 @@
-package com.plushnode.atlacore.game.ability.water;
+package com.plushnode.atlacore.game.ability.water.surge;
 
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collider;
@@ -13,6 +13,7 @@ import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.source.SourceType;
 import com.plushnode.atlacore.game.ability.common.source.SourceTypes;
 import com.plushnode.atlacore.game.ability.common.source.SourceUtil;
+import com.plushnode.atlacore.game.ability.water.util.BottleReturn;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
@@ -31,6 +32,7 @@ public class SurgeWall implements Ability {
     private User user;
     private Config userConfig;
     private Surge.State state = null;
+    private boolean usedBottle;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -57,6 +59,14 @@ public class SurgeWall implements Ability {
         } else if (method == ActivationMethod.Sneak) {
             if (this.state != null) {
                 this.state.onSneak();
+            } else {
+                if (SourceUtil.emptyBottle(user)) {
+                    this.state = new WallState();
+                    this.usedBottle = true;
+                    return true;
+                }
+
+                return false;
             }
         }
 
@@ -74,7 +84,14 @@ public class SurgeWall implements Ability {
 
     @Override
     public void destroy() {
+        if (usedBottle) {
+            Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.extension));
+            BottleReturn bottleReturn = new BottleReturn(location);
 
+            if (bottleReturn.activate(user, ActivationMethod.Punch)) {
+                Game.getAbilityInstanceManager().addAbility(user, bottleReturn);
+            }
+        }
     }
 
     @Override
@@ -155,6 +172,10 @@ public class SurgeWall implements Ability {
                 this.tempBlock = null;
             }
 
+            if (!Game.getProtectionSystem().canBuild(user, location)) {
+                return false;
+            }
+
             if (MaterialUtil.isTransparent(this.location.getBlock())) {
                 tempBlock = new TempBlock(this.location.getBlock(), Material.WATER);
             }
@@ -193,6 +214,10 @@ public class SurgeWall implements Ability {
             double extension = RayCaster.cast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.extension, false).distance(user.getEyeLocation());
 
             this.location = user.getEyeLocation().add(user.getDirection().scalarMultiply(extension));
+
+            if (!Game.getProtectionSystem().canBuild(user, location)) {
+                return false;
+            }
 
             render(this.location, false);
 

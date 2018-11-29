@@ -19,9 +19,12 @@ import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
-import com.plushnode.atlacore.game.ability.water.Surge;
-import com.plushnode.atlacore.game.ability.water.SurgeWall;
-import com.plushnode.atlacore.game.ability.water.SurgeWave;
+import com.plushnode.atlacore.game.ability.water.surge.Surge;
+import com.plushnode.atlacore.game.ability.water.surge.SurgeWall;
+import com.plushnode.atlacore.game.ability.water.surge.SurgeWave;
+import com.plushnode.atlacore.game.ability.water.torrent.Torrent;
+import com.plushnode.atlacore.game.ability.water.torrent.TorrentWave;
+import com.plushnode.atlacore.game.ability.water.util.BottleReturn;
 import com.plushnode.atlacore.game.attribute.AttributeSystem;
 import com.plushnode.atlacore.game.element.Element;
 import com.plushnode.atlacore.game.element.ElementRegistry;
@@ -183,6 +186,11 @@ public class Game {
         surgeDesc.setSourcesPlants(true);
         registerAbility("SurgeWall", SurgeWall.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
         registerAbility("SurgeWave", SurgeWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
+        registerAbility("BottleReturn", BottleReturn.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
+        GenericAbilityDescription torrentDesc = registerAbility("Torrent", Torrent.class, Elements.WATER, ActivationMethod.Punch);
+        torrentDesc.setCanBypassCooldown(true);
+        torrentDesc.setSourcesPlants(true);
+        registerAbility("TorrentWave", TorrentWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
 
         sequenceService.registerSequence(fireKick, new Sequence(true,
                 new AbilityAction(fireBlast, Action.Punch),

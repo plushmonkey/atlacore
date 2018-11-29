@@ -24,6 +24,11 @@ public class InventoryWrapper implements Inventory {
     }
 
     @Override
+    public boolean addItem(ItemSnapshot item) {
+        return inventory.addItem(((ItemSnapshotWrapper)item).getBukkitItem()).isEmpty();
+    }
+
+    @Override
     public void clear() {
         inventory.clear();
     }
@@ -34,6 +39,13 @@ public class InventoryWrapper implements Inventory {
     }
 
     @Override
+    public boolean contains(ItemSnapshot item) {
+        org.bukkit.inventory.ItemStack itemStack = ((ItemSnapshotWrapper)item).getBukkitItem();
+
+        return inventory.contains(itemStack);
+    }
+
+    @Override
     public boolean contains(Material itemType) {
         return inventory.contains(TypeUtil.adapt(itemType));
     }
@@ -41,6 +53,13 @@ public class InventoryWrapper implements Inventory {
     @Override
     public boolean containsAtLeast(ItemStack item, int amount) {
         return inventory.containsAtLeast(TypeUtil.adapt(item), amount);
+    }
+
+    @Override
+    public boolean containsAtLeast(ItemSnapshot item, int amount) {
+        org.bukkit.inventory.ItemStack itemStack = ((ItemSnapshotWrapper)item).getBukkitItem();
+
+        return inventory.containsAtLeast(itemStack, amount);
     }
 
     @Override
@@ -186,6 +205,37 @@ public class InventoryWrapper implements Inventory {
     @Override
     public boolean removeAmount(ItemStack item, int amount) {
         return removeAmount(item.getType(), amount);
+    }
+
+    @Override
+    public boolean removeAmount(ItemSnapshot item, int amount) {
+        org.bukkit.inventory.ItemStack bukkitItem = ((ItemSnapshotWrapper)item).getBukkitItem();
+        org.bukkit.inventory.ItemStack itemClone = bukkitItem.clone();
+
+        itemClone.setAmount(1);
+
+        for (org.bukkit.inventory.ItemStack i : inventory.getContents()) {
+            if (i == null) continue;
+
+            org.bukkit.inventory.ItemStack currentClone = i.clone();
+            currentClone.setAmount(1);
+
+            if (currentClone.equals(itemClone)) {
+                if (i.getAmount() <= amount) {
+                    amount -= i.getAmount();
+                    inventory.removeItem(i);
+                } else {
+                    i.setAmount(i.getAmount() - amount);
+                    amount = 0;
+                }
+            }
+
+            if (amount <= 0) {
+                break;
+            }
+        }
+
+        return amount <= 0;
     }
 
     @Override

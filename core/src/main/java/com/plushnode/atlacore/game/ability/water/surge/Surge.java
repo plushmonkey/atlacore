@@ -1,4 +1,4 @@
-package com.plushnode.atlacore.game.ability.water;
+package com.plushnode.atlacore.game.ability.water.surge;
 
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collider;
@@ -47,7 +47,16 @@ public class Surge implements Ability {
             }
 
             // Nothing was sourced, so try to activate SurgeWave.
-            activate(SurgeWave.class, method);
+            if (activate(SurgeWave.class, method)) {
+                return false;
+            }
+
+            // Try to use bottles to activate SurgeWave.
+            SurgeWave wave = new SurgeWave();
+            if (wave.activate(user, method)) {
+                Game.getAbilityInstanceManager().addAbility(user, wave);
+                return false;
+            }
         } else if (method == ActivationMethod.Sneak) {
             // Prioritize sourcing SurgeWave. Exit if it was sourced.
             if (sourceSurgeWave()) {
@@ -55,20 +64,33 @@ public class Surge implements Ability {
             }
 
             // Nothing was sourced, so try to activate SurgeWall.
-            activate(SurgeWall.class, method);
+            if (activate(SurgeWall.class, method)) {
+                return false;
+            }
+
+            // Try to use bottles to activate SurgeWall.
+            SurgeWall wall = new SurgeWall();
+            if (wall.activate(user, method)) {
+                Game.getAbilityInstanceManager().addAbility(user, wall);
+                return false;
+            }
         }
 
         return false;
     }
 
-    private <T extends Ability> void activate(Class<T> clazz, ActivationMethod method) {
+    // Returns true if an activation attempt was made. Returns false if there weren't any instances.
+    private <T extends Ability> boolean activate(Class<T> clazz, ActivationMethod method) {
         List<T> instances = Game.getAbilityInstanceManager().getPlayerInstances(user, clazz);
 
         if (!instances.isEmpty()) {
             T ability = instances.get(0);
 
             ability.activate(user, method);
+            return true;
         }
+
+        return false;
     }
 
     private boolean sourceSurgeWall() {
@@ -241,7 +263,9 @@ public class Surge implements Ability {
             }
 
             for (Block block : blocks) {
-                tempBlocks.add(new TempBlock(block, type));
+                if (Game.getProtectionSystem().canBuild(user, block.getLocation())) {
+                    tempBlocks.add(new TempBlock(block, type));
+                }
             }
         }
 

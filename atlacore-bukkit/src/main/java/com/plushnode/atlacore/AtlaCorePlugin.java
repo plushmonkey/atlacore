@@ -25,7 +25,11 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
@@ -246,5 +250,16 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
     @Override
     public BlockData createBlockData(Material material) {
         return BlockDataFactory.createBlockData(material);
+    }
+
+    @Override
+    public ItemSnapshot getBottleSnapshot() {
+        ItemStack bottle = new ItemStack(org.bukkit.Material.POTION, 1);
+        PotionMeta potionMeta = (PotionMeta)bottle.getItemMeta();
+
+        potionMeta.setBasePotionData(new PotionData(PotionType.WATER, false, false));
+        bottle.setItemMeta(potionMeta);
+
+        return new ItemSnapshotWrapper(bottle);
     }
 }

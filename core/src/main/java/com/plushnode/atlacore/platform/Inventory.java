@@ -4,14 +4,17 @@ import com.plushnode.atlacore.platform.block.Material;
 
 public interface Inventory {
     boolean addItem(ItemStack item);
+    boolean addItem(ItemSnapshot item);
     void clear();
 
     // Exact match.
     boolean contains(ItemStack item);
+    boolean contains(ItemSnapshot item);
     boolean contains(Material itemType);
 
     // Checks if inventory contains at least some amount of item.
     boolean containsAtLeast(ItemStack item, int amount);
+    boolean containsAtLeast(ItemSnapshot item, int amount);
     boolean containsAtLeast(Material itemType, int amount);
 
     // Remove all stacks that match item.
@@ -21,6 +24,8 @@ public interface Inventory {
 
     // Remove some amount of item from the inventory.
     boolean removeAmount(ItemStack item, int amount);
+    // Remove some amount of item from the inventory.
+    boolean removeAmount(ItemSnapshot item, int amount);
     // Remove some amount of item from the inventory.
     boolean removeAmount(Material itemType, int amount);
 

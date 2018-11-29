@@ -1,12 +1,10 @@
-package com.plushnode.atlacore.game.ability.water;
+package com.plushnode.atlacore.game.ability.water.surge;
 
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
-import com.plushnode.atlacore.collision.RayCaster;
 import com.plushnode.atlacore.collision.geometry.AABB;
-import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
@@ -16,6 +14,7 @@ import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.ability.common.source.SourceType;
 import com.plushnode.atlacore.game.ability.common.source.SourceTypes;
 import com.plushnode.atlacore.game.ability.common.source.SourceUtil;
+import com.plushnode.atlacore.game.ability.water.util.BottleReturn;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.LivingEntity;
@@ -39,11 +38,16 @@ public class SurgeWave implements Ability {
     private User user;
     private Config userConfig;
     private Surge.State state;
+    private boolean usedBottle;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
         recalculateConfig();
+
+        if (user.isOnCooldown(getDescription())) {
+            return false;
+        }
 
         if (method == ActivationMethod.Sneak) {
             if (this.state == null || this.state instanceof WaveSourceState) {
@@ -63,6 +67,14 @@ public class SurgeWave implements Ability {
         } else {
             if (this.state != null) {
                 this.state.onPunch();
+            } else {
+                if (SourceUtil.emptyBottle(user)) {
+                    usedBottle = true;
+                    this.state = new TravelState(user.getEyeLocation().add(user.getDirection()));
+                    return true;
+                }
+
+                return false;
             }
         }
 
@@ -80,7 +92,14 @@ public class SurgeWave implements Ability {
 
     @Override
     public void destroy() {
+        if (usedBottle && state instanceof TravelState) {
+            TravelState travelState = (TravelState)state;
+            BottleReturn bottleReturn = new BottleReturn(travelState.location);
 
+            if (bottleReturn.activate(user, ActivationMethod.Punch)) {
+                Game.getAbilityInstanceManager().addAbility(user, bottleReturn);
+            }
+        }
     }
 
     @Override
@@ -155,6 +174,11 @@ public class SurgeWave implements Ability {
         public boolean update() {
             Location previous = this.location;
             this.location = this.location.add(direction.scalarMultiply(userConfig.speed));
+
+            if (!Game.getProtectionSystem().canBuild(user, location)) {
+                clear();
+                return true;
+            }
 
             render(location, true);
             this.hit = false;

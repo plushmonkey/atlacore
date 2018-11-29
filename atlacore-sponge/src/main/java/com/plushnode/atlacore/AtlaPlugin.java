@@ -27,10 +27,14 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.service.user.UserStorageService;
 
@@ -275,5 +279,23 @@ public class AtlaPlugin implements CorePlugin {
         }
 
         return null;
+    }
+
+    @Override
+    public ItemSnapshot getBottleSnapshot() {
+        ItemStack item = ItemStack.builder()
+                .quantity(1)
+                .itemType(ItemTypes.POTION)
+                .build();
+
+        // There seems to be no way to actually make a water potion with sponge API..?
+        // Water potion effect is missing and the default potion is 'Uncraftable Potion'.
+        // Defaulting to using DataContainers until it's implemented or I find a way to actually do it.
+        DataContainer container = item.toContainer();
+        container.set(DataQuery.of("UnsafeData", "Potion"), "minecraft:water");
+
+        ItemStack waterPotion = ItemStack.builder().fromContainer(container).build();
+
+        return new ItemSnapshotWrapper(waterPotion);
     }
 }

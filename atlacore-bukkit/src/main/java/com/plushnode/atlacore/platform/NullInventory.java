@@ -9,6 +9,11 @@ public class NullInventory implements Inventory {
     }
 
     @Override
+    public boolean addItem(ItemSnapshot item) {
+        return false;
+    }
+
+    @Override
     public void clear() {
 
     }
@@ -19,12 +24,22 @@ public class NullInventory implements Inventory {
     }
 
     @Override
+    public boolean contains(ItemSnapshot item) {
+        return false;
+    }
+
+    @Override
     public boolean contains(Material itemType) {
         return false;
     }
 
     @Override
     public boolean containsAtLeast(ItemStack item, int amount) {
+        return false;
+    }
+
+    @Override
+    public boolean containsAtLeast(ItemSnapshot item, int amount) {
         return false;
     }
 
@@ -155,6 +170,11 @@ public class NullInventory implements Inventory {
 
     @Override
     public boolean removeAmount(ItemStack item, int amount) {
+        return false;
+    }
+
+    @Override
+    public boolean removeAmount(ItemSnapshot item, int amount) {
         return false;
     }
 

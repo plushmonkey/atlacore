@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.material.SpongeMaterialUtil;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.SpongeTypeUtil;
@@ -33,6 +34,18 @@ public class InventoryWrapper implements Inventory {
     }
 
     @Override
+    public boolean addItem(ItemSnapshot item) {
+        org.spongepowered.api.item.inventory.ItemStack spongeItem = ((ItemSnapshotWrapper)item).getSpongeItem();
+
+        if (spongeItem != null) {
+            player.getInventory().offer(spongeItem);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public void clear() {
         player.getInventory().clear();
     }
@@ -40,6 +53,13 @@ public class InventoryWrapper implements Inventory {
     @Override
     public boolean contains(ItemStack item) {
         org.spongepowered.api.item.inventory.ItemStack spongeItem = SpongeTypeUtil.adapt(item);
+
+        return spongeItem != null && player.getInventory().contains(spongeItem);
+    }
+
+    @Override
+    public boolean contains(ItemSnapshot item) {
+        org.spongepowered.api.item.inventory.ItemStack spongeItem = ((ItemSnapshotWrapper)item).getSpongeItem();
 
         return spongeItem != null && player.getInventory().contains(spongeItem);
     }
@@ -54,6 +74,17 @@ public class InventoryWrapper implements Inventory {
     @Override
     public boolean containsAtLeast(ItemStack item, int amount) {
         return containsAtLeast(item.getType(), amount);
+    }
+
+    @Override
+    public boolean containsAtLeast(ItemSnapshot item, int amount) {
+        org.spongepowered.api.item.inventory.ItemStack spongeItem = ((ItemSnapshotWrapper)item).getSpongeItem();
+
+        if (spongeItem == null) return false;
+
+        spongeItem.setQuantity(amount);
+
+        return player.getInventory().contains(spongeItem);
     }
 
     @Override
@@ -108,6 +139,45 @@ public class InventoryWrapper implements Inventory {
     }
 
     @Override
+    public boolean removeAmount(ItemSnapshot item, int amount) {
+        org.spongepowered.api.item.inventory.ItemStack spongeItem = ((ItemSnapshotWrapper)item).getSpongeItem();
+        org.spongepowered.api.item.inventory.ItemStack itemCopy = spongeItem.copy();
+
+        itemCopy.setQuantity(1);
+
+        for (org.spongepowered.api.item.inventory.Inventory slot : player.getInventory().slots()) {
+            Optional<org.spongepowered.api.item.inventory.ItemStack> current = slot.peek();
+
+            if (current.isPresent()) {
+                org.spongepowered.api.item.inventory.ItemStack copyCurrent = current.get().copy();
+
+                copyCurrent.setQuantity(1);
+
+                if (copyCurrent.equalTo(itemCopy)) {
+                    int quantity = current.get().getQuantity();
+
+                    if (quantity <= amount) {
+                        slot.poll();
+                        amount -= quantity;
+                    } else {
+                        org.spongepowered.api.item.inventory.ItemStack slotItem = current.get();
+
+                        slotItem.setQuantity(quantity - amount);
+                        slot.set(slotItem);
+                        amount = 0;
+                    }
+                }
+
+                if (amount <= 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
     public boolean removeAmount(Material itemType, int amount) {
         ItemType type = SpongeMaterialUtil.toItemType(itemType);
 
@@ -117,12 +187,16 @@ public class InventoryWrapper implements Inventory {
             if (current.isPresent()) {
                 int quantity = current.get().getQuantity();
 
-                if (current.get().getType() == type && quantity >= amount) {
+                if (current.get().getType() == type) {
                     if (quantity <= amount) {
                         slot.poll();
                         amount -= quantity;
                     } else {
-                        current.get().setQuantity(quantity - amount);
+                        org.spongepowered.api.item.inventory.ItemStack slotItem = current.get();
+
+                        slotItem.setQuantity(quantity - amount);
+                        slot.set(slotItem);
+
                         amount = 0;
                     }
                 }

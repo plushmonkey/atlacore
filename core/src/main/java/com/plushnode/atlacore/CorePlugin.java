@@ -1,6 +1,7 @@
 package com.plushnode.atlacore;
 
 import com.plushnode.atlacore.event.EventBus;
+import com.plushnode.atlacore.platform.ItemSnapshot;
 import com.plushnode.atlacore.platform.PotionFactory;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.ParticleEffectRenderer;
@@ -33,4 +34,6 @@ public interface CorePlugin {
     EventBus getEventBus();
 
     BlockData createBlockData(Material material);
+
+    ItemSnapshot getBottleSnapshot();
 }

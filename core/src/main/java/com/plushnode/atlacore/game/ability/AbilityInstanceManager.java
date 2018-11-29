@@ -1,6 +1,5 @@
 package com.plushnode.atlacore.game.ability;
 
-import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.element.Element;
 
@@ -12,15 +11,8 @@ public class AbilityInstanceManager {
 
     // Add a new ability instance that should be updated every tick
     public void addAbility(User user, Ability instance) {
-        List<Ability> playerInstanceList = globalInstances.get(user);
-
-        if (playerInstanceList == null) {
-            playerInstanceList = new ArrayList<>();
-            globalInstances.put(user, playerInstanceList);
-        }
-
-        playerInstanceList.add(instance);
-        //Game.info("Active instances: " + getInstanceCount());
+        globalInstances.computeIfAbsent(user, key -> new ArrayList<>())
+                .add(instance);
     }
 
     public void createPassives(User user) {
@@ -28,6 +20,7 @@ public class AbilityInstanceManager {
 
         for (Element element : elements) {
             List<AbilityDescription> passives = element.getPassives();
+
             if (passives != null) {
                 for (AbilityDescription passive : passives) {
                     destroyInstanceType(user, passive);
@@ -36,6 +29,7 @@ public class AbilityInstanceManager {
                     if (!user.hasPermission("atla.ability." + passive.getName())) continue;
 
                     Ability ability = passive.createAbility();
+
                     if (ability.activate(user, ActivationMethod.Passive)) {
                         this.addAbility(user, ability);
                     }
@@ -46,6 +40,7 @@ public class AbilityInstanceManager {
 
     public void clearPassives(User user) {
         List<Ability> abilities = new ArrayList<>(getPlayerInstances(user));
+
         for (Ability instance : abilities) {
             if (instance.getDescription().isActivatedBy(ActivationMethod.Passive)) {
                 this.destroyInstance(user, instance);
@@ -148,9 +143,8 @@ public class AbilityInstanceManager {
 
             instances.clear();
         }
-        globalInstances.remove(user);
 
-        //Game.info("Active instances: " + getInstanceCount());
+        globalInstances.remove(user);
     }
 
     // Destroy all instances created by every player.
@@ -174,6 +168,9 @@ public class AbilityInstanceManager {
     public void update() {
         Iterator<Map.Entry<User, List<Ability>>> playerIterator = globalInstances.entrySet().iterator();
 
+        // Store the removed abilities here so any abilities added during Ability#destroy won't be concurrent.
+        List<Ability> removed = new ArrayList<>();
+
         while (playerIterator.hasNext()) {
             Map.Entry<User, List<Ability>> entry = playerIterator.next();
             List<Ability> instances = entry.getValue();
@@ -191,9 +188,8 @@ public class AbilityInstanceManager {
                 }
 
                 if (result == UpdateResult.Remove) {
-                    ability.destroy();
+                    removed.add(ability);
                     iterator.remove();
-                    //Game.info("Active instances: " + getInstanceCount());
                 }
             }
 
@@ -201,6 +197,7 @@ public class AbilityInstanceManager {
                 playerIterator.remove();
             }
         }
+
+        removed.forEach(Ability::destroy);
     }
 }
-
