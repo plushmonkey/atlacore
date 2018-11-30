@@ -72,7 +72,7 @@ public class BottleReturn implements Ability {
         location = location.add(direction.scalarMultiply(userConfig.speed));
 
         Block block = location.getBlock();
-        if (!MaterialUtil.isTransparent(block) && block.getType() != Material.WATER) {
+        if (!MaterialUtil.isTransparent(block) && block.getType() != Material.WATER && block.getType() != Material.ICE) {
             return UpdateResult.Remove;
         }
 
@@ -97,7 +97,7 @@ public class BottleReturn implements Ability {
 
     @Override
     public String getName() {
-        return "BottleReturn'";
+        return "BottleReturn";
     }
 
     @Override

@@ -219,6 +219,10 @@ public class SurgeWall implements Ability {
                 return false;
             }
 
+            if (!Surge.isSelected(user)) {
+                return false;
+            }
+
             render(this.location, false);
 
             if (!user.isSneaking()) {

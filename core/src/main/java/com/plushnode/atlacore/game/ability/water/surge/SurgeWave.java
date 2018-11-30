@@ -45,11 +45,11 @@ public class SurgeWave implements Ability {
         this.user = user;
         recalculateConfig();
 
-        if (user.isOnCooldown(getDescription())) {
-            return false;
-        }
-
         if (method == ActivationMethod.Sneak) {
+            if (user.isOnCooldown(getDescription())) {
+                return false;
+            }
+
             if (this.state == null || this.state instanceof WaveSourceState) {
                 SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant);
                 Optional<Block> newSource = SourceUtil.getSource(user, userConfig.selectRange, types);
@@ -68,7 +68,7 @@ public class SurgeWave implements Ability {
             if (this.state != null) {
                 this.state.onPunch();
             } else {
-                if (SourceUtil.emptyBottle(user)) {
+                if (!user.isOnCooldown(getDescription()) && SourceUtil.emptyBottle(user)) {
                     usedBottle = true;
                     this.state = new TravelState(user.getEyeLocation().add(user.getDirection()));
                     return true;

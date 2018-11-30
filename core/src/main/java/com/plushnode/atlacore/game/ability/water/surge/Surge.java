@@ -8,6 +8,7 @@ import com.plushnode.atlacore.collision.geometry.*;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
+import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
 import com.plushnode.atlacore.game.attribute.Attribute;
@@ -171,6 +172,12 @@ public class Surge implements Ability {
         this.userConfig = Game.getAttributeSystem().calculate(this, config);
     }
 
+    public static boolean isSelected(User user) {
+        AbilityDescription desc = user.getSelectedAbility();
+
+        return desc != null && "Surge".equals(desc.getName());
+    }
+
     interface State {
         boolean update();
         void onPunch();
@@ -196,6 +203,10 @@ public class Surge implements Ability {
         @Override
         public boolean update() {
             if (user.getLocation().distanceSquared(sourceBlock.getLocation()) > maxDistance * maxDistance) {
+                return false;
+            }
+
+            if (!Surge.isSelected(user)) {
                 return false;
             }
 
