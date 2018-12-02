@@ -180,7 +180,7 @@ public class SurgeWave implements Ability {
                 return true;
             }
 
-            render(location, true);
+            render(location);
             this.hit = false;
 
             CollisionUtil.handleEntityCollisions(user, this.disc, entity -> {

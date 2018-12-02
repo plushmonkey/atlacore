@@ -24,6 +24,14 @@ public class BlockListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onBlockFade(BlockFadeEvent event) {
+        BlockWrapper bw = new BlockWrapper(event.getBlock());
+        if (Game.getTempBlockService().isTempBlock(bw)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
         BlockWrapper bw = new BlockWrapper(event.getIgnitingBlock());
         if (Game.getTempBlockService().isTempBlock(bw)) {

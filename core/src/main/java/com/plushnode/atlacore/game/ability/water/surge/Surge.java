@@ -202,6 +202,10 @@ public class Surge implements Ability {
 
         @Override
         public boolean update() {
+            if (!user.getWorld().equals(sourceBlock.getLocation().getWorld())) {
+                return false;
+            }
+
             if (user.getLocation().distanceSquared(sourceBlock.getLocation()) > maxDistance * maxDistance) {
                 return false;
             }
@@ -241,7 +245,7 @@ public class Surge implements Ability {
             tempBlocks.clear();
         }
 
-        void render(Location location, boolean canIntersectUser) {
+        void render(Location location) {
             clear();
 
             updateDisc(location);
@@ -265,10 +269,7 @@ public class Surge implements Ability {
                             }
                         }
 
-                        // Only add blocks if they aren't intersecting the user.
-                        if (canIntersectUser || !AABB.BLOCK_BOUNDS.at(block.getLocation()).intersects(user.getBounds().at(user.getLocation()))) {
-                            blocks.add(block);
-                        }
+                        blocks.add(block);
                     }
                 }
             }

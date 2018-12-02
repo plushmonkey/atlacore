@@ -187,7 +187,7 @@ public class Game {
         registerAbility("SurgeWall", SurgeWall.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
         registerAbility("SurgeWave", SurgeWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
         registerAbility("BottleReturn", BottleReturn.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
-        GenericAbilityDescription torrentDesc = registerAbility("Torrent", Torrent.class, Elements.WATER, ActivationMethod.Punch);
+        GenericAbilityDescription torrentDesc = registerAbility("Torrent", Torrent.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
         torrentDesc.setCanBypassCooldown(true);
         torrentDesc.setSourcesPlants(true);
         registerAbility("TorrentWave", TorrentWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);

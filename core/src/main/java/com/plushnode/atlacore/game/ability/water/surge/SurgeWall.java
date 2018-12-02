@@ -223,7 +223,7 @@ public class SurgeWall implements Ability {
                 return false;
             }
 
-            render(this.location, false);
+            render(this.location);
 
             if (!user.isSneaking()) {
                 clear();

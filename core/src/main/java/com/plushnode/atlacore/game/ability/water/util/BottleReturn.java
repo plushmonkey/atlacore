@@ -80,7 +80,9 @@ public class BottleReturn implements Ability {
             return UpdateResult.Remove;
         }
 
-        this.tempBlock = new TempBlock(block, Material.WATER);
+        if (block.getType() != Material.ICE) {
+            this.tempBlock = new TempBlock(block, Material.WATER);
+        }
 
         return UpdateResult.Continue;
     }
