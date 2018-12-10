@@ -232,7 +232,7 @@ public class Surge implements Ability {
         protected Disc disc;
         private List<TempBlock> tempBlocks = new ArrayList<>();
         protected Material type;
-        private double radius;
+        protected double radius;
 
         public RenderState(User user, double radius) {
             this.user = user;
@@ -281,17 +281,7 @@ public class Surge implements Ability {
             }
         }
 
-        private void updateDisc(Location location) {
-            final double r = radius;
-            final double ht = 0.25;
-
-            AABB aabb = new AABB(new Vector3D(-r, -r, -ht), new Vector3D(r, r, ht));
-            Vector3D right = VectorUtil.normalizeOrElse(user.getDirection().crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
-            Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
-            rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
-
-            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).at(location), new Sphere(location, r));
-        }
+        protected abstract void updateDisc(Location location);
     }
 
     public static class Config extends Configurable {

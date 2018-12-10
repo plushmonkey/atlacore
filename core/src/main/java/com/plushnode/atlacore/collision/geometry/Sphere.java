@@ -28,6 +28,10 @@ public class Sphere implements Collider {
         return new Sphere(newCenter, radius, world);
     }
 
+    public Sphere at(Location newCenter) {
+        return new Sphere(newCenter, radius);
+    }
+
     public boolean intersects(AABB aabb) {
         if (this.world != null && aabb.getWorld() != null && !aabb.getWorld().equals(this.world)) {
             return false;

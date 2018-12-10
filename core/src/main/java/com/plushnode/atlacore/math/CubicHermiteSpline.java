@@ -10,7 +10,7 @@ import java.util.List;
 public class CubicHermiteSpline {
     private List<Vector3D> knots = new ArrayList<>();
     private List<CubicHermiteCurve> curves = new ArrayList<>();
-    private double chordalDistance;
+    private double length;
     private boolean built;
     private double tension;
 
@@ -43,7 +43,7 @@ public class CubicHermiteSpline {
         for (int i = 0; i < curves.size(); ++i) {
             CubicHermiteCurve curve = curves.get(i);
 
-            double tEnd = tStart + Math.max(curve.getChordalDistance(), 0.000001) / chordalDistance;
+            double tEnd = tStart + Math.max(curve.getLength(), 0.000001) / length;
 
             if (tStart <= t && t <= tEnd) {
                 double curveT = (t - tStart) / (tEnd - tStart);
@@ -59,7 +59,7 @@ public class CubicHermiteSpline {
     public void build() {
         Vector3D startPoint, startTangent, endPoint, endTangent;
 
-        chordalDistance = 0.0;
+        length = 0.0;
         curves.clear();
 
         for (int i = 0; i < knots.size() - 1; ++i) {
@@ -84,14 +84,14 @@ public class CubicHermiteSpline {
             endTangent = endTangent.scalarMultiply(1.0 - this.tension);
             CubicHermiteCurve curve = new CubicHermiteCurve(startPoint, startTangent, endPoint, endTangent);
 
-            chordalDistance += curve.getChordalDistance();
+            length += curve.getLength();
             curves.add(curve);
         }
 
         built = true;
     }
 
-    public double getChordalDistance() {
-        return chordalDistance;
+    public double getLength() {
+        return length;
     }
 }

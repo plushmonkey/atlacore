@@ -294,7 +294,13 @@ public class Torrent implements Ability {
             }
 
             if (!user.isSneaking()) {
-                // new TorrentWave if trailSize
+                if (trailSize >= MAX_TRAIL_SIZE) {
+                    TorrentWave wave = new TorrentWave();
+
+                    if (wave.activate(user, ActivationMethod.Sneak)) {
+                        Game.getAbilityInstanceManager().addAbility(user, wave);
+                    }
+                }
                 clear();
                 return false;
             }
@@ -309,7 +315,7 @@ public class Torrent implements Ability {
 
         @Override
         public void onPunch() {
-            if (this.trailSize >= MAX_TRAIL_SIZE) {
+            if (this.trailSize >= MAX_TRAIL_SIZE && !user.isOnCooldown(getDescription())) {
                 List<Block> swirl = trail.stream()
                         .map(tb -> tb.getPreviousState().getBlock())
                         .collect(Collectors.toList());
@@ -365,6 +371,8 @@ public class Torrent implements Ability {
             this.origin = user.getEyeLocation();
             this.location = swirl.get(0).getLocation().add(0.5, 0.5, 0.5);
 
+            user.setCooldown(Torrent.this, userConfig.cooldown);
+
             Location target = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.range + userConfig.speed));
             this.direction = target.subtract(location).toVector().normalize();
         }
@@ -374,17 +382,17 @@ public class Torrent implements Ability {
             // Implemented this way to make it more robust to differing speeds.
             this.movementBuffer += userConfig.speed;
 
+            Location previous = location;
+
             while (this.movementBuffer > 1.0) {
                 if (!swirl.isEmpty()) {
                     popSwirl();
                 }
+                location = location.add(direction);
                 this.movementBuffer -= 1.0;
             }
 
             clear();
-
-            Location previous = location;
-            location = location.add(direction.scalarMultiply(userConfig.speed));
 
             if (location.distanceSquared(origin) > userConfig.range * userConfig.range) {
                 return remove();

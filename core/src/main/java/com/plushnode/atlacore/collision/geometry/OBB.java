@@ -64,12 +64,20 @@ public class OBB implements Collider {
         this.world = world;
     }
 
-    public OBB at(Vector3D position) {
+    public OBB addPosition(Vector3D position) {
         return new OBB(center.add(position), basis, e, world);
     }
 
-    public OBB at(Location location) {
+    public OBB addPosition(Location location) {
         return new OBB(center.add(location.toVector()), basis, e, location.getWorld());
+    }
+
+    public OBB at(Vector3D position) {
+        return new OBB(position, basis, e, world);
+    }
+
+    public OBB at(Location location) {
+        return new OBB(location.toVector(), basis, e, location.getWorld());
     }
 
     @Override

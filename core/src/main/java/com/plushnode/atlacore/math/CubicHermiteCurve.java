@@ -4,6 +4,8 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 // Represents a curve between a start and end point.
 public class CubicHermiteCurve {
+    private static final int LENGTH_INTERPOLATION_COUNT = 5;
+
     private Vector3D startPoint;
     private Vector3D startTangent;
     private Vector3D endPoint;
@@ -33,7 +35,19 @@ public class CubicHermiteCurve {
                 .add(endTangent.scalarMultiply(endTangentT));
     }
 
-    public double getChordalDistance() {
-        return chordalDistance;
+    // Approximate length by summing length of n interpolated lines.
+    public double getLength() {
+        double result = 0.0;
+
+        Vector3D current = startPoint;
+
+        for (int i = 0; i < LENGTH_INTERPOLATION_COUNT; ++i) {
+            Vector3D interpolated = interpolate(i / (double)LENGTH_INTERPOLATION_COUNT);
+
+            result += current.distance(interpolated);
+            current = interpolated;
+        }
+
+        return result;
     }
 }

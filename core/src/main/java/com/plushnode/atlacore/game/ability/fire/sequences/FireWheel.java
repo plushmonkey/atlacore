@@ -113,7 +113,7 @@ public class FireWheel implements Ability {
             Game.plugin.getParticleRenderer().display(ParticleEffect.FLAME, 0.0f, 0.0f, 0.0f, 0.0f, 1, location.add(offset));
         }
 
-        Disc checkCollider = this.entityCollider.at(location.toVector());
+        Disc checkCollider = this.entityCollider.addPosition(location.toVector());
 
         boolean hit = CollisionUtil.handleEntityCollisions(user, checkCollider, (entity) -> {
             if (entity instanceof LivingEntity) {
@@ -141,13 +141,13 @@ public class FireWheel implements Ability {
             return false;
         }
 
-        Disc checkCollider = this.collider.at(location.toVector());
+        Disc checkCollider = this.collider.addPosition(location.toVector());
 
         // Try to fall if the block below doesn't have a bounding box.
         Block blockBelow = location.subtract(0, collider.getHalfExtents().getY() + 1, 0).getBlock();
         if (resolution == CollisionResolution.None && blockBelow.getBounds().getHalfExtents().getY() == 0) {
             this.location = location.subtract(0, 1, 0);
-            checkCollider = this.collider.at(location.toVector());
+            checkCollider = this.collider.addPosition(location.toVector());
 
             for (Block block : nearbyBlocks) {
                 AABB blockBounds = block.getBounds().at(block.getLocation());
@@ -155,7 +155,7 @@ public class FireWheel implements Ability {
                 if (blockBounds.intersects(checkCollider)) {
                     // Go back up if there is a collision after falling.
                     this.location = location.add(0, 1, 0);
-                    checkCollider = this.collider.at(location.toVector());
+                    checkCollider = this.collider.addPosition(location.toVector());
                     break;
                 }
             }
@@ -174,7 +174,7 @@ public class FireWheel implements Ability {
     }
 
     private CollisionResolution resolveInitialCollisions(Collection<Block> nearbyBlocks, double maxResolution) {
-        Disc checkCollider = this.collider.at(location.toVector());
+        Disc checkCollider = this.collider.addPosition(location.toVector());
 
         for (Block block : nearbyBlocks) {
             AABB blockBounds = block.getBounds().at(block.getLocation());
@@ -220,7 +220,7 @@ public class FireWheel implements Ability {
 
     @Override
     public Collection<Collider> getColliders() {
-        return Collections.singletonList(this.entityCollider.at(location.toVector()));
+        return Collections.singletonList(this.entityCollider.addPosition(location.toVector()));
     }
 
     @Override

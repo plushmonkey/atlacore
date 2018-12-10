@@ -1,6 +1,7 @@
 package com.plushnode.atlacore.collision.geometry;
 
 import com.plushnode.atlacore.collision.Collider;
+import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.World;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -14,7 +15,19 @@ public class Disc implements Collider {
         this.sphere = sphere;
     }
 
+    public Disc addPosition(Vector3D position) {
+        return new Disc(this.obb.addPosition(position), this.sphere.at(position));
+    }
+
+    public Disc addPosition(Location position) {
+        return new Disc(this.obb.addPosition(position), this.sphere.at(position));
+    }
+
     public Disc at(Vector3D position) {
+        return new Disc(this.obb.at(position), this.sphere.at(position));
+    }
+
+    public Disc at(Location position) {
         return new Disc(this.obb.at(position), this.sphere.at(position));
     }
 

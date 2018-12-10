@@ -32,6 +32,8 @@ public class AirSweep implements Ability {
     private List<Entity> affected = new ArrayList<>();
     private int launchCount;
     private boolean linear;
+    private Location origin;
+    private double potential;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -41,6 +43,7 @@ public class AirSweep implements Ability {
         this.spline = new CubicHermiteSpline(0.1);
         this.streams = new ArrayList<>();
         this.linear = "linear".equalsIgnoreCase(userConfig.interpolationMethod);
+        this.origin = null;
 
         user.setCooldown(this, userConfig.cooldown);
 
@@ -65,6 +68,10 @@ public class AirSweep implements Ability {
             return UpdateResult.Continue;
         }
 
+        if (this.origin == null || !userConfig.lockedLaunchOrigin) {
+            this.origin = user.getEyeLocation();
+        }
+
         // Clear out any intermediate knots so it becomes a line.
         if (linear && spline.getKnots().size() > 2) {
             List<Vector3D> knots = spline.getKnots();
@@ -78,26 +85,21 @@ public class AirSweep implements Ability {
 
         // Launch a few streams per tick to give it a delay.
         if (launchCount < userConfig.streamCount) {
-            // Only launch enough to hit stream count.
-            int count = Math.min(userConfig.streamCount - launchCount, userConfig.streamCount / 10);
+            potential += userConfig.streamCount / (userConfig.launchDuration / 50.0);
+
+            int count = Math.min(userConfig.streamCount - launchCount, (int)potential - launchCount);
 
             for (int i = 0; i < count; ++i) {
                 // Interpolate based on the initial samples gathered.
                 Vector3D target = spline.interpolate(launchCount / (double)userConfig.streamCount);
-                Vector3D direction = target.subtract(user.getEyeLocation().toVector()).normalize();
+                Vector3D direction = target.subtract(this.origin.toVector()).normalize();
 
-                streams.add(new SweepStream(user, user.getEyeLocation(), direction, userConfig.range, userConfig.speed, 0.5, 0.5, userConfig.damage));
+                streams.add(new SweepStream(user, this.origin, direction, userConfig.range, userConfig.speed, 0.5, 0.5, userConfig.damage));
                 ++launchCount;
             }
         }
 
-        for (Iterator<ParticleStream> iterator = streams.iterator(); iterator.hasNext();) {
-            ParticleStream stream = iterator.next();
-
-            if (!stream.update()) {
-                iterator.remove();
-            }
-        }
+        streams.removeIf(stream -> !stream.update());
 
         return (streams.isEmpty() && launchCount >= userConfig.streamCount) ? UpdateResult.Remove : UpdateResult.Continue;
     }
@@ -175,6 +177,8 @@ public class AirSweep implements Ability {
         public int sampleTime;
         public int streamCount;
         public String interpolationMethod;
+        public int launchDuration;
+        public boolean lockedLaunchOrigin;
 
         @Override
         public void onConfigReload() {
@@ -189,6 +193,8 @@ public class AirSweep implements Ability {
             sampleTime = abilityNode.getNode("sample-time").getInt(400);
             streamCount = abilityNode.getNode("stream-count").getInt(30);
             interpolationMethod = abilityNode.getNode("interpolation-method").getString("spline");
+            launchDuration = abilityNode.getNode("launch").getNode("duration").getInt(500);
+            lockedLaunchOrigin = abilityNode.getNode("launch").getNode("locked-origin").getBoolean(true);
 
             abilityNode.getNode("interpolation-method").setComment("This sets the method in which the sweep interpolates the samples.\nThis can be set to either 'linear' or 'spline'.");
         }

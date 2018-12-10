@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.platform;
 
+import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 
@@ -40,4 +41,8 @@ public interface LivingEntity extends Entity, Damageable {
     void setNoDamageTicks(int ticks);
     void setRemainingAir(int ticks);
     boolean isVisible();
+
+    default Ray getViewRay() {
+        return new Ray(getEyeLocation(), getDirection());
+    }
 }

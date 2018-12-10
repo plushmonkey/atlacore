@@ -8,11 +8,22 @@ import java.util.stream.Collectors;
 
 public class AbilityInstanceManager {
     private Map<User, List<Ability>> globalInstances = new HashMap<>();
+    private List<UserInstance> addQueue = new ArrayList<>();
+
+    private static class UserInstance {
+        User user;
+        Ability instance;
+
+        UserInstance(User user, Ability instance) {
+            this.user = user;
+            this.instance = instance;
+        }
+    }
 
     // Add a new ability instance that should be updated every tick
+    // This is deferred until next update to prevent concurrent modifications.
     public void addAbility(User user, Ability instance) {
-        globalInstances.computeIfAbsent(user, key -> new ArrayList<>())
-                .add(instance);
+        addQueue.add(new UserInstance(user, instance));
     }
 
     public void createPassives(User user) {
@@ -166,6 +177,12 @@ public class AbilityInstanceManager {
 
     // Updates each ability every tick. Destroys the ability if ability.update() returns UpdateResult.Remove.
     public void update() {
+        for (UserInstance userInstance : addQueue) {
+            globalInstances.computeIfAbsent(userInstance.user, key -> new ArrayList<>())
+                    .add(userInstance.instance);
+        }
+        addQueue.clear();
+
         Iterator<Map.Entry<User, List<Ability>>> playerIterator = globalInstances.entrySet().iterator();
 
         // Store the removed abilities here so any abilities added during Ability#destroy won't be concurrent.

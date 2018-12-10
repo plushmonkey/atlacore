@@ -159,7 +159,7 @@ public class FireShield implements Ability {
             Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
             rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
 
-            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).at(location), new Sphere(location.toVector(), userConfig.discRadius, user.getWorld()));
+            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).addPosition(location), new Sphere(location.toVector(), userConfig.discRadius, user.getWorld()));
 
             return System.currentTimeMillis() >= startTime + userConfig.discDuration;
         }

@@ -21,7 +21,9 @@ import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.MaterialUtil;
+import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.*;
@@ -85,7 +87,9 @@ public class SurgeWall implements Ability {
     @Override
     public void destroy() {
         if (usedBottle) {
-            Location location = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.extension));
+            Location location = RayCaster.cast(user.getWorld(), user.getViewRay(), userConfig.extension, false);
+            location = location.getBlock().getLocation().add(0.5, 0.5, 0.5);
+
             BottleReturn bottleReturn = new BottleReturn(location);
 
             if (bottleReturn.activate(user, ActivationMethod.Punch)) {
@@ -211,7 +215,7 @@ public class SurgeWall implements Ability {
         public boolean update() {
             clear();
 
-            double extension = RayCaster.cast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.extension, false).distance(user.getEyeLocation());
+            double extension = RayCaster.cast(user.getWorld(), user.getViewRay(), userConfig.extension, false).distance(user.getEyeLocation());
 
             this.location = user.getEyeLocation().add(user.getDirection().scalarMultiply(extension));
 
@@ -252,6 +256,19 @@ public class SurgeWall implements Ability {
         @Override
         public Collider getCollider() {
             return this.disc;
+        }
+
+        @Override
+        protected void updateDisc(Location location) {
+            final double r = radius;
+            final double ht = 0.25;
+
+            AABB aabb = new AABB(new Vector3D(-r, -r, -ht), new Vector3D(r, r, ht));
+            Vector3D right = VectorUtil.normalizeOrElse(user.getDirection().crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
+            Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
+            rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
+
+            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).addPosition(location), new Sphere(location, r));
         }
     }
 

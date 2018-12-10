@@ -69,6 +69,10 @@ public final class CollisionUtil {
     }
 
     public static Pair<Boolean, Location> handleBlockCollisions(Collider collider, Location begin, Location end, boolean liquids) {
+        if (end.equals(begin)) {
+            return new Pair<>(false, null);
+        }
+
         double maxExtent = VectorUtil.getMaxComponent(collider.getHalfExtents());
         double distance = begin.distance(end);
 

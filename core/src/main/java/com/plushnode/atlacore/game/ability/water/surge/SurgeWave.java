@@ -5,6 +5,8 @@ import com.plushnode.atlacore.collision.Collider;
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.geometry.AABB;
+import com.plushnode.atlacore.collision.geometry.Disc;
+import com.plushnode.atlacore.collision.geometry.OBB;
 import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
@@ -26,6 +28,7 @@ import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.Collection;
@@ -167,6 +170,8 @@ public class SurgeWave implements Ability {
             this.direction = VectorUtil.normalizeOrElse(target.subtract(origin).toVector(), Vector3D.PLUS_I);
             this.freeze = false;
 
+            createDisc();
+
             user.setCooldown(SurgeWave.this, userConfig.cooldown);
         }
 
@@ -257,6 +262,23 @@ public class SurgeWave implements Ability {
         @Override
         public Collider getCollider() {
             return this.disc;
+        }
+
+        private void createDisc() {
+            final double r = radius;
+            final double ht = 0.25;
+
+            AABB aabb = new AABB(new Vector3D(-r, -r, -ht), new Vector3D(r, r, ht));
+            Vector3D right = VectorUtil.normalizeOrElse(this.direction.crossProduct(Vector3D.PLUS_J), Vector3D.PLUS_I);
+            Rotation rot = new Rotation(Vector3D.PLUS_J, Math.toRadians(user.getYaw()));
+            rot = rot.applyTo(new Rotation(right, Math.toRadians(user.getPitch())));
+
+            this.disc = new Disc(new OBB(aabb, rot, user.getWorld()).addPosition(location), new Sphere(location, r));
+        }
+
+        @Override
+        protected void updateDisc(Location location) {
+            this.disc = this.disc.at(location);
         }
     }
 
