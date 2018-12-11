@@ -2,23 +2,27 @@ package com.plushnode.atlacore.game.ability.water.torrent;
 
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collision;
+import com.plushnode.atlacore.collision.CollisionUtil;
+import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
-import com.plushnode.atlacore.game.ability.common.Grid;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
+import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.MaterialUtil;
+import com.plushnode.atlacore.util.VectorUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import org.apache.commons.math3.util.Pair;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TorrentWave implements Ability {
@@ -29,19 +33,33 @@ public class TorrentWave implements Ability {
     private double radius;
     private Location origin;
     private List<TempBlock> tempBlocks = new ArrayList<>();
-    private List<Pair<Double, Double>> obstructedRanges = new ArrayList<>();
+    private List<List<Double>> angles = new ArrayList<>();
+    private List<Entity> affectedEntities = new ArrayList<>();
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
-        recalculateConfig();
-
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.radius = 3;
         this.origin = user.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5);
+
+        double delta = (Math.PI * 2) / (8 * userConfig.radius);
+
+        for (int i = 0; i < userConfig.height; ++i) {
+            List<Double> current = new ArrayList<>();
+
+            for (double theta = 0; theta < Math.PI * 2; theta += delta) {
+                current.add(theta);
+            }
+
+            angles.add(current);
+        }
 
         if (user.isOnCooldown(getDescription())) {
             return false;
         }
+
+        user.setCooldown(this, userConfig.cooldown);
 
         return true;
     }
@@ -68,31 +86,53 @@ public class TorrentWave implements Ability {
     private void render() {
         clear();
 
-        Grid grid = new Grid((int)userConfig.radius * 2 + 10) {
-            @Override
-            public void draw() {
-                drawCircle(0, 0, (int)radius, (int)radius, 1);
-            }
-        };
+        for (int height = 0; height < userConfig.height; ++height) {
+            List<Double> currentAngles = angles.get(height);
+            // Store the index of any obstructed angles to pop them off the angles list later.
+            List<Integer> obstructions = new ArrayList<>();
 
-        grid.draw();
+            for (int i = 0; i < currentAngles.size(); ++i) {
+                double theta = currentAngles.get(i);
 
-        // TODO: Block collision
-        int lookup = (int)Math.floor(grid.getGrid().length / 2.0) - 1;
-        for (int x = -lookup; x < lookup; ++x) {
-            for (int z = -lookup; z < lookup; ++z) {
-                if (grid.getValue(x, z) == 1) {
-                    for (int i = 0; i < userConfig.height; ++i) {
-                        Location location = origin.add(x, i, z).getBlock().getLocation();
-                        Block block = location.getBlock();
+                double x = Math.cos(theta) * radius;
+                double z = Math.sin(theta) * radius;
 
-                        if (MaterialUtil.isTransparent(block) || block.getType() == Material.WATER) {
-                            tempBlocks.add(new TempBlock(block, Material.WATER));
-                        } else {
+                Location location = origin.add(x, height, z).getBlock().getLocation();
+                Block block = location.getBlock();
 
-                        }
-                    }
+                if (Game.getProtectionSystem().canBuild(user, location) && (MaterialUtil.isTransparent(block) || block.getType() == Material.WATER)) {
+                    tempBlocks.add(new TempBlock(block, Material.WATER));
+                } else {
+                    obstructions.add(i);
                 }
+
+                CollisionUtil.handleEntityCollisions(user, AABB.BLOCK_BOUNDS.at(location), entity -> {
+                    if (affectedEntities.contains(entity)) return false;
+
+                    affectedEntities.add(entity);
+
+                    if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) return false;
+
+                    Vector3D direction = entity.getLocation().subtract(origin).toVector();
+                    direction = VectorUtil.normalizeOrElse(VectorUtil.setY(direction, 0), Vector3D.PLUS_I);
+
+                    entity.setVelocity(entity.getVelocity().add(direction.scalarMultiply(userConfig.knockback)));
+
+                    return false;
+                }, true);
+            }
+
+            // Do swap removal for the obstructions to prevent array shifting.
+            for (int i = 0; i < obstructions.size(); ++i) {
+                int index = obstructions.get(i);
+                int endIndex = currentAngles.size() - i - 1;
+
+                Collections.swap(currentAngles, index, endIndex);
+            }
+
+            // Pop off the end of the currentAngles for however many obstructions were swapped to the end.
+            for (int i = 0; i < obstructions.size(); ++i) {
+                currentAngles.remove(currentAngles.size() - 1);
             }
         }
     }
@@ -119,7 +159,7 @@ public class TorrentWave implements Ability {
 
     @Override
     public void recalculateConfig() {
-        this.userConfig = Game.getAttributeSystem().calculate(this, config);
+        // Don't recalculate config. Any changes made during active instance won't change it.
     }
 
     public static class Config extends Configurable {
@@ -132,6 +172,8 @@ public class TorrentWave implements Ability {
         public double speed;
         @Attribute(Attributes.HEIGHT)
         public int height;
+        @Attribute(Attributes.STRENGTH)
+        public double knockback;
 
         @Override
         public void onConfigReload() {
@@ -142,6 +184,7 @@ public class TorrentWave implements Ability {
             radius = abilityNode.getNode("radius").getDouble(12.0);
             speed = abilityNode.getNode("speed").getDouble(1.0);
             height = abilityNode.getNode("height").getInt(3);
+            knockback = abilityNode.getNode("knockback").getDouble(1.5);
         }
     }
 }
