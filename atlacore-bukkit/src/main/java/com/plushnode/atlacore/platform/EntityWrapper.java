@@ -223,7 +223,12 @@ public class EntityWrapper implements Entity {
     @Override
     public boolean teleport(Location location) {
         LocationWrapper wrapper = (LocationWrapper)location;
-        return entity.teleport(wrapper.getBukkitLocation());
+        org.bukkit.Location target = wrapper.getBukkitLocation().clone();
+
+        // Preserve the entity's current direction.
+        target.setDirection(entity.getLocation().getDirection());
+
+        return entity.teleport(target);
     }
 
     @Override
