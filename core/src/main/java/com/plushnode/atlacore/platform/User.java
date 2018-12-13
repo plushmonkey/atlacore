@@ -5,6 +5,7 @@ import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.conditionals.BendingConditional;
 import com.plushnode.atlacore.game.conditionals.CompositeBendingConditional;
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.game.slots.AbilitySlotContainer;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,10 @@ public interface User extends LivingEntity {
     AbilityDescription getSlotAbility(int slot);
     AbilityDescription getSelectedAbility();
     void clearSlots();
+
+    void pushSlotContainer(AbilitySlotContainer slotContainer);
+    void removeSlotContainer(AbilitySlotContainer slotContainer);
+    void popSlotContainer();
 
     void setCooldown(AbilityDescription abilityDesc);
     void setCooldown(AbilityDescription abilityDesc, long duration);

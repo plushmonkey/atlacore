@@ -58,24 +58,6 @@ public class PlayerListener {
         this.plugin = plugin;
     }
 
-    private boolean activateAbility(User user, ActivationMethod method) {
-        AbilityDescription abilityDescription = user.getSelectedAbility();
-
-        if (abilityDescription == null) return false;
-        if (!abilityDescription.isActivatedBy(method)) return false;
-        if (!user.canBend(abilityDescription)) return false;
-
-        Ability ability = abilityDescription.createAbility();
-
-        if (ability.activate(user, method)) {
-            Game.addAbility(user, ability);
-        } else {
-            return false;
-        }
-
-        return true;
-    }
-
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event) {
         Player player = event.getTargetEntity();
@@ -112,17 +94,9 @@ public class PlayerListener {
 
         if (player == null) return;
 
-        Game.getAttributeSystem().clearModifiers(player);
-
-        Game.getPlayerService().savePlayer(player, (p) -> {
-            Game.info(p.getName() + " saved to database.");
-        });
-
-        Game.getPlayerService().invalidatePlayer(player);
+        Game.getActivationController().onPlayerLogout(player);
 
         boards.remove(player.getName());
-
-        Game.getAbilityInstanceManager().clearPassives(player);
     }
 
     @Listener
@@ -134,7 +108,7 @@ public class PlayerListener {
 
         Vector3D velocity = SpongeTypeUtil.adapt(event.getToTransform().getPosition().sub(event.getFromTransform().getPosition()));
 
-        AirSpout.handleMovement(user, velocity);
+        Game.getActivationController().onUserMove(user, velocity);
     }
 
     @Listener
@@ -146,7 +120,10 @@ public class PlayerListener {
 
         Player player = result.get();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
-        Game.getSequenceService().registerAction(user, Action.InteractEntity);
+
+        if (user == null) return;
+
+        Game.getActivationController().onUserInteractEntity(user);
     }
 
     @Listener
@@ -159,12 +136,11 @@ public class PlayerListener {
         Player player = result.get();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        if (event.getTargetBlock().getState().getType() == BlockTypes.AIR) {
-            Game.getSequenceService().registerAction(user, Action.Interact);
-        } else {
-            Game.getSequenceService().registerAction(user, Action.InteractBlock);
-            activateAbility(user, ActivationMethod.Use);
-        }
+        if (user == null) return;
+
+        boolean rightClickAir = event.getTargetBlock().getState().getType() == BlockTypes.AIR;
+
+        Game.getActivationController().onUserInteract(user, rightClickAir);
     }
 
     @Listener
@@ -177,20 +153,9 @@ public class PlayerListener {
         Player player = (Player) entity;
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        activateAbility(user, ActivationMethod.Fall);
+        if (user == null) return;
 
-        if (user.hasElement(Elements.AIR) && GracefulDescent.isGraceful(user)) {
-            event.setCancelled(true);
-        }
-
-        if (user.hasElement(Elements.EARTH) && DensityShift.isSoftened(user)) {
-            Block block = user.getLocation().getBlock().getRelative(BlockFace.DOWN);
-            Location location = block.getLocation().add(0.5, 0.5, 0.5);
-            DensityShift.softenArea(user, location);
-            event.setCancelled(true);
-        }
-
-        if (Flight.hasFlight(user)) {
+        if (!Game.getActivationController().onFallDamage(user)) {
             event.setCancelled(true);
         }
     }
@@ -205,7 +170,9 @@ public class PlayerListener {
         Player player = (Player) entity;
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        if (!HeatControl.canBurn(user)) {
+        if (user == null) return;
+
+        if (!Game.getActivationController().onFireTickDamage(user)) {
             event.setCancelled(true);
         }
     }
@@ -233,15 +200,9 @@ public class PlayerListener {
     public void onPlayerSneak(Player player, boolean isSneaking) {
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        if (user != null) {
-            Game.getSequenceService().registerAction(user, isSneaking ? Action.Sneak : Action.SneakRelease);
+        if (user == null) return;
 
-            if (isSneaking) {
-                activateAbility(user, ActivationMethod.Sneak);
-
-                Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
-            }
-        }
+        Game.getActivationController().onUserSneak(user, isSneaking);
     }
 
     @Listener
@@ -253,36 +214,8 @@ public class PlayerListener {
         Player player = (Player) entity;
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
-            if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
-                return;
-            }
-        }
+        if (user == null) return;
 
-        if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("FireJet")) {
-            if (Game.getAbilityInstanceManager().destroyInstanceType(user, FireJet.class)) {
-                return;
-            }
-
-            if (Game.getAbilityInstanceManager().destroyInstanceType(user, JetBlast.class)) {
-                return;
-            }
-
-            if (Game.getAbilityInstanceManager().destroyInstanceType(user, JetBlaze.class)) {
-                return;
-            }
-        }
-
-        Combustion.combust(user);
-        FireBurst.activateCone(user);
-        AirBurst.activateCone(user);
-
-        if (WorldUtil.getTargetEntity(user, 4) != null) {
-            Game.getSequenceService().registerAction(user, Action.PunchEntity);
-        } else {
-            Game.getSequenceService().registerAction(user, Action.Punch);
-        }
-
-        activateAbility(user, ActivationMethod.Punch);
+        Game.getActivationController().onUserSwing(user);
     }
 }

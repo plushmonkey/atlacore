@@ -1,8 +1,10 @@
 package com.plushnode.atlacore.game.ability;
 
+import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.element.Element;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.util.ChatColor;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -153,5 +155,23 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     @Override
     public boolean canSourcePlant(User user) {
         return this.sourcesPlants && !user.isOnCooldown(this);
+    }
+
+    @Override
+    public CommentedConfigurationNode getConfigNode() {
+        CommentedConfigurationNode config = Game.plugin.getCoreConfig();
+
+        CommentedConfigurationNode elementNode = config.getNode("abilities", getElement().getName().toLowerCase());
+
+        CommentedConfigurationNode node;
+        if (isActivatedBy(ActivationMethod.Sequence)) {
+            node = elementNode.getNode("sequences", getName().toLowerCase());
+        } else if (isActivatedBy(ActivationMethod.Passive)) {
+            node = elementNode.getNode("passives", getName().toLowerCase());
+        } else {
+            node = elementNode.getNode(getName().toLowerCase());
+        }
+
+        return node;
     }
 }

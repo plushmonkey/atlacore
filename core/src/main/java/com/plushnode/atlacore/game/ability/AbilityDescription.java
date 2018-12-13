@@ -2,6 +2,7 @@ package com.plushnode.atlacore.game.ability;
 
 import com.plushnode.atlacore.game.element.Element;
 import com.plushnode.atlacore.platform.User;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public interface AbilityDescription {
     String getName();
@@ -33,4 +34,6 @@ public interface AbilityDescription {
 
     boolean canBypassCooldown();
     boolean canSourcePlant(User user);
+
+    CommentedConfigurationNode getConfigNode();
 }

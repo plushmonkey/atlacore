@@ -4,18 +4,22 @@ import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.game.conditionals.*;
 import com.plushnode.atlacore.game.element.Element;
+import com.plushnode.atlacore.game.slots.AbilitySlotContainer;
+import com.plushnode.atlacore.game.slots.StandardAbilitySlotContainer;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.*;
 
 public class BukkitBendingUser extends LivingEntityWrapper implements User {
-    private AbilityDescription[] boundAbilities = new AbilityDescription[9];
+    private List<AbilitySlotContainer> slotContainers = new ArrayList<>();
     private List<Element> elements = new ArrayList<>();
     private Map<AbilityDescription, Long> cooldowns = new HashMap<>();
     private CompositeBendingConditional bendingConditional = new CompositeBendingConditional();
 
     public BukkitBendingUser(LivingEntity entity) {
         super(entity);
+
+        slotContainers.add(new StandardAbilitySlotContainer());
 
         bendingConditional.add(
                 new CooldownBendingConditional(),
@@ -75,18 +79,35 @@ public class BukkitBendingUser extends LivingEntityWrapper implements User {
 
     @Override
     public void setSlotAbility(int slot, AbilityDescription abilityDesc) {
-        boundAbilities[slot - 1] = abilityDesc;
+        slotContainers.get(slotContainers.size() - 1).setAbility(slot, abilityDesc);
     }
 
     @Override
     public AbilityDescription getSlotAbility(int slot) {
-        return boundAbilities[slot - 1];
+        return slotContainers.get(slotContainers.size() - 1).getAbility(slot);
     }
 
     @Override
     public AbilityDescription getSelectedAbility() {
         // Non-player bending users don't have anything selected.
         return null;
+    }
+
+    @Override
+    public void pushSlotContainer(AbilitySlotContainer slotContainer) {
+        slotContainers.add(slotContainer);
+    }
+
+    @Override
+    public void removeSlotContainer(AbilitySlotContainer slotContainer) {
+        slotContainers.remove(slotContainer);
+    }
+
+    @Override
+    public void popSlotContainer() {
+        if (slotContainers.size() > 1) {
+            slotContainers.remove(slotContainers.size() - 1);
+        }
     }
 
     @Override

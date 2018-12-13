@@ -4,6 +4,7 @@ import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,17 +17,7 @@ public class AbilityRegistry extends Configurable {
         if (abilities == null) return;
 
         for (AbilityDescription abilityDesc : getAbilities()) {
-            CommentedConfigurationNode elementNode = config.getNode("abilities",
-                    abilityDesc.getElement().getName().toLowerCase());
-
-            CommentedConfigurationNode node;
-            if (abilityDesc.isActivatedBy(ActivationMethod.Sequence)) {
-                node = elementNode.getNode("sequences", abilityDesc.getName().toLowerCase());
-            } else if (abilityDesc.isActivatedBy(ActivationMethod.Passive)) {
-                node = elementNode.getNode("passives", abilityDesc.getName().toLowerCase());
-            } else {
-                node = elementNode.getNode(abilityDesc.getName().toLowerCase());
-            }
+            CommentedConfigurationNode node = abilityDesc.getConfigNode();
 
             long cooldownMS = node.getNode("cooldown").getLong();
             boolean enabled = node.getNode("enabled").getBoolean();

@@ -19,6 +19,10 @@ import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
+import com.plushnode.atlacore.game.ability.water.arms.WaterArms;
+import com.plushnode.atlacore.game.ability.water.arms.WaterArmsFreeze;
+import com.plushnode.atlacore.game.ability.water.arms.WaterArmsSpear;
+import com.plushnode.atlacore.game.ability.water.arms.WaterArmsWhip;
 import com.plushnode.atlacore.game.ability.water.surge.Surge;
 import com.plushnode.atlacore.game.ability.water.surge.SurgeWall;
 import com.plushnode.atlacore.game.ability.water.surge.SurgeWave;
@@ -62,6 +66,7 @@ public class Game {
     private static CollisionService collisionService;
     private static AttributeSystem attributeSystem;
     private static TempArmorService tempArmorService;
+    private static ActivationController activationController;
 
     private static DatabaseManager databaseManager = null;
 
@@ -77,6 +82,7 @@ public class Game {
         collisionService = new CollisionService();
         attributeSystem = new AttributeSystem();
         tempArmorService = new TempArmorService();
+        activationController = new ActivationController();
 
         tempBlockService.start();
         sequenceService.start();
@@ -191,6 +197,25 @@ public class Game {
         torrentDesc.setCanBypassCooldown(true);
         torrentDesc.setSourcesPlants(true);
         registerAbility("TorrentWave", TorrentWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
+
+        GenericAbilityDescription waterArmsDesc = registerAbility("WaterArms", WaterArms.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
+        waterArmsDesc.setCanBypassCooldown(true);
+        waterArmsDesc.setSourcesPlants(true);
+
+        MultiAbilityDescription freezeDesc = new MultiAbilityDescription<>("Freeze", Elements.WATER, 0, WaterArmsFreeze.class, ActivationMethod.Punch);
+        freezeDesc.setConfigNode("waterarms", "freeze");
+        freezeDesc.setHidden(true);
+        abilityRegistry.registerAbility(freezeDesc);
+
+        MultiAbilityDescription spearDesc = new MultiAbilityDescription<>("Spear", Elements.WATER, 0, WaterArmsSpear.class, ActivationMethod.Punch);
+        spearDesc.setConfigNode("waterarms", "spear");
+        spearDesc.setHidden(true);
+        abilityRegistry.registerAbility(spearDesc);
+
+        MultiAbilityDescription whipDesc = new MultiAbilityDescription<>("Whip", Elements.WATER, 0, WaterArmsWhip.class, ActivationMethod.Punch);
+        whipDesc.setConfigNode("waterarms", "whip");
+        whipDesc.setHidden(true);
+        abilityRegistry.registerAbility(whipDesc);
 
         sequenceService.registerSequence(fireKick, new Sequence(true,
                 new AbilityAction(fireBlast, Action.Punch),
@@ -423,6 +448,10 @@ public class Game {
 
     public static TempArmorService getTempArmorService() {
         return tempArmorService;
+    }
+
+    public static ActivationController getActivationController() {
+        return activationController;
     }
 
     // Forces all atlacore classes to be loaded. This ensures all of them create their static Config objects.

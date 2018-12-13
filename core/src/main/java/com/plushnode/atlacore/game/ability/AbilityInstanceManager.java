@@ -23,6 +23,10 @@ public class AbilityInstanceManager {
     // Add a new ability instance that should be updated every tick
     // This is deferred until next update to prevent concurrent modifications.
     public void addAbility(User user, Ability instance) {
+        if (instance instanceof MultiAbility) {
+            user.pushSlotContainer(((MultiAbility) instance).getSlots());
+        }
+
         addQueue.add(new UserInstance(user, instance));
     }
 
@@ -81,7 +85,7 @@ public class AbilityInstanceManager {
         }
 
         abilities.remove(ability);
-        ability.destroy();
+        destroyAbility(ability);
     }
 
     public boolean destroyInstanceType(User user, AbilityDescription abilityDesc) {
@@ -101,7 +105,7 @@ public class AbilityInstanceManager {
 
             if (ability.getClass() == clazz) {
                 iterator.remove();
-                ability.destroy();
+                destroyAbility(ability);
                 destroyed = true;
             }
         }
@@ -149,7 +153,7 @@ public class AbilityInstanceManager {
 
         if (instances != null) {
             for (Ability ability : instances) {
-                ability.destroy();
+                destroyAbility(ability);
             }
 
             instances.clear();
@@ -167,7 +171,7 @@ public class AbilityInstanceManager {
             List<Ability> instances = entry.getValue();
 
             for (Ability ability : instances) {
-                ability.destroy();
+                destroyAbility(ability);
             }
 
             instances.clear();
@@ -215,6 +219,15 @@ public class AbilityInstanceManager {
             }
         }
 
-        removed.forEach(Ability::destroy);
+        removed.forEach(this::destroyAbility);
+    }
+
+    // Calls ability destroy and cleans up slot containers.
+    private void destroyAbility(Ability ability) {
+        ability.destroy();
+
+        if (ability instanceof MultiAbility) {
+            ability.getUser().popSlotContainer();
+        }
     }
 }

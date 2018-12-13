@@ -35,29 +35,10 @@ import org.bukkit.inventory.EquipmentSlot;
 import java.util.HashMap;
 import java.util.Map;
 
-// NOTE: test code.
 public class PlayerListener implements Listener {
     // TODO: Move into appropriate place
     public static Map<String, BendingBoard> boards = new HashMap<>();
     private Task boardTask = null;
-
-    private boolean activateAbility(User user, ActivationMethod method) {
-        AbilityDescription abilityDescription = user.getSelectedAbility();
-
-        if (abilityDescription == null) return false;
-        if (!abilityDescription.isActivatedBy(method)) return false;
-        if (!user.canBend(abilityDescription)) return false;
-
-        Ability ability = abilityDescription.createAbility();
-
-        if (ability.activate(user, method)) {
-            Game.addAbility(user, ability);
-        } else {
-            return false;
-        }
-
-        return true;
-    }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -93,17 +74,8 @@ public class PlayerListener implements Listener {
 
         if (player == null) return;
 
-        Game.getAttributeSystem().clearModifiers(player);
-
-        Game.getPlayerService().savePlayer(player, (p) -> {
-            Game.info(p.getName() + " saved to database.");
-        });
-
-        Game.getPlayerService().invalidatePlayer(player);
-
+        Game.getActivationController().onPlayerLogout(player);
         boards.remove(player.getName());
-
-        Game.getAbilityInstanceManager().clearPassives(player);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -112,23 +84,11 @@ public class PlayerListener implements Listener {
         if (!(event.getEntity() instanceof Player)) return;
 
         Player player = (Player)event.getEntity();
-
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        activateAbility(user, ActivationMethod.Fall);
+        if (user == null) return;
 
-        if (user.hasElement(Elements.AIR) && GracefulDescent.isGraceful(user)) {
-            event.setCancelled(true);
-        }
-
-        if (user.hasElement(Elements.EARTH) && DensityShift.isSoftened(user)) {
-            Block block = user.getLocation().getBlock().getRelative(BlockFace.DOWN);
-            Location location = block.getLocation().add(0.5, 0.5, 0.5);
-            DensityShift.softenArea(user, location);
-            event.setCancelled(true);
-        }
-
-        if (Flight.hasFlight(user)) {
+        if (!Game.getActivationController().onFallDamage(user)) {
             event.setCancelled(true);
         }
     }
@@ -141,7 +101,9 @@ public class PlayerListener implements Listener {
         Player player = (Player)event.getEntity();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        if (!HeatControl.canBurn(user)) {
+        if (user == null) return;
+
+        if (!Game.getActivationController().onFireTickDamage(user)) {
             event.setCancelled(true);
         }
     }
@@ -154,7 +116,7 @@ public class PlayerListener implements Listener {
 
         Vector3D velocity = TypeUtil.adapt(event.getTo().clone().subtract(event.getFrom()).toVector());
 
-        AirSpout.handleMovement(user, velocity);
+        Game.getActivationController().onUserMove(user, velocity);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -162,12 +124,15 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
+        if (user == null) return;
+
         if (event.getHand() == EquipmentSlot.HAND) {
-            if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR) {
-                Game.getSequenceService().registerAction(user, Action.Interact);
-            } else if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
-                Game.getSequenceService().registerAction(user, Action.InteractBlock);
-                activateAbility(user, ActivationMethod.Use);
+            boolean rightClickAir = event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
+
+            if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR ||
+                event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK)
+            {
+                Game.getActivationController().onUserInteract(user, rightClickAir);
             }
         }
     }
@@ -177,7 +142,9 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        Game.getSequenceService().registerAction(user, Action.InteractEntity);
+        if (user == null) return;
+
+        Game.getActivationController().onUserInteractEntity(user);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -185,13 +152,9 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        Game.getSequenceService().registerAction(user, event.isSneaking() ? Action.Sneak : Action.SneakRelease);
+        if (user == null) return;
 
-        if (!event.isSneaking()) return;
-
-        activateAbility(user, ActivationMethod.Sneak);
-
-        Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class);
+        Game.getActivationController().onUserSneak(user, event.isSneaking());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -199,36 +162,8 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         User user = Game.getPlayerService().getPlayerByName(player.getName());
 
-        if (Game.getAbilityInstanceManager().destroyInstanceType(user, AirScooter.class)) {
-            if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("AirScooter")) {
-                return;
-            }
-        }
+        if (user == null) return;
 
-        if (user.getSelectedAbility() == Game.getAbilityRegistry().getAbilityByName("FireJet")) {
-            if (Game.getAbilityInstanceManager().destroyInstanceType(user, FireJet.class)) {
-                return;
-            }
-
-            if (Game.getAbilityInstanceManager().destroyInstanceType(user, JetBlast.class)) {
-                return;
-            }
-
-            if (Game.getAbilityInstanceManager().destroyInstanceType(user, JetBlaze.class)) {
-                return;
-            }
-        }
-
-        Combustion.combust(user);
-        FireBurst.activateCone(user);
-        AirBurst.activateCone(user);
-
-        if (WorldUtil.getTargetEntity(user, 4) != null) {
-            Game.getSequenceService().registerAction(user, Action.PunchEntity);
-        } else {
-            Game.getSequenceService().registerAction(user, Action.Punch);
-        }
-
-        activateAbility(user, ActivationMethod.Punch);
+        Game.getActivationController().onUserSwing(user);
     }
 }
