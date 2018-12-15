@@ -11,14 +11,23 @@ import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.User;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
-public class WaterArmsWhip implements Ability {
+public class WaterArmsPunch implements Ability {
     public static Config config = new Config();
 
     private User user;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
-        Game.info("WaterArmsWhip activation.");
+        Game.info("WaterArmsPunch activation.");
+
+        WaterArms instance = WaterArms.getInstance(user);
+
+        if (instance != null) {
+            Arm arm = instance.getAndToggleArm();
+
+            arm.setState(new PunchArmState());
+        }
+
         return false;
     }
 
@@ -39,7 +48,7 @@ public class WaterArmsWhip implements Ability {
 
     @Override
     public String getName() {
-        return "Whip";
+        return "WaterArmsPunch";
     }
 
     @Override
@@ -52,6 +61,19 @@ public class WaterArmsWhip implements Ability {
 
     }
 
+    public static class PunchArmState implements Arm.ArmState {
+
+        @Override
+        public boolean update() {
+            return false;
+        }
+
+        @Override
+        public void clear() {
+
+        }
+    }
+
     public static class Config extends Configurable {
         public boolean enabled;
         @Attribute(Attributes.COOLDOWN)
@@ -59,10 +81,11 @@ public class WaterArmsWhip implements Ability {
 
         @Override
         public void onConfigReload() {
-            CommentedConfigurationNode abilityNode = config.getNode("abilities", "water", "waterarms", "whip");
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "water", "waterarms", "punch");
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
             cooldown = abilityNode.getNode("cooldown").getLong(0);
         }
     }
 }
+

@@ -7,4 +7,5 @@ public interface Player extends User, CommandSender {
     boolean isSneaking();
     GameMode getGameMode();
     int getHeldItemSlot();
+    void setHeldItemSlot(int slot);
 }

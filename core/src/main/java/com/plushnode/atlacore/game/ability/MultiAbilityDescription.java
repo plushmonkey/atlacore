@@ -7,6 +7,7 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 public class MultiAbilityDescription<T extends Ability> extends GenericAbilityDescription<T> {
     private String parent;
     private String sub;
+    private String displayName;
 
     public MultiAbilityDescription(String name, Element element, int cooldown, Class<T> type, ActivationMethod... activations) {
         super(name, element, cooldown, type, activations);
@@ -15,6 +16,15 @@ public class MultiAbilityDescription<T extends Ability> extends GenericAbilityDe
     public void setConfigNode(String parent, String sub) {
         this.parent = parent.toLowerCase();
         this.sub = sub.toLowerCase();
+    }
+
+    public void setDisplayName(String name) {
+        this.displayName = name;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return this.displayName;
     }
 
     @Override

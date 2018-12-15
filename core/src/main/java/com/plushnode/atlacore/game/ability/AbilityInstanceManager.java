@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.game.ability;
 
+import com.plushnode.atlacore.platform.Player;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.element.Element;
 
@@ -25,6 +26,10 @@ public class AbilityInstanceManager {
     public void addAbility(User user, Ability instance) {
         if (instance instanceof MultiAbility) {
             user.pushSlotContainer(((MultiAbility) instance).getSlots());
+
+            if (user instanceof Player) {
+                ((Player) user).setHeldItemSlot(0);
+            }
         }
 
         addQueue.add(new UserInstance(user, instance));

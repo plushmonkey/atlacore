@@ -79,4 +79,11 @@ public final class VectorUtil {
 
         return a.add(b).add(c);
     }
+
+    public static Vector3D fromYaw(double yaw) {
+        double x = -Math.sin(Math.toRadians(yaw));
+        double z = Math.cos(Math.toRadians(yaw));
+
+        return new Vector3D(x, 0, z);
+    }
 }

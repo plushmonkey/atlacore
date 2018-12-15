@@ -11,21 +11,21 @@ import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.User;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
-public class WaterArmsSpear implements Ability {
+public class WaterArmsGrapple implements Ability {
     public static Config config = new Config();
 
     private User user;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
-        Game.info("WaterArmsSpear activation.");
+        Game.info("WaterArmsGrapple activation.");
 
         WaterArms instance = WaterArms.getInstance(user);
 
         if (instance != null) {
             Arm arm = instance.getAndToggleArm();
 
-            arm.setState(new SpearArmState());
+            arm.setState(new GrappleArmState());
         }
 
         return false;
@@ -48,7 +48,7 @@ public class WaterArmsSpear implements Ability {
 
     @Override
     public String getName() {
-        return "WaterArmsSpear";
+        return "WaterArmsGrapple";
     }
 
     @Override
@@ -61,7 +61,7 @@ public class WaterArmsSpear implements Ability {
 
     }
 
-    public static class SpearArmState implements Arm.ArmState {
+    public static class GrappleArmState implements Arm.ArmState {
 
         @Override
         public boolean update() {
@@ -81,7 +81,7 @@ public class WaterArmsSpear implements Ability {
 
         @Override
         public void onConfigReload() {
-            CommentedConfigurationNode abilityNode = config.getNode("abilities", "water", "waterarms", "spear");
+            CommentedConfigurationNode abilityNode = config.getNode("abilities", "water", "waterarms", "grapple");
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
             cooldown = abilityNode.getNode("cooldown").getLong(0);

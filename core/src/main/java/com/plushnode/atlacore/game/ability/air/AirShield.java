@@ -161,6 +161,7 @@ public class AirShield implements Ability {
         public long cooldown;
         @Attribute(Attributes.DURATION)
         public long duration;
+        @Attribute(Attributes.RADIUS)
         @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
         public double radius;

@@ -44,6 +44,11 @@ public class GenericAbilityDescription<T extends Ability> implements AbilityDesc
     }
 
     @Override
+    public String getDisplayName() {
+        return name;
+    }
+
+    @Override
     public AbilityDescription setDescription(String desc) {
         this.description = desc;
         return this;

@@ -95,7 +95,7 @@ public class BendingBoard {
                     sb.append(ChatColor.STRIKETHROUGH);
                 }
 
-                sb.append(desc.getName());
+                sb.append(desc.getDisplayName());
             }
 
             updatedScores.add(sb.toString());
@@ -120,7 +120,7 @@ public class BendingBoard {
 
                     name += description.getElement().getColor();
                     name += ChatColor.STRIKETHROUGH;
-                    name += description.getName();
+                    name += description.getDisplayName();
 
                     if (updates.isEmpty()) {
                         updates.add(ChatColor.BOLD + "Sequences");

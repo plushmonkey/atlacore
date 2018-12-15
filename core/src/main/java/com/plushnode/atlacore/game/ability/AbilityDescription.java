@@ -6,6 +6,7 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public interface AbilityDescription {
     String getName();
+    String getDisplayName();
 
     String getDescription();
     AbilityDescription setDescription(String desc);

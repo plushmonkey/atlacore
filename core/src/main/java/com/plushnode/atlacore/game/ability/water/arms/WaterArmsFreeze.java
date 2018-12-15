@@ -19,6 +19,7 @@ public class WaterArmsFreeze implements Ability {
     @Override
     public boolean activate(User user, ActivationMethod method) {
         Game.info("WaterArmsFreeze activation.");
+
         return false;
     }
 
@@ -39,7 +40,7 @@ public class WaterArmsFreeze implements Ability {
 
     @Override
     public String getName() {
-        return "Freeze";
+        return "WaterArmsFreeze";
     }
 
     @Override

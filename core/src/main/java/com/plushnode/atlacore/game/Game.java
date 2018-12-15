@@ -19,10 +19,7 @@ import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
-import com.plushnode.atlacore.game.ability.water.arms.WaterArms;
-import com.plushnode.atlacore.game.ability.water.arms.WaterArmsFreeze;
-import com.plushnode.atlacore.game.ability.water.arms.WaterArmsSpear;
-import com.plushnode.atlacore.game.ability.water.arms.WaterArmsWhip;
+import com.plushnode.atlacore.game.ability.water.arms.*;
 import com.plushnode.atlacore.game.ability.water.surge.Surge;
 import com.plushnode.atlacore.game.ability.water.surge.SurgeWall;
 import com.plushnode.atlacore.game.ability.water.surge.SurgeWave;
@@ -202,20 +199,41 @@ public class Game {
         waterArmsDesc.setCanBypassCooldown(true);
         waterArmsDesc.setSourcesPlants(true);
 
-        MultiAbilityDescription freezeDesc = new MultiAbilityDescription<>("Freeze", Elements.WATER, 0, WaterArmsFreeze.class, ActivationMethod.Punch);
+        MultiAbilityDescription pullDesc = new MultiAbilityDescription<>("WaterArmsPull", Elements.WATER, 0, WaterArmsPull.class, ActivationMethod.Punch);
+        pullDesc.setConfigNode("waterarms", "pull");
+        pullDesc.setHidden(true);
+        pullDesc.setDisplayName("Pull");
+        abilityRegistry.registerAbility(pullDesc);
+
+        MultiAbilityDescription punchDesc = new MultiAbilityDescription<>("WaterArmsPunch", Elements.WATER, 0, WaterArmsPunch.class, ActivationMethod.Punch);
+        punchDesc.setConfigNode("waterarms", "punch");
+        punchDesc.setHidden(true);
+        punchDesc.setDisplayName("Punch");
+        abilityRegistry.registerAbility(punchDesc);
+
+        MultiAbilityDescription grappleDesc = new MultiAbilityDescription<>("WaterArmsGrapple", Elements.WATER, 0, WaterArmsGrapple.class, ActivationMethod.Punch);
+        grappleDesc.setConfigNode("waterarms", "grapple");
+        grappleDesc.setHidden(true);
+        grappleDesc.setDisplayName("Grapple");
+        abilityRegistry.registerAbility(grappleDesc);
+
+        MultiAbilityDescription grabDesc = new MultiAbilityDescription<>("WaterArmsGrab", Elements.WATER, 0, WaterArmsGrab.class, ActivationMethod.Punch);
+        grabDesc.setConfigNode("waterarms", "grab");
+        grabDesc.setHidden(true);
+        grabDesc.setDisplayName("Grab");
+        abilityRegistry.registerAbility(grabDesc);
+
+        MultiAbilityDescription freezeDesc = new MultiAbilityDescription<>("WaterArmsFreeze", Elements.WATER, 0, WaterArmsFreeze.class, ActivationMethod.Punch);
         freezeDesc.setConfigNode("waterarms", "freeze");
         freezeDesc.setHidden(true);
+        freezeDesc.setDisplayName("Freeze");
         abilityRegistry.registerAbility(freezeDesc);
 
-        MultiAbilityDescription spearDesc = new MultiAbilityDescription<>("Spear", Elements.WATER, 0, WaterArmsSpear.class, ActivationMethod.Punch);
+        MultiAbilityDescription spearDesc = new MultiAbilityDescription<>("WaterArmsSpear", Elements.WATER, 0, WaterArmsSpear.class, ActivationMethod.Punch);
         spearDesc.setConfigNode("waterarms", "spear");
         spearDesc.setHidden(true);
+        spearDesc.setDisplayName("Spear");
         abilityRegistry.registerAbility(spearDesc);
-
-        MultiAbilityDescription whipDesc = new MultiAbilityDescription<>("Whip", Elements.WATER, 0, WaterArmsWhip.class, ActivationMethod.Punch);
-        whipDesc.setConfigNode("waterarms", "whip");
-        whipDesc.setHidden(true);
-        abilityRegistry.registerAbility(whipDesc);
 
         sequenceService.registerSequence(fireKick, new Sequence(true,
                 new AbilityAction(fireBlast, Action.Punch),

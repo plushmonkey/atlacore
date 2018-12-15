@@ -77,6 +77,12 @@ public class SpongeBendingPlayer extends SpongeBendingUser implements Player {
     }
 
     @Override
+    public void setHeldItemSlot(int slot) {
+        Hotbar hotbar = getSpongePlayer().getInventory().query(Hotbar.class);
+        hotbar.setSelectedSlotIndex(slot);
+    }
+
+    @Override
     public AbilityDescription getSelectedAbility() {
         Hotbar hotbar = getSpongePlayer().getInventory().query(Hotbar.class);
         int slot = hotbar.getSelectedSlotIndex() + 1;
