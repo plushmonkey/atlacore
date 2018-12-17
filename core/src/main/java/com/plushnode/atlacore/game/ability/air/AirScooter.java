@@ -223,7 +223,11 @@ public class AirScooter implements Ability {
         protected boolean isCollision(Location location) {
             Block block = location.getBlock();
 
-            return !MaterialUtil.isTransparent(block) || (!liquidMovement && block.isLiquid()) || MaterialUtil.isSolid(block);
+            if (block.getType() == Material.WATER && liquidMovement) {
+                return false;
+            }
+
+            return !MaterialUtil.isTransparent(block) || MaterialUtil.isSolid(block);
         }
     }
 

@@ -27,9 +27,14 @@ public class FastBlockSetter implements BlockSetter {
 
     @Override
     public void setBlock(Block block, Material material, BlockData data) {
-        // TODO: pass BlockData
         org.bukkit.Material bukkitMaterial = TypeUtil.adapt(material);
-        NativeMethods.setBlockFast(((BlockWrapper)block).getBukkitBlock(), bukkitMaterial.createBlockData());
+        org.bukkit.block.data.BlockData blockData = bukkitMaterial.createBlockData();
+
+        if (data != null) {
+            blockData = TypeUtil.adapt(data);
+        }
+
+        NativeMethods.setBlockFast(((BlockWrapper)block).getBukkitBlock(), blockData);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.game.slots.AbilitySlotContainer;
 import com.plushnode.atlacore.game.slots.MultiAbilitySlotContainer;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.block.Material;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -22,6 +23,7 @@ public class WaterArms implements MultiAbility {
     public static final Config config = new Config();
 
     private User user;
+    private Config userConfig;
     private long startTime;
     private Arm leftArm;
     private Arm rightArm;
@@ -31,9 +33,10 @@ public class WaterArms implements MultiAbility {
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
         this.startTime = System.currentTimeMillis();
+        this.userConfig = Game.getAttributeSystem().calculate(this, config);
 
-        rightArm = new Arm(user, Vector3D.MINUS_I.scalarMultiply(2));
-        leftArm = new Arm(user, Vector3D.PLUS_I.scalarMultiply(2));
+        rightArm = new Arm(user, Vector3D.MINUS_I.scalarMultiply(2), userConfig.length);
+        leftArm = new Arm(user, Vector3D.PLUS_I.scalarMultiply(2), userConfig.length);
         activeArm = leftArm;
 
         return true;
@@ -41,18 +44,29 @@ public class WaterArms implements MultiAbility {
 
     @Override
     public UpdateResult update() {
-        if (System.currentTimeMillis() > startTime + 10000 || (!rightArm.isActive() && !leftArm.isActive())) {
+        if (System.currentTimeMillis() > startTime + 30000 || (!rightArm.isActive() && !leftArm.isActive())) {
             rightArm.clear();
             leftArm.clear();
             return UpdateResult.Remove;
         }
 
+        AbilityDescription desc = user.getSelectedAbility();
+        if (desc != null && "WaterArmsFreeze".equals(desc.getName())) {
+            rightArm.setMaterial(Material.ICE);
+            leftArm.setMaterial(Material.ICE);
+        } else {
+            rightArm.setMaterial(Material.WATER);
+            leftArm.setMaterial(Material.WATER);
+        }
+
         if (rightArm.isActive() && !rightArm.update()) {
             rightArm.setState(null);
+            rightArm.clear();
         }
 
         if (leftArm.isActive() && !leftArm.update()) {
             leftArm.setState(null);
+            leftArm.clear();
         }
 
         return UpdateResult.Continue;
@@ -63,8 +77,12 @@ public class WaterArms implements MultiAbility {
 
         toggleArm();
 
-        if (!activeArm.isActive()) {
+        if (!activeArm.isActive() || !activeArm.canActivate()) {
             toggleArm();
+        }
+
+        if (!activeArm.canActivate()) {
+            return null;
         }
 
         return result;
@@ -127,6 +145,7 @@ public class WaterArms implements MultiAbility {
         public boolean enabled;
         @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        public int length;
 
         @Override
         public void onConfigReload() {
@@ -134,6 +153,7 @@ public class WaterArms implements MultiAbility {
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
             cooldown = abilityNode.getNode("cooldown").getLong(0);
+            length = abilityNode.getNode("length").getInt(4);
         }
     }
 }

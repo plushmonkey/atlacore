@@ -218,4 +218,32 @@ public final class RayCaster {
 
         return closestBlock;
     }
+
+    // Casts a ray and returns every block that intersects that ray.
+    public static List<Block> blockArray(World world, Ray ray, double range) {
+        List<Block> blocks = new ArrayList<>();
+        Location origin = world.getLocation(ray.origin);
+
+        // Progress through each block and check all neighbors for ray intersection.
+        for (double i = 0; i < range + 1; ++i) {
+            Location current = origin.add(ray.direction.scalarMultiply(i));
+            for (Vector3D direction : DIRECTIONS) {
+                Block block = current.add(direction).getBlock();
+                AABB blockBounds = AABB.BLOCK_BOUNDS.at(block.getLocation());
+
+                Optional<Double> result = blockBounds.intersects(ray);
+                if (result.isPresent()) {
+                    double distance = result.get();
+
+                    if (distance < range && distance >= 0) {
+                        if (!blocks.contains(block)) {
+                            blocks.add(block);
+                        }
+                    }
+                }
+            }
+        }
+
+        return blocks;
+    }
 }

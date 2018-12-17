@@ -5,25 +5,32 @@ import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockSetter;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.platform.block.data.BlockData;
 
 public class TempBlock {
     private BlockState previousState;
     private Material tempType;
+    private BlockData data;
     private boolean applyPhysics;
     private BlockSetter setter;
     private long endTime;
 
     public TempBlock(Block block, Material tempType) {
-        this(block, tempType, false);
+        this(block, tempType, null, false);
     }
 
-    public TempBlock(BlockState blockState, Material tempType) {
-        this(blockState, tempType, false);
+    public TempBlock(Block block, BlockData data) {
+        this(block, data.getMaterial(), data, false);
     }
 
     public TempBlock(Block block, Material tempType, boolean applyPhysics) {
+        this(block, tempType, null, applyPhysics);
+    }
+
+    public TempBlock(Block block, Material tempType, BlockData data, boolean applyPhysics) {
         this.previousState = block.getState();
         this.tempType = tempType;
+        this.data = data;
         this.applyPhysics = applyPhysics;
 
         BlockSetter.Flag flag = BlockSetter.Flag.FAST;
@@ -38,9 +45,18 @@ public class TempBlock {
         }
 
         setter = Game.plugin.getBlockSetter(flag);
-        setter.setBlock(block, tempType);
+
+        if (data == null) {
+            setter.setBlock(block, tempType);
+        } else {
+            setter.setBlock(block, tempType, data);
+        }
 
         Game.getTempBlockService().add(this);
+    }
+
+    public TempBlock(BlockState blockState, Material tempType) {
+        this(blockState, tempType, false);
     }
 
     public TempBlock(BlockState blockState, Material tempType, boolean applyPhysics) {
@@ -66,7 +82,7 @@ public class TempBlock {
     }
 
     public TempBlock(Block block, Material tempType, long duration) {
-        this(block, tempType, false);
+        this(block, tempType, null, false);
         endTime = System.currentTimeMillis() + duration;
     }
 
@@ -76,7 +92,7 @@ public class TempBlock {
     }
 
     public TempBlock(Block block, Material tempType, boolean applyPhysics, long duration) {
-        this(block, tempType, applyPhysics);
+        this(block, tempType, null, applyPhysics);
         endTime = System.currentTimeMillis() + duration;
     }
 
@@ -91,7 +107,11 @@ public class TempBlock {
         if (this.applyPhysics) {
             block.setType(tempType);
         } else {
-            setter.setBlock(block, tempType);
+            if (data == null) {
+                setter.setBlock(block, tempType);
+            } else {
+                setter.setBlock(block, tempType, data);
+            }
         }
     }
 

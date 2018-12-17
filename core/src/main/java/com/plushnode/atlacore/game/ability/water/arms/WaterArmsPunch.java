@@ -18,14 +18,14 @@ public class WaterArmsPunch implements Ability {
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
-        Game.info("WaterArmsPunch activation.");
-
         WaterArms instance = WaterArms.getInstance(user);
 
         if (instance != null) {
             Arm arm = instance.getAndToggleArm();
 
-            arm.setState(new PunchArmState());
+            if (arm != null) {
+                arm.setState(new PunchArmState());
+            }
         }
 
         return false;

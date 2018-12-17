@@ -18,14 +18,14 @@ public class WaterArmsGrab implements Ability {
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
-        Game.info("WaterArmsGrab activation.");
-
         WaterArms instance = WaterArms.getInstance(user);
 
         if (instance != null) {
             Arm arm = instance.getAndToggleArm();
 
-            arm.setState(new GrabArmState());
+            if (arm != null) {
+                arm.setState(new GrabArmState());
+            }
         }
 
         return false;

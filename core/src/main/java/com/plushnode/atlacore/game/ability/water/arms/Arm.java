@@ -1,6 +1,8 @@
 package com.plushnode.atlacore.game.ability.water.arms;
 
 import com.plushnode.atlacore.block.TempBlock;
+import com.plushnode.atlacore.collision.RayCaster;
+import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
@@ -16,12 +18,17 @@ public class Arm {
     private User user;
     private Vector3D offset;
     private ArmState state;
+    private int length;
+    private Material material;
+    private List<TempBlock> tempBlocks = new ArrayList<>();
 
-    public Arm(User user, Vector3D offset) {
+    public Arm(User user, Vector3D offset, int length) {
         this.user = user;
         this.offset = offset;
+        this.length = length;
+        this.material = Material.WATER;
 
-        this.state = new DefaultArmState(this);
+        this.state = new DefaultArmState();
     }
 
     public User getUser() {
@@ -29,9 +36,16 @@ public class Arm {
     }
 
     public void clear() {
+        tempBlocks.forEach(TempBlock::reset);
+        tempBlocks.clear();
+
         if (state != null) {
             state.clear();
         }
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 
     public boolean update() {
@@ -39,7 +53,27 @@ public class Arm {
 
         if (!isActive()) return false;
 
+        render();
+
         return state.update();
+    }
+
+    public void render() {
+        Location base = getBase().getBlock().getLocation().add(0.5, 0.5, 0.5);
+
+        for (Block block : RayCaster.blockArray(user.getWorld(), new Ray(base, user.getDirection()), getLength())) {
+            if (MaterialUtil.isTransparent(block)) {
+                tempBlocks.add(new TempBlock(block, material));
+            }
+        }
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public Vector3D getDirection() {
+        return user.getDirection();
     }
 
     public Location getBase() {
@@ -47,8 +81,16 @@ public class Arm {
         return user.getEyeLocation().add(worldOffset);
     }
 
+    public Location getEnd() {
+        return getBase().add(user.getDirection().scalarMultiply(length));
+    }
+
     public boolean isActive() {
         return state != null;
+    }
+
+    public boolean canActivate() {
+        return this.state instanceof DefaultArmState;
     }
 
     public void setState(ArmState state) {
@@ -64,33 +106,14 @@ public class Arm {
     }
 
     public static class DefaultArmState implements ArmState {
-        private Arm arm;
-        private List<TempBlock> tempBlocks = new ArrayList<>();
-
-        public DefaultArmState(Arm arm) {
-            this.arm = arm;
-        }
-
         @Override
         public boolean update() {
-            Location base = arm.getBase();
-
-            for (int i = 0; i < 5; ++i) {
-                Location current = base.add(arm.user.getDirection().scalarMultiply(i));
-                Block block = current.getBlock();
-
-                if (MaterialUtil.isTransparent(block)) {
-                    tempBlocks.add(new TempBlock(block, Material.WATER));
-                }
-            }
-
             return true;
         }
 
         @Override
         public void clear() {
-            tempBlocks.forEach(TempBlock::reset);
-            tempBlocks.clear();
+
         }
     }
 }

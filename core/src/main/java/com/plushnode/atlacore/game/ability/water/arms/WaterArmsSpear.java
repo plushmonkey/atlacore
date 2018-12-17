@@ -18,14 +18,14 @@ public class WaterArmsSpear implements Ability {
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
-        Game.info("WaterArmsSpear activation.");
-
         WaterArms instance = WaterArms.getInstance(user);
 
         if (instance != null) {
             Arm arm = instance.getAndToggleArm();
 
-            arm.setState(new SpearArmState());
+            if (arm != null) {
+                arm.setState(new SpearArmState());
+            }
         }
 
         return false;

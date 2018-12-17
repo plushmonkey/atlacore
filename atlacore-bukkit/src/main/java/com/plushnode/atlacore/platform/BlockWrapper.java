@@ -7,10 +7,8 @@ import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.BlockState;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.platform.block.data.BlockData;
-import com.plushnode.atlacore.platform.data.LevelledWrapper;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.TypeUtil;
-import org.bukkit.block.data.Levelled;
 
 public class BlockWrapper implements Block {
     private org.bukkit.block.Block block;
@@ -48,13 +46,7 @@ public class BlockWrapper implements Block {
 
     @Override
     public BlockData getBlockData() {
-        org.bukkit.block.data.BlockData bukkitData = block.getBlockData();
-
-        if (bukkitData instanceof Levelled) {
-            return new LevelledWrapper((Levelled)bukkitData);
-        }
-
-        return null;
+        return TypeUtil.adapt(block.getBlockData());
     }
 
     @Override
@@ -111,8 +103,10 @@ public class BlockWrapper implements Block {
 
     @Override
     public void setBlockData(BlockData data) {
-        if (data instanceof LevelledWrapper) {
-            block.setBlockData(((LevelledWrapper) data).getLevelled());
+        org.bukkit.block.data.BlockData bukkitData = TypeUtil.adapt(data);
+
+        if (bukkitData != null) {
+            block.setBlockData(bukkitData);
         }
     }
 
