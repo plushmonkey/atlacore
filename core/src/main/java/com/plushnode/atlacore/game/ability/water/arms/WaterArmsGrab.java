@@ -2,7 +2,6 @@ package com.plushnode.atlacore.game.ability.water.arms;
 
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.config.Configurable;
-import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
 import com.plushnode.atlacore.game.ability.ActivationMethod;
 import com.plushnode.atlacore.game.ability.UpdateResult;
@@ -23,7 +22,7 @@ public class WaterArmsGrab implements Ability {
         if (instance != null) {
             Arm arm = instance.getAndToggleArm();
 
-            if (arm != null) {
+            if (arm != null && arm.isFull()) {
                 arm.setState(new GrabArmState());
             }
         }
