@@ -103,7 +103,7 @@ public class Arm {
     }
 
     public boolean canActivate() {
-        return this.state instanceof DefaultArmState;
+        return this.state.canActivate();
     }
 
     public void setState(ArmState state) {
@@ -116,6 +116,9 @@ public class Arm {
     public interface ArmState {
         boolean update();
         void clear();
+        default boolean canActivate() {
+            return false;
+        }
     }
 
     public static class DefaultArmState implements ArmState {
@@ -127,6 +130,11 @@ public class Arm {
         @Override
         public void clear() {
 
+        }
+
+        @Override
+        public boolean canActivate() {
+            return true;
         }
     }
 

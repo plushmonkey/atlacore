@@ -11,6 +11,7 @@ import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.game.slots.AbilitySlotContainer;
 import com.plushnode.atlacore.game.slots.MultiAbilitySlotContainer;
+import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Material;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -28,6 +29,7 @@ public class WaterArms implements MultiAbility {
     private Arm leftArm;
     private Arm rightArm;
     private Arm activeArm;
+    private List<Entity> entities = new ArrayList<>();
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -70,6 +72,14 @@ public class WaterArms implements MultiAbility {
         }
 
         return UpdateResult.Continue;
+    }
+
+    public boolean wasAffected(Entity entity) {
+        return entities.contains(entity);
+    }
+
+    public void addAffected(Entity entity) {
+        entities.add(entity);
     }
 
     public Arm getAndToggleArm() {
