@@ -69,7 +69,7 @@ public class Arm {
 
             if (MaterialUtil.isTransparent(block)) {
                 tempBlocks.add(new TempBlock(block, material));
-            } else if (block.getType() != Material.WATER) {
+            } else if (block.getType() != material) {
                 this.full = false;
                 break;
             }

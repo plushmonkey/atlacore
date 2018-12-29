@@ -4,19 +4,20 @@ import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.*;
+import com.plushnode.atlacore.game.ability.common.source.SourceType;
+import com.plushnode.atlacore.game.ability.common.source.SourceTypes;
+import com.plushnode.atlacore.game.ability.common.source.SourceUtil;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.game.slots.AbilitySlotContainer;
 import com.plushnode.atlacore.game.slots.MultiAbilitySlotContainer;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class WaterArms implements MultiAbility {
     public static final Config config = new Config();
@@ -27,6 +28,7 @@ public class WaterArms implements MultiAbility {
     private Arm leftArm;
     private Arm rightArm;
     private Arm activeArm;
+    private boolean usedBottles;
     private Map<Class, Object> instanceData = new HashMap<>();
 
     @Override
@@ -34,6 +36,19 @@ public class WaterArms implements MultiAbility {
         this.user = user;
         this.startTime = System.currentTimeMillis();
         this.userConfig = Game.getAttributeSystem().calculate(this, config);
+        this.usedBottles = false;
+
+        SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant);
+        Optional<Block> source = SourceUtil.getSource(user, userConfig.selectRange, types);
+
+        // Don't activate if no source was selected and no bottle could be used.
+        if (!source.isPresent()) {
+            if (!SourceUtil.emptyBottle(user)) {
+                return false;
+            }
+
+            usedBottles = true;
+        }
 
         rightArm = new Arm(user, Vector3D.MINUS_I.scalarMultiply(2), userConfig.length);
         leftArm = new Arm(user, Vector3D.PLUS_I.scalarMultiply(2), userConfig.length);
@@ -44,7 +59,7 @@ public class WaterArms implements MultiAbility {
 
     @Override
     public UpdateResult update() {
-        if (System.currentTimeMillis() > startTime + 30000 || (!rightArm.isActive() && !leftArm.isActive())) {
+        if (System.currentTimeMillis() > startTime + userConfig.duration || (!rightArm.isActive() && !leftArm.isActive())) {
             rightArm.clear();
             leftArm.clear();
             return UpdateResult.Remove;
@@ -110,6 +125,12 @@ public class WaterArms implements MultiAbility {
     public void destroy() {
         leftArm.clear();
         rightArm.clear();
+
+        user.setCooldown(this, userConfig.cooldown);
+
+        if (usedBottles) {
+            SourceUtil.fillBottle(user);
+        }
     }
 
     @Override
@@ -161,14 +182,20 @@ public class WaterArms implements MultiAbility {
         @Attribute(Attributes.COOLDOWN)
         public long cooldown;
         public int length;
+        @Attribute(Attributes.SELECTION)
+        public double selectRange;
+        @Attribute(Attributes.DURATION)
+        public long duration;
 
         @Override
         public void onConfigReload() {
             CommentedConfigurationNode abilityNode = config.getNode("abilities", "water", "waterarms");
 
             enabled = abilityNode.getNode("enabled").getBoolean(true);
-            cooldown = abilityNode.getNode("cooldown").getLong(0);
+            cooldown = abilityNode.getNode("cooldown").getLong(20000);
             length = abilityNode.getNode("length").getInt(4);
+            selectRange = abilityNode.getNode("select-range").getDouble(12.0);
+            duration = abilityNode.getNode("duration").getLong(40000);
         }
     }
 }

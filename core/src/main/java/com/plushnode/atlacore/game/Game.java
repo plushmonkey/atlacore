@@ -195,9 +195,7 @@ public class Game {
         torrentDesc.setSourcesPlants(true);
         registerAbility("TorrentWave", TorrentWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
 
-        GenericAbilityDescription waterArmsDesc = registerAbility("WaterArms", WaterArms.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
-        waterArmsDesc.setCanBypassCooldown(true);
-        waterArmsDesc.setSourcesPlants(true);
+        registerAbility("WaterArms", WaterArms.class, Elements.WATER, ActivationMethod.Sneak);
 
         MultiAbilityDescription pullDesc = new MultiAbilityDescription<>("WaterArmsPull", Elements.WATER, 0, WaterArmsPull.class, ActivationMethod.Punch);
         pullDesc.setConfigNode("waterarms", "pull");
