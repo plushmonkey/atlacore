@@ -40,6 +40,11 @@ public class WaterArmsGrab implements Ability {
 
                 Config userConfig = Game.getAttributeSystem().calculate(this, config);
 
+                GrabData grabData = instance.getInstanceData(GrabData.class);
+                if (grabData == null) {
+                    instance.putInstanceData(GrabData.class, new GrabData());
+                }
+
                 arm.setState(new GrabExtensionArmState(arm, userConfig, instance));
             }
         }
@@ -95,17 +100,19 @@ public class WaterArmsGrab implements Ability {
         public void act(Location location) {
             if (acted) return;
 
+            GrabData grabData = instance.getInstanceData(GrabData.class);
+
             if (target == null) {
                 int lookup = (int)Math.ceil(userConfig.radius + 1);
                 for (Entity entity : arm.getUser().getWorld().getNearbyEntities(location, lookup, lookup, lookup)) {
                     if (!(entity instanceof LivingEntity)) continue;
-                    if (instance.wasAffected(entity)) continue;
+                    if (grabData.entities.contains(entity)) continue;
 
                     double distSq = entity.getLocation().distanceSquared(location);
 
                     if (distSq <= userConfig.radius * userConfig.radius) {
                         target = entity;
-                        instance.addAffected(target);
+                        grabData.entities.add(target);
                         break;
                     }
                 }
@@ -210,6 +217,10 @@ public class WaterArmsGrab implements Ability {
         public boolean canActivate() {
             return true;
         }
+    }
+
+    private static class GrabData {
+        List<Entity> entities = new ArrayList<>();
     }
 
     public static class Config extends Configurable {

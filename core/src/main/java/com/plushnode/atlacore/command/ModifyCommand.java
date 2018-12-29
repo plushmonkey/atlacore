@@ -106,11 +106,7 @@ public class ModifyCommand implements CoreCommand {
     }
 
     private String parseAttributeType(String str) {
-        List<String> validAttributes = Arrays.asList(
-                Attributes.ENTITY_COLLISION_RADIUS, Attributes.ABILITY_COLLISION_RADIUS, Attributes.RANGE,
-                Attributes.SELECTION, Attributes.COOLDOWN, Attributes.SPEED, Attributes.STRENGTH, Attributes.DAMAGE,
-                Attributes.CHARGE_TIME, Attributes.DURATION, Attributes.RADIUS, Attributes.HEIGHT
-        );
+        List<String> validAttributes = Arrays.asList(Attributes.TYPES);
 
         return validAttributes.stream().filter(attr -> attr.equalsIgnoreCase(str)).findAny().orElse(null);
     }

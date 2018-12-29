@@ -3,22 +3,20 @@ package com.plushnode.atlacore.game.ability.water.arms;
 import com.plushnode.atlacore.collision.Collision;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
-import com.plushnode.atlacore.game.ability.AbilityDescription;
-import com.plushnode.atlacore.game.ability.ActivationMethod;
-import com.plushnode.atlacore.game.ability.MultiAbility;
-import com.plushnode.atlacore.game.ability.UpdateResult;
+import com.plushnode.atlacore.game.ability.*;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.game.slots.AbilitySlotContainer;
 import com.plushnode.atlacore.game.slots.MultiAbilitySlotContainer;
-import com.plushnode.atlacore.platform.Entity;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Material;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WaterArms implements MultiAbility {
     public static final Config config = new Config();
@@ -29,7 +27,7 @@ public class WaterArms implements MultiAbility {
     private Arm leftArm;
     private Arm rightArm;
     private Arm activeArm;
-    private List<Entity> entities = new ArrayList<>();
+    private Map<Class, Object> instanceData = new HashMap<>();
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -74,12 +72,20 @@ public class WaterArms implements MultiAbility {
         return UpdateResult.Continue;
     }
 
-    public boolean wasAffected(Entity entity) {
-        return entities.contains(entity);
+    @SuppressWarnings("unchecked")
+    public <T> T getInstanceData(Class<T> type) {
+        Object data = instanceData.get(type);
+
+        if (data != null && data.getClass().isAssignableFrom(type)) {
+            return (T)data;
+        }
+
+        return null;
     }
 
-    public void addAffected(Entity entity) {
-        entities.add(entity);
+    public <T> T putInstanceData(Class<T> type, T data) {
+        instanceData.put(type, data);
+        return data;
     }
 
     public Arm getAndToggleArm() {
@@ -104,7 +110,8 @@ public class WaterArms implements MultiAbility {
 
     @Override
     public void destroy() {
-
+        leftArm.clear();
+        rightArm.clear();
     }
 
     @Override

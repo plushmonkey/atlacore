@@ -22,4 +22,11 @@ public @interface Attributes {
     String DURATION = "Duration";
     String RADIUS = "Radius";
     String HEIGHT = "Height";
+    String AMOUNT = "Amount";
+
+    String TYPES[] = {
+            Attributes.ENTITY_COLLISION_RADIUS, Attributes.ABILITY_COLLISION_RADIUS, Attributes.RANGE,
+            Attributes.SELECTION, Attributes.COOLDOWN, Attributes.SPEED, Attributes.STRENGTH, Attributes.DAMAGE,
+            Attributes.CHARGE_TIME, Attributes.DURATION, Attributes.RADIUS, Attributes.HEIGHT, Attributes.AMOUNT
+    };
 }
