@@ -28,7 +28,6 @@ public class Arm {
         this.length = length;
         this.material = Material.WATER;
         this.full = false;
-
         this.state = new DefaultArmState();
     }
 
@@ -70,7 +69,7 @@ public class Arm {
 
             if (MaterialUtil.isTransparent(block)) {
                 tempBlocks.add(new TempBlock(block, material));
-            } else {
+            } else if (block.getType() != Material.WATER) {
                 this.full = false;
                 break;
             }
@@ -103,13 +102,14 @@ public class Arm {
     }
 
     public boolean canActivate() {
-        return this.state.canActivate();
+        return isActive() && this.state.canActivate();
     }
 
     public void setState(ArmState state) {
         if (this.state != null) {
             this.state.clear();
         }
+
         this.state = state;
     }
 

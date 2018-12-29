@@ -37,7 +37,7 @@ public class WaterArms implements MultiAbility {
 
         rightArm = new Arm(user, Vector3D.MINUS_I.scalarMultiply(2), userConfig.length);
         leftArm = new Arm(user, Vector3D.PLUS_I.scalarMultiply(2), userConfig.length);
-        activeArm = leftArm;
+        activeArm = rightArm;
 
         return true;
     }
@@ -89,8 +89,6 @@ public class WaterArms implements MultiAbility {
     }
 
     public Arm getAndToggleArm() {
-        Arm result = activeArm;
-
         toggleArm();
 
         if (!activeArm.isActive() || !activeArm.canActivate()) {
@@ -101,7 +99,7 @@ public class WaterArms implements MultiAbility {
             return null;
         }
 
-        return result;
+        return activeArm;
     }
 
     private void toggleArm() {

@@ -34,29 +34,33 @@ public class WaterArmsFreeze implements Ability {
         WaterArms instance = WaterArms.getInstance(user);
         if (instance == null) return false;
 
-        this.user = user;
-        recalculateConfig();
-
-        FreezeData freezeData = instance.getInstanceData(FreezeData.class);
-
-        if (freezeData == null) {
-            freezeData = instance.putInstanceData(FreezeData.class, new FreezeData());
-        }
-
-        if (++freezeData.count >= userConfig.count && userConfig.count > 0) {
-            Game.getAbilityInstanceManager().destroyInstance(user, instance);
-        }
-
         Arm arm = instance.getAndToggleArm();
 
-        this.location = arm.getEnd().add(user.getDirection()).getBlock().getLocation().add(0.5, 0.5, 0.5);
+        if (arm != null && arm.isFull()) {
+            this.user = user;
+            recalculateConfig();
 
-        Location target = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.range));
-        this.direction = target.subtract(this.location).toVector().normalize();
-        this.origin = this.location;
-        this.tempBlock = null;
+            FreezeData freezeData = instance.getInstanceData(FreezeData.class);
 
-        return true;
+            if (freezeData == null) {
+                freezeData = instance.putInstanceData(FreezeData.class, new FreezeData());
+            }
+
+            if (++freezeData.count >= userConfig.count && userConfig.count > 0) {
+                Game.getAbilityInstanceManager().destroyInstance(user, instance);
+            }
+
+            Location target = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.range));
+
+            this.location = arm.getEnd().add(user.getDirection()).getBlock().getLocation().add(0.5, 0.5, 0.5);
+            this.direction = target.subtract(this.location).toVector().normalize();
+            this.origin = this.location;
+            this.tempBlock = null;
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
