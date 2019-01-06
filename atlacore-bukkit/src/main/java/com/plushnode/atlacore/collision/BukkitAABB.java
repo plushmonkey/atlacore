@@ -200,7 +200,13 @@ public final class BukkitAABB {
                 getBoundingBox = Entity.getDeclaredMethod("getBoundingBox");
             } else {
                 getVoxelShape = Block.getDeclaredMethod("a", IBlockData, IBlockAccess, BlockPosition);
-                getBlockBoundingBox = VoxelShape.getDeclaredMethod("a");
+
+                try {
+                    getBlockBoundingBox = VoxelShape.getDeclaredMethod("getBoundingBox");
+                } catch (NoSuchMethodException e) {
+                    getBlockBoundingBox = VoxelShape.getDeclaredMethod("a");
+                }
+
                 getBoundingBox = Entity.getDeclaredMethod("getBoundingBox");
 
                 try {

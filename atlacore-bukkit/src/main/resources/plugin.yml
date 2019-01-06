@@ -81,3 +81,11 @@ permissions:
     children:
       atla.command.choose.Water: true
       atla.ability.Surge: true
+      atla.ability.Torrent: true
+      atla.ability.WaterArms: true
+      atla.ability.WaterArmsFreeze: true
+      atla.ability.WaterArmsGrab: true
+      atla.ability.WaterArmsGrapple: true
+      atla.ability.WaterArmsPull: true
+      atla.ability.WaterArmsPunch: true
+      atla.ability.WaterArmsSpear: true
