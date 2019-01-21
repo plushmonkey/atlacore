@@ -122,9 +122,6 @@ public class BlockWrapper implements Block {
 
     @Override
     public AABB getBounds() {
-        if (MaterialUtil.isTransparent(this) || block.getType() == org.bukkit.Material.WATER) {
-            return new AABB(null, null, this.getWorld());
-        }
         return BukkitAABB.getBlockBounds(block);
     }
 

@@ -199,7 +199,7 @@ public final class BukkitAABB {
                 getBlockBoundingBox = Block.getDeclaredMethod("a", IBlockData, serverVersion >= 11 ? IBlockAccess : World, BlockPosition);
                 getBoundingBox = Entity.getDeclaredMethod("getBoundingBox");
             } else {
-                getVoxelShape = Block.getDeclaredMethod("a", IBlockData, IBlockAccess, BlockPosition);
+                getVoxelShape = Block.getDeclaredMethod("f", IBlockData, IBlockAccess, BlockPosition);
 
                 try {
                     getBlockBoundingBox = VoxelShape.getDeclaredMethod("getBoundingBox");
