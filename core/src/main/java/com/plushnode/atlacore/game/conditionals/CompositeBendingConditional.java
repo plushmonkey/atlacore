@@ -33,6 +33,10 @@ public class CompositeBendingConditional implements BendingConditional {
         conditionals.remove(conditional);
     }
 
+    public boolean hasType(Class<? extends BendingConditional> type) {
+        return conditionals.stream().anyMatch(cond -> type.isAssignableFrom(cond.getClass()));
+    }
+
     // Returns all of the conditionals that were removed.
     public List<BendingConditional> removeType(Class<? extends BendingConditional> type) {
         // Filter out any conditionals that match the provided type.

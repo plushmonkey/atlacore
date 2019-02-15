@@ -44,6 +44,10 @@ public class BendingBoard {
         }
     }
 
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
     public void update() {
         if (!enabled) return;
         if (!bukkitPlayer.hasPermission("atla.board.display")) {

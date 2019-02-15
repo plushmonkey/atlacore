@@ -1,8 +1,10 @@
 package com.plushnode.atlacore.commands;
 
+import com.plushnode.atlacore.board.BendingBoard;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.command.CommandRegistry;
 import com.plushnode.atlacore.command.CoreCommand;
+import com.plushnode.atlacore.listeners.PlayerListener;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,6 +27,17 @@ public class CoreExecutor extends CommandRegistry implements CommandExecutor {
         CoreCommand bendingCommand = getCommands().get(targetCommand);
 
         if (bendingCommand == null) {
+            // Temporary until boards are pulled into core.
+            if (targetCommand.equalsIgnoreCase("board")) {
+                BendingBoard board = PlayerListener.boards.get(sender.getName());
+
+                if (board != null) {
+                    board.setEnabled(!board.isEnabled());
+                }
+
+                return true;
+            }
+
             sendUsage(sender);
             return true;
         }
