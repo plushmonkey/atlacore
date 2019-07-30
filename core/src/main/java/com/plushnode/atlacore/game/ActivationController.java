@@ -52,6 +52,8 @@ public class ActivationController {
             Game.info(p.getName() + " saved to database.");
         });
 
+        Flight.remove(player);
+
         Game.getPlayerService().invalidatePlayer(player);
         Game.getAbilityInstanceManager().clearPassives(player);
     }

@@ -16,8 +16,10 @@ import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.ParticleEffect;
 import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.VectorUtil;
+import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -46,6 +48,11 @@ public class AirSpout implements Ability {
 
         this.user = user;
         this.userConfig = Game.getAttributeSystem().calculate(this, config);
+
+        if (WorldUtil.distanceAboveGround(user, Material.WATER, Material.LAVA) > userConfig.height + userConfig.heightBuffer) {
+            return false;
+        }
+
         this.nextRenderTime = System.currentTimeMillis();
         this.flight = Flight.get(user);
         this.flight.setFlying(true);

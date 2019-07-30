@@ -105,6 +105,10 @@ public final class WorldUtil {
         return distanceAboveGround(entity, Collections.emptySet());
     }
 
+    public static double distanceAboveGround(Entity entity, Material... materials) {
+        return distanceAboveGround(entity, new HashSet<>(Arrays.asList(materials)));
+    }
+
     public static double distanceAboveGround(Entity entity, Set<Material> groundMaterials) {
         Location location = entity.getLocation();
         Ray ray = new Ray(location, new Vector3D(0, -1, 0));

@@ -1,5 +1,7 @@
 package com.plushnode.atlacore;
 
+import com.plushnode.atlacore.block.StandardTempBlockService;
+import com.plushnode.atlacore.block.TempBlockService;
 import com.plushnode.atlacore.command.*;
 import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.events.BendingEventBus;
@@ -57,6 +59,8 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         this.game = new Game(this);
 
+        registerServices();
+
         ProtectionSystem protection = Game.getProtectionSystem();
 
         protection.getFactory().registerProtectMethod("Factions", () -> new FactionsProtectMethod(this));
@@ -95,6 +99,10 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         // Reload config after Game was created so all of the values are set.
         loadConfig();
+    }
+
+    private void registerServices() {
+        ServiceRegistry.register(TempBlockService.class, new StandardTempBlockService());
     }
 
     @Override

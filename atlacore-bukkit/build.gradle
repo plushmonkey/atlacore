@@ -4,6 +4,7 @@ repositories {
 	mavenCentral()
 	maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
 	maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+	maven { url "http://maven.sk89q.com/repo/" }
 	flatDir {
 		dirs 'libs'
 	}
@@ -51,8 +52,10 @@ dependencies {
 	shadow project(':core')
 	compile 'org.spigotmc:spigot-api:1.13.1-R0.1-SNAPSHOT'
 	shadow 'ninja.leaping.configurate:configurate-hocon:3.2'
-	compile name: 'worldguard-legacy-7.0.0-beta01'
-	compile name: 'worldedit-bukkit-7.0.0-beta-01'
+	compile 'com.sk89q.worldedit:worldedit-core:7.0.0-SNAPSHOT'
+	compile 'com.sk89q.worldedit:worldedit-bukkit:7.0.0-SNAPSHOT'
+	compile 'com.sk89q.worldguard:worldguard-core:7.0.0-SNAPSHOT'
+	compile 'com.sk89q.worldguard:worldguard-legacy:7.0.0-SNAPSHOT'
 	compile name: 'Towny-0.90'
 	compile name: 'Factions-2.7.5'
 	compile name: 'MassiveCore-2.7.5'

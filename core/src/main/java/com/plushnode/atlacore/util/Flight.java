@@ -19,11 +19,13 @@ public class Flight {
     private boolean couldFly;
     private boolean wasFlying;
     private boolean isFlying;
+    private boolean changedFlying;
 
     private Flight(User user) {
         this.user = user;
         this.references = 0;
         this.isFlying = false;
+        this.changedFlying = false;
 
         couldFly = user.getAllowFlight();
         wasFlying = user.isFlying();
@@ -54,6 +56,8 @@ public class Flight {
         this.isFlying = flying;
         user.setAllowFlight(flying);
         user.setFlying(flying);
+
+        this.changedFlying = true;
     }
 
     public boolean isFlying() {
@@ -78,7 +82,7 @@ public class Flight {
     public static void remove(User user) {
         Flight flight = instances.get(user);
 
-        if (flight != null) {
+        if (flight != null && flight.changedFlying) {
             user.setAllowFlight(flight.couldFly);
             user.setFlying(flight.wasFlying);
         }
@@ -91,8 +95,10 @@ public class Flight {
             User user = entry.getKey();
             Flight flight = entry.getValue();
 
-            user.setAllowFlight(flight.couldFly);
-            user.setFlying(flight.wasFlying);
+            if (flight.changedFlying) {
+                user.setAllowFlight(flight.couldFly);
+                user.setFlying(flight.wasFlying);
+            }
         }
 
         instances.clear();
@@ -103,7 +109,7 @@ public class Flight {
             User user = entry.getKey();
             Flight flight = entry.getValue();
 
-            if (user.isFlying() != flight.isFlying) {
+            if (flight.changedFlying && user.isFlying() != flight.isFlying) {
                 user.setFlying(flight.isFlying);
             }
         }

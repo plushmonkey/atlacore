@@ -210,7 +210,10 @@ public class ArmorListener implements Listener {
         Player p = e.getEntity();
         for (ItemStack i : p.getInventory().getArmorContents()) {
             if (!isAirOrNull(i)) {
-                Bukkit.getServer().getPluginManager().callEvent(new ArmorEquipEvent(p, EquipMethod.DEATH, ArmorType.matchType(i), i, null));
+                ArmorType type = ArmorType.matchType(i);
+                if (type != null) {
+                    Bukkit.getServer().getPluginManager().callEvent(new ArmorEquipEvent(p, EquipMethod.DEATH, type, i, null));
+                }
                 // No way to cancel a death event.
             }
         }
