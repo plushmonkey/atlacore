@@ -387,7 +387,6 @@ public class Shockwave implements Ability {
 
                     if (tempBlock == null) {
                         tempBlock = new TempBlock(block, material, false);
-                        tbm.add(tempBlock);
                         tempBlocks.put(block, tempBlock);
 
                         Vector3D direction = new Vector3D(x, 0, z).normalize();

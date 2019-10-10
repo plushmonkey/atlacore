@@ -217,18 +217,18 @@ public class EarthBlast implements Ability {
     }
 
     private void renderSelectedBlock() {
-        Material type = sourceBlock.getType();
-        sourceMaterial = MaterialUtil.getSolidEarthType(type);
+        Material sourceRenderType = Material.STONE;
+        Material rawSourceMaterial = sourceBlock.getType();
 
-        if (sourceMaterial == type) {
-            if (type == Material.STONE) {
-                sourceMaterial = Material.COBBLESTONE;
-            } else {
-                sourceMaterial = Material.STONE;
-            }
+        sourceMaterial = MaterialUtil.getSolidEarthType(rawSourceMaterial);
+
+        if (rawSourceMaterial == Material.SAND) {
+            sourceRenderType = Material.SANDSTONE;
+        } else if (rawSourceMaterial == Material.STONE) {
+            sourceRenderType = Material.COBBLESTONE;
         }
 
-        this.tempBlock = new TempBlock(sourceBlock, sourceMaterial);
+        this.tempBlock = new TempBlock(sourceBlock, sourceRenderType);
     }
 
     private void launch() {
@@ -244,7 +244,7 @@ public class EarthBlast implements Ability {
 
     private void redirect() {
         this.target = RayCaster.cast(user, new Ray(user.getEyeLocation(),
-                user.getDirection()), 30.0, true, true, userConfig.entitySelectRadius,
+                user.getDirection()), 30.0, false, true, userConfig.entitySelectRadius,
                 Collections.singletonList(location.getBlock()));
     }
 

@@ -1,11 +1,12 @@
 package com.plushnode.atlacore.block;
 
-import com.plushnode.atlacore.Service;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.block.Block;
 
-public interface TempBlockService extends Service  {
+public interface TempBlockService  {
     void add(TempBlock block);
+
+    void refresh(TempBlock tempBlock);
 
     // Stops tracking a TempBlock without resetting it.
     void remove(TempBlock block);
@@ -21,4 +22,7 @@ public interface TempBlockService extends Service  {
 
     boolean isTempBlock(Block block);
     boolean isTempBlock(Location location);
+
+    void start();
+    void stop();
 }

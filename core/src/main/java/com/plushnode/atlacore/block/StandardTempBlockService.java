@@ -13,9 +13,30 @@ public class StandardTempBlockService implements TempBlockService {
 
     @Override
     public void add(TempBlock block) {
+        setBlock(block);
+
         Location location = block.getPreviousState().getLocation();
 
         temporaryBlocks.put(location, block);
+    }
+
+    @Override
+    public void refresh(TempBlock tempBlock) {
+        Block block = tempBlock.getBlock();
+
+        if (tempBlock.isApplyPhysics()) {
+            block.setType(tempBlock.getTempType());
+        } else {
+            setBlock(tempBlock);
+        }
+    }
+
+    private void setBlock(TempBlock tempBlock) {
+        if (tempBlock.getBlockData() == null) {
+            tempBlock.getSetter().setBlock(tempBlock.getBlock(), tempBlock.getTempType());
+        } else {
+            tempBlock.getSetter().setBlock(tempBlock.getBlock(), tempBlock.getTempType(), tempBlock.getBlockData());
+        }
     }
 
     // Stops tracking a TempBlock without resetting it.
@@ -33,18 +54,18 @@ public class StandardTempBlockService implements TempBlockService {
 
     @Override
     public void reset(final Location location) {
-        TempBlock block = temporaryBlocks.get(location);
-
-        if (block != null) {
-            block.reset();
-            temporaryBlocks.remove(location);
-        }
+        reset(temporaryBlocks.get(location));
     }
 
     @Override
     public void reset(final TempBlock tempBlock) {
         if (tempBlock != null) {
-            tempBlock.reset();
+            if (tempBlock.isApplyPhysics()) {
+                tempBlock.getPreviousState().update(true);
+            } else {
+                tempBlock.getSetter().setBlock(tempBlock.getPreviousState());
+            }
+
             temporaryBlocks.remove(tempBlock.getPreviousState().getLocation());
         }
     }
@@ -86,6 +107,8 @@ public class StandardTempBlockService implements TempBlockService {
 
     @Override
     public void stop() {
+        resetAll();
+
         if (task != null) {
             task.cancel();
             task = null;

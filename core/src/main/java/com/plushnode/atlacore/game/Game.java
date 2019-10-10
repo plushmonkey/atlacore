@@ -2,7 +2,7 @@ package com.plushnode.atlacore.game;
 
 import com.google.common.reflect.ClassPath;
 import com.plushnode.atlacore.CorePlugin;
-import com.plushnode.atlacore.ServiceRegistry;
+import com.plushnode.atlacore.block.StandardTempBlockService;
 import com.plushnode.atlacore.collision.CollisionService;
 import com.plushnode.atlacore.config.ConfigManager;
 import com.plushnode.atlacore.game.ability.*;
@@ -49,7 +49,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-// TODO: Move services to ServiceRegistry and remove getters.
 public class Game {
     public static CorePlugin plugin;
 
@@ -60,6 +59,7 @@ public class Game {
     private static AbilityRegistry abilityRegistry;
     private static ElementRegistry elementRegistry;
     private static AbilityInstanceManager instanceManager;
+    private static TempBlockService tempBlockService;
     private static SequenceService sequenceService;
     private static CollisionService collisionService;
     private static AttributeSystem attributeSystem;
@@ -75,12 +75,14 @@ public class Game {
         abilityRegistry = new AbilityRegistry();
         protectionSystem = new ProtectionSystem();
         elementRegistry = new ElementRegistry();
+        tempBlockService = new StandardTempBlockService();
         sequenceService = new SequenceService();
         collisionService = new CollisionService();
         attributeSystem = new AttributeSystem();
         tempArmorService = new TempArmorService();
         activationController = new ActivationController();
 
+        tempBlockService.start();
         sequenceService.start();
         collisionService.start();
 
@@ -107,10 +109,10 @@ public class Game {
         sequenceService.clear();
         collisionService.clear();
 
-        TempBlockService tempBlockService = ServiceRegistry.get(TempBlockService.class);
         if (tempBlockService != null) {
             tempBlockService.resetAll();
         }
+
         tempArmorService.reload();
 
         elementRegistry.registerElement(Elements.AIR);
@@ -458,7 +460,7 @@ public class Game {
     }
 
     public static TempBlockService getTempBlockService() {
-        return ServiceRegistry.get(TempBlockService.class);
+        return tempBlockService;
     }
 
     public static AttributeSystem getAttributeSystem() {

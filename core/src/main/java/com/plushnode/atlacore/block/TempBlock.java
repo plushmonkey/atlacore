@@ -46,12 +46,6 @@ public class TempBlock {
 
         setter = Game.plugin.getBlockSetter(flag);
 
-        if (data == null) {
-            setter.setBlock(block, tempType);
-        } else {
-            setter.setBlock(block, tempType, data);
-        }
-
         Game.getTempBlockService().add(this);
     }
 
@@ -76,7 +70,6 @@ public class TempBlock {
         }
 
         setter = Game.plugin.getBlockSetter(flag);
-        setter.setBlock(previousState.getBlock(), tempType);
 
         Game.getTempBlockService().add(this);
     }
@@ -102,35 +95,36 @@ public class TempBlock {
     }
 
     // Refresh the block to the temporary state
-    public void update() {
-        Block block = previousState.getBlock();
-        if (this.applyPhysics) {
-            block.setType(tempType);
-        } else {
-            if (data == null) {
-                setter.setBlock(block, tempType);
-            } else {
-                setter.setBlock(block, tempType, data);
-            }
-        }
+    public void refresh() {
+        Game.getTempBlockService().refresh(this);
     }
 
     public void reset() {
-        Game.getTempBlockService().remove(this);
+        Game.getTempBlockService().reset(this);
+    }
 
-        if (this.applyPhysics) {
-            this.previousState.update(true);
-        } else {
-            setter.setBlock(previousState);
-        }
+    public Block getBlock() {
+        return this.previousState.getBlock();
     }
 
     public Material getTempType() {
         return tempType;
     }
 
+    public BlockData getBlockData() {
+        return data;
+    }
+
+    public BlockSetter getSetter() {
+        return this.setter;
+    }
+
     public BlockState getPreviousState() {
         return previousState;
+    }
+
+    public boolean isApplyPhysics() {
+        return this.applyPhysics;
     }
 
     public long getEndTime() {

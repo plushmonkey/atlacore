@@ -59,8 +59,6 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         this.game = new Game(this);
 
-        registerServices();
-
         ProtectionSystem protection = Game.getProtectionSystem();
 
         protection.getFactory().registerProtectMethod("Factions", () -> new FactionsProtectMethod(this));
@@ -99,10 +97,6 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
         // Reload config after Game was created so all of the values are set.
         loadConfig();
-    }
-
-    private void registerServices() {
-        ServiceRegistry.register(TempBlockService.class, new StandardTempBlockService());
     }
 
     @Override
