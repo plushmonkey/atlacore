@@ -197,7 +197,12 @@ public class EarthSmash implements Ability {
     }
 
     public boolean isBoulderBlock(Block block) {
-        if (block.getLocation().distanceSquared(boulder.getBase()) > boulder.getSize() * boulder.getSize()) {
+        double sizeBounds = boulder.getSize() + 1;
+
+        Location blockCenter = block.getLocation().add(0.5, 0.5, 0.5);
+        Location baseCenter = boulder.getBase().add(0.5, 0.5, 0.5);
+
+        if (blockCenter.distanceSquared(baseCenter) > sizeBounds * sizeBounds) {
             return false;
         }
 

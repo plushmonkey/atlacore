@@ -29,6 +29,18 @@ public class TownyProtectMethod implements ProtectMethod {
 
     @Override
     public boolean canBuild(User user, AbilityDescription abilityDescription, Location location) {
+        // Surround with try-catch because Towny is garbage and might throw random exceptions.
+        try {
+            TownyWorld world = this.towny.getTownyUniverse().getWorldMap().get(user.getWorld().getName());
+
+            if (world != null && !world.isUsingTowny()) {
+                // Exit early if this world isn't being protected by Towny.
+                return true;
+            }
+        } catch (Exception e) {
+            //
+        }
+
         if (user instanceof com.plushnode.atlacore.platform.Player) {
             return canPlayerBuild(user, location);
         }
