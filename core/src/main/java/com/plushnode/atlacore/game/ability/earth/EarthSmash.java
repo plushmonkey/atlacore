@@ -304,6 +304,10 @@ public class EarthSmash implements Ability {
         public abstract boolean updateState();
         protected abstract boolean removeOnCollision();
 
+        protected boolean performBoulderUpdate() {
+           return userConfig.performClipping;
+        }
+
         @Override
         public boolean update() {
             Location prevBase = boulder.getBase();
@@ -317,7 +321,9 @@ public class EarthSmash implements Ability {
 
             // Update the boulder before checking if it's a valid base.
             // That allows surrounding terrain to reshape the boulder and allow it to pass.
-            boulder.update();
+            if (performBoulderUpdate()) {
+                boulder.update();
+            }
 
             List<Layer> currentBoulderState = boulder.getState();
 
@@ -411,6 +417,8 @@ public class EarthSmash implements Ability {
         }
 
         protected boolean isValidBase(Location base) {
+            int blockCount = 0;
+
             for (int i = 0; i < boulder.getSize(); ++i) {
                 Layer layer = boulder.getLayer(i);
 
@@ -418,6 +426,7 @@ public class EarthSmash implements Ability {
                     for (int x = 0; x < boulder.getSize(); ++x) {
                         if (layer.getState(x, y) != Material.AIR) {
                             Location check = base.add(x, i, y);
+                            ++blockCount;
 
                             if (!MaterialUtil.isTransparent(check.getBlock())) {
                                 return false;
@@ -431,7 +440,7 @@ public class EarthSmash implements Ability {
                 }
             }
 
-            return true;
+            return blockCount > 0;
         }
     }
 
@@ -472,6 +481,11 @@ public class EarthSmash implements Ability {
             }
 
             return true;
+        }
+
+        @Override
+        protected boolean performBoulderUpdate() {
+            return false;
         }
 
         @Override
@@ -722,7 +736,7 @@ public class EarthSmash implements Ability {
             invalidateBlockedAreas();
         }
 
-        // Checks all of the blocks of the boulder and marks them as invalid if they aren't earthbendable
+        // Checks all of the blocks of the boulder and marks them as invalid if they aren't transparent.
         private void update() {
             if (!canRender) {
                 return;
@@ -739,7 +753,7 @@ public class EarthSmash implements Ability {
                             Location check = this.base.add(x, i, y);
                             Block block = check.getBlock();
 
-                            if (block.hasBounds() && !MaterialUtil.isEarthbendable(block) || !Game.getProtectionSystem().canBuild(user, check)) {
+                            if (!MaterialUtil.isTransparent(block) || !Game.getProtectionSystem().canBuild(user, check)) {
                                 layer.setState(x, y, Material.AIR);
                             }
                         }
@@ -872,6 +886,8 @@ public class EarthSmash implements Ability {
         @Attribute(Attributes.DURATION)
         public long flyDuration;
 
+        public boolean performClipping;
+
         @Override
         public void onConfigReload() {
             CommentedConfigurationNode abilityNode = config.getNode("abilities", "earth", "earthsmash");
@@ -899,6 +915,8 @@ public class EarthSmash implements Ability {
             flyBoundsSize = abilityNode.getNode("flight").getNode("bounds-size").getDouble(3.0);
             flyDuration = abilityNode.getNode("flight").getNode("duration").getLong(3000);
 
+            performClipping = abilityNode.getNode("perform-clipping").getBoolean(true);
+
             if (radius < 3) {
                 radius = 3;
             }
@@ -906,6 +924,8 @@ public class EarthSmash implements Ability {
             if (radius % 2 == 0) {
                 ++radius;
             }
+
+            abilityNode.getNode("perform-clipping").setComment("This will clip the EarthSmash against any terrain it travels into. Setting this to false will make it destroy the instance upon any collision.");
         }
     }
 }
