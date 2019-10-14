@@ -35,6 +35,19 @@ public class AbilityInstanceManager {
         addQueue.add(new UserInstance(user, instance));
     }
 
+    public void changeOwner(Ability ability, User user) {
+        if (ability.getUser().equals(user)) return;
+
+        List<Ability> previousUserInstances = globalInstances.get(ability.getUser());
+        if (previousUserInstances != null) {
+            previousUserInstances.remove(ability);
+        }
+
+        globalInstances.computeIfAbsent(user, k -> new ArrayList<>()).add(ability);
+
+        ability.setUser(user);
+    }
+
     public void createPassives(User user) {
         List<Element> elements = user.getElements();
 
@@ -146,6 +159,21 @@ public class AbilityInstanceManager {
 
         for (List<Ability> instances : globalInstances.values()) {
             totalInstances.addAll(instances);
+        }
+
+        return totalInstances;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Ability> List<T> getInstances(Class<T> type) {
+        List<T> totalInstances = new ArrayList<>();
+
+        for (List<Ability> instances : globalInstances.values()) {
+            for (Ability ability : instances) {
+                if (ability.getClass().equals(type)) {
+                    totalInstances.add((T)ability);
+                }
+            }
         }
 
         return totalInstances;

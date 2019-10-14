@@ -74,6 +74,16 @@ public class Sphere implements Collider {
         return distSq <= rsum * rsum;
     }
 
+    public boolean intersects(Ray ray) {
+        Vector3D m = ray.origin.subtract(center);
+        double b = m.dotProduct(ray.direction);
+
+        // Use quadratic equation to solve ray-sphere intersection.
+        double discriminant = b * b - (m.dotProduct(m) - radius * radius);
+
+        return discriminant >= 0;
+    }
+
     @Override
     public boolean intersects(Collider collider) {
         if (this.world != null && collider.getWorld() != null && !collider.getWorld().equals(this.world)) {

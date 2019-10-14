@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.util;
 
+import com.plushnode.atlacore.collision.RayCaster;
 import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.platform.Entity;
@@ -135,5 +136,19 @@ public final class WorldUtil {
         }
 
         return Double.MAX_VALUE;
+    }
+
+    public static boolean canView(User user, Location location, double maxRange) {
+        return canView(user, location.getBlock(), maxRange);
+    }
+
+    public static boolean canView(User user, Block block, double maxRange) {
+        if (!user.getWorld().equals(block.getWorld())) return false;
+
+        Vector3D direction =  block.getLocation().subtract(user.getEyeLocation()).toVector().normalize();
+        Ray viewRay = new Ray(user.getEyeLocation(), direction);
+        Block viewBlock = RayCaster.blockCast(user.getWorld(), viewRay, maxRange, false);
+
+        return block.equals(viewBlock);
     }
 }

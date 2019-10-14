@@ -19,6 +19,10 @@ public interface Ability {
     User getUser();
     String getName();
 
+    default void setUser(User newUser) {
+
+    }
+
     default AbilityDescription getDescription() {
         return Game.getAbilityRegistry().getAbilityDescription(this);
     }

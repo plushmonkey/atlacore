@@ -100,6 +100,7 @@ public final class RayCaster {
         int radius = (int)maxRange + 3;
         Location start = world.getLocation(ray.origin);
         double closestDistance = location.subtract(start).length();
+        Location bestLocation = null;
 
         for (Entity entity : world.getNearbyEntities(start, radius, radius, radius)) {
             if (entity.equals(user)) continue;
@@ -116,8 +117,13 @@ public final class RayCaster {
 
                 if (distance < closestDistance && distance >= 0) {
                     closestDistance = distance;
+                    bestLocation = hit;
                 }
             }
+        }
+
+        if (bestLocation != null) {
+            return bestLocation;
         }
 
         return start.add(ray.direction.scalarMultiply(closestDistance));

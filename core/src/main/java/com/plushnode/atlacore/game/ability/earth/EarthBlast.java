@@ -7,6 +7,7 @@ import com.plushnode.atlacore.collision.CollisionUtil;
 import com.plushnode.atlacore.collision.RayCaster;
 import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.collision.geometry.Ray;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -21,6 +22,7 @@ import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.MaterialUtil;
+import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -51,7 +53,7 @@ public class EarthBlast implements Ability {
         this.launched = false;
         this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
                 new IsDeadRemovalPolicy(user),
-                new OutOfRangeRemovalPolicy(user, userConfig.sourceSelectRange, () -> sourceBlock.getLocation().add(0.5, 0.5, 0.5)),
+                new OutOfRangeRemovalPolicy(user, userConfig.sourceSelectRange + 0.5, () -> sourceBlock.getLocation().add(0.5, 0.5, 0.5)),
                 new OutOfWorldRemovalPolicy(user)
         );
 
@@ -69,6 +71,8 @@ public class EarthBlast implements Ability {
             renderSelectedBlock();
             return true;
         }
+
+        redirectAny(user);
 
         List<EarthBlast> blasts = Game.getAbilityInstanceManager().getPlayerInstances(user, EarthBlast.class);
 
@@ -126,10 +130,14 @@ public class EarthBlast implements Ability {
                 List<Vector3D> potential = DIRECTIONS.stream()
                         .filter((v) -> v.dotProduct(d) >= 0)
                         .filter((v) -> !location.add(v.scalarMultiply(userConfig.speed)).getBlock().hasBounds())
-                        .collect(Collectors.toCollection(ArrayList<Vector3D>::new));
+                        .collect(Collectors.toCollection(ArrayList::new));
 
                 if (!potential.isEmpty()) {
-                    potential.sort((v, v2) -> v.dotProduct(d) > v2.dotProduct(d) ? -1 : 1);
+                    potential.sort((v, v2) -> {
+                        if (v.equals(v2)) return 0;
+
+                        return v.dotProduct(d) > v2.dotProduct(d) ? -1 : 1;
+                    });
                     direction = potential.get(0);
                 }
             }
@@ -162,14 +170,16 @@ public class EarthBlast implements Ability {
             return UpdateResult.Remove;
         }
 
-        Block previousBlock = this.tempBlock.getPreviousState().getBlock();
+        Block previousBlock = this.tempBlock != null ? this.tempBlock.getPreviousState().getBlock() : null;
         Block block = location.getBlock();
 
         // Advance the TempBlock when the location moves to a new block.
-        if (!previousBlock.equals(block)) {
+        if (!block.equals(previousBlock)) {
             // Reset the previous TempBlock if it's not the initial one.
-            if (!previousBlock.equals(sourceBlock)) {
-                this.tempBlock.reset();
+            if (!sourceBlock.equals(previousBlock)) {
+                if (this.tempBlock != null) {
+                    this.tempBlock.reset();
+                }
             }
 
             if (block.hasBounds()) {
@@ -198,7 +208,7 @@ public class EarthBlast implements Ability {
     }
 
     private Block getSource() {
-        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.sourceSelectRange, true);
+        Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), userConfig.sourceSelectRange, false);
 
         if (block == null || !MaterialUtil.isEarthbendable(block)) return null;
         if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) return null;
@@ -210,8 +220,8 @@ public class EarthBlast implements Ability {
 
         // Destroy any existing blasts that haven't been launched.
         List<EarthBlast> blasts = Game.getAbilityInstanceManager().getPlayerInstances(user, EarthBlast.class);
-        blasts.removeIf((eb) -> eb.launched);
-        blasts.forEach((b) -> Game.getAbilityInstanceManager().destroyInstance(user, b));
+        blasts.removeIf(eb -> eb.launched);
+        blasts.forEach(eb -> Game.getAbilityInstanceManager().destroyInstance(user, eb));
 
         return block;
     }
@@ -243,14 +253,40 @@ public class EarthBlast implements Ability {
     }
 
     private void redirect() {
-        this.target = RayCaster.cast(user, new Ray(user.getEyeLocation(),
-                user.getDirection()), 30.0, false, true, userConfig.entitySelectRadius,
+        this.target = RayCaster.cast(user, new Ray(user.getEyeLocation(), user.getDirection()),
+                config.range, false, true, userConfig.entitySelectRadius,
                 Collections.singletonList(location.getBlock()));
+    }
+
+    private static void redirectAny(User user) {
+        final double rangeSq = config.redirectSelectRadius * config.redirectSelectRadius;
+
+        for (EarthBlast blast : Game.getAbilityInstanceManager().getInstances(EarthBlast.class)) {
+            if (!blast.launched) continue;
+            if (!blast.location.getWorld().equals(user.getWorld())) continue;
+            if (blast.user.equals(user)) continue;
+            if (blast.location.distanceSquared(user.getEyeLocation()) > rangeSq) continue;
+
+            Sphere selectSphere = new Sphere(blast.location, config.redirectGrabRadius);
+            // Make sure the user is looking close to the EarthBlast.
+            if (selectSphere.intersects(user.getViewRay())) {
+                // Make sure the player has view of the EarthBlast that they are trying to redirect.
+                if (WorldUtil.canView(user, blast.location, config.redirectSelectRadius)) {
+                    Game.getAbilityInstanceManager().changeOwner(blast, user);
+                    blast.redirect();
+                }
+            }
+        }
     }
 
     @Override
     public User getUser() {
         return user;
+    }
+
+    @Override
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
@@ -293,6 +329,9 @@ public class EarthBlast implements Ability {
         @Attribute(Attributes.SELECTION)
         public double sourceSelectRange;
 
+        public double redirectGrabRadius;
+        public double redirectSelectRadius;
+
         @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
         public double entityCollisionRadius;
         @Attribute(Attributes.ABILITY_COLLISION_RADIUS)
@@ -309,6 +348,8 @@ public class EarthBlast implements Ability {
             range = abilityNode.getNode("range").getDouble(30.0);
             sourceSelectRange = abilityNode.getNode("source-select-range").getDouble(6.0);
             entitySelectRadius = abilityNode.getNode("entity-select-radius").getDouble(3.0);
+            redirectGrabRadius = abilityNode.getNode("redirect-grab-radius").getDouble(3.0);
+            redirectSelectRadius = abilityNode.getNode("redirect-select-radius").getDouble(20.0);
 
             entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(2.5);
             abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(2.0);
