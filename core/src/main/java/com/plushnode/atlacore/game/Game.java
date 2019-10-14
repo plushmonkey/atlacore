@@ -20,6 +20,7 @@ import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
+import com.plushnode.atlacore.game.ability.water.WaterBubble;
 import com.plushnode.atlacore.game.ability.water.arms.*;
 import com.plushnode.atlacore.game.ability.water.surge.Surge;
 import com.plushnode.atlacore.game.ability.water.surge.SurgeWall;
@@ -201,6 +202,7 @@ public class Game {
         registerAbility("TorrentWave", TorrentWave.class, Elements.WATER, ActivationMethod.Punch).setHidden(true);
 
         registerAbility("WaterArms", WaterArms.class, Elements.WATER, ActivationMethod.Sneak);
+        registerAbility("WaterBubble", WaterBubble.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
 
         MultiAbilityDescription pullDesc = new MultiAbilityDescription<>("WaterArmsPull", Elements.WATER, 0, WaterArmsPull.class, ActivationMethod.Punch);
         pullDesc.setConfigNode("waterarms", "pull");

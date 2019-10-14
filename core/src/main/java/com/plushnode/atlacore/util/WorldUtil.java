@@ -22,6 +22,10 @@ public final class WorldUtil {
         return getNearbyBlocks(location, radius, Collections.emptyList());
     }
 
+    public static Collection<Block> getNearbyBlocks(Location location, double radius, Material... ignoreMaterials) {
+        return getNearbyBlocks(location, radius, Arrays.asList(ignoreMaterials));
+    }
+
     public static Collection<Block> getNearbyBlocks(Location location, double radius, List<Material> ignoreMaterials) {
         int r = (int)radius + 2;
 
