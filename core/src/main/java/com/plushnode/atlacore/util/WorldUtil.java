@@ -151,7 +151,7 @@ public final class WorldUtil {
 
         Vector3D direction =  block.getLocation().subtract(user.getEyeLocation()).toVector().normalize();
         Ray viewRay = new Ray(user.getEyeLocation(), direction);
-        Block viewBlock = RayCaster.blockCast(user.getWorld(), viewRay, maxRange, false);
+        Block viewBlock = RayCaster.blockCast(user.getWorld(), viewRay, maxRange, block.getType() == Material.WATER);
 
         return block.equals(viewBlock);
     }

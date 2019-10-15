@@ -18,6 +18,9 @@ import com.plushnode.atlacore.util.MaterialUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
+// TODO: Change usage of this class to create the ability upon bottle usage and trigger return from a method.
+//  This will allow the sourcing system to prevent players from using bottles from multiple abilities at the same time
+//  by just checking if this ability exists already.
 public class BottleReturn implements Ability {
     public static Config config = new Config();
 

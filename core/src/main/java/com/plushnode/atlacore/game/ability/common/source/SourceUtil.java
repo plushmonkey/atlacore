@@ -64,6 +64,7 @@ public final class SourceUtil {
     public static boolean emptyBottle(User user) {
         if (!BottleReturn.config.enabled) return false;
         if (!hasFullBottle(user)) return false;
+        if (Game.getAbilityInstanceManager().hasAbility(user, BottleReturn.class)) return false;
 
         if (user.getInventory().removeAmount(Game.plugin.getBottleSnapshot(), 1)) {
             return user.getInventory().addItem(new ItemStack(Material.GLASS_BOTTLE));

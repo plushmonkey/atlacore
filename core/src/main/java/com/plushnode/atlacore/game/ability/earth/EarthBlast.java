@@ -157,10 +157,16 @@ public class EarthBlast implements Ability {
             return UpdateResult.Remove;
         }
 
-        AABB collider = AABB.BLOCK_BOUNDS.scale(userConfig.entityCollisionRadius).at(location);
+        Vector3D knockbackDirection = direction.scalarMultiply(userConfig.knockback);
+
+        AABB collider = AABB.BLOCK_BOUNDS.scale(userConfig.entityCollisionRadius * 2).at(location);
         boolean hit = CollisionUtil.handleEntityCollisions(user, collider, (entity) -> {
             if (Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
                 ((LivingEntity) entity).damage(userConfig.damage, user);
+            }
+
+            if (userConfig.knockback > 0.0) {
+                entity.setVelocity(knockbackDirection);
             }
 
             return true;
@@ -298,7 +304,7 @@ public class EarthBlast implements Ability {
     public Collection<Collider> getColliders() {
         if (location != null) {
             AABB bounds = new AABB(Vector3D.ZERO, new Vector3D(1, 1, 1), location.getWorld())
-                    .scale(userConfig.abilityCollisionRadius)
+                    .scale(userConfig.abilityCollisionRadius * 2)
                     .at(location.getBlock().getLocation());
 
             return Collections.singletonList(bounds);
@@ -326,6 +332,8 @@ public class EarthBlast implements Ability {
         public double entitySelectRadius;
         @Attribute(Attributes.RANGE)
         public double range;
+        @Attribute(Attributes.STRENGTH)
+        public double knockback;
         @Attribute(Attributes.SELECTION)
         public double sourceSelectRange;
 
@@ -346,12 +354,13 @@ public class EarthBlast implements Ability {
             damage = abilityNode.getNode("damage").getDouble(3.0);
             speed = abilityNode.getNode("speed").getDouble(1.0);
             range = abilityNode.getNode("range").getDouble(30.0);
+            knockback = abilityNode.getNode("knockback").getDouble(0.3);
             sourceSelectRange = abilityNode.getNode("source-select-range").getDouble(6.0);
             entitySelectRadius = abilityNode.getNode("entity-select-radius").getDouble(3.0);
             redirectGrabRadius = abilityNode.getNode("redirect-grab-radius").getDouble(3.0);
             redirectSelectRadius = abilityNode.getNode("redirect-select-radius").getDouble(20.0);
 
-            entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(2.5);
+            entityCollisionRadius = abilityNode.getNode("entity-collision-radius").getDouble(1.5);
             abilityCollisionRadius = abilityNode.getNode("ability-collision-radius").getDouble(2.0);
         }
     }

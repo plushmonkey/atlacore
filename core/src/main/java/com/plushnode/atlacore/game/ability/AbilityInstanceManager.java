@@ -81,6 +81,19 @@ public class AbilityInstanceManager {
         }
     }
 
+    public boolean hasAbility(User user, Class<? extends Ability> abilityType) {
+        List<Ability> abilities = globalInstances.get(user);
+        if (abilities == null) return false;
+
+        for (Ability ability : abilities) {
+            if (ability.getClass().equals(abilityType)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public boolean hasAbility(User user, AbilityDescription desc) {
         Ability checkAbility = desc.createAbility();
 
