@@ -60,13 +60,13 @@ public class StandardTempBlockService implements TempBlockService {
     @Override
     public void reset(final TempBlock tempBlock) {
         if (tempBlock != null) {
+            temporaryBlocks.remove(tempBlock.getPreviousState().getLocation());
+
             if (tempBlock.isApplyPhysics()) {
                 tempBlock.getPreviousState().update(true);
             } else {
                 tempBlock.getSetter().setBlock(tempBlock.getPreviousState());
             }
-
-            temporaryBlocks.remove(tempBlock.getPreviousState().getLocation());
         }
     }
 
