@@ -85,7 +85,8 @@ public class WaterManipulation implements Ability {
 
         List<WaterManipulation> instances = Game.getAbilityInstanceManager().getPlayerInstances(user, WaterManipulation.class);
 
-        if (!user.isOnCooldown(getDescription())) {
+        boolean onCooldown = user.isOnCooldown(getDescription());
+        if (!onCooldown) {
             List<WaterManipulation> sourcedInstances = instances.stream()
                     .filter(instance -> !instance.launched)
                     .collect(Collectors.toList());
@@ -102,7 +103,7 @@ public class WaterManipulation implements Ability {
 
         launchedInstances.forEach(WaterManipulation::redirect);
 
-        if (instances.isEmpty() && !redirected) {
+        if (instances.isEmpty() && !redirected && !onCooldown) {
             if (SourceUtil.emptyBottle(user)) {
                 this.sourceBlock = user.getEyeLocation().getBlock();
                 this.usedBottle = true;

@@ -119,8 +119,7 @@ public class AtlaPlugin implements CorePlugin {
 
     @Listener
     public void onGameStoppingServer(GameStoppingServerEvent event) {
-        Game.getTempArmorService().reload();
-        Game.getTempBlockService().resetAll();
+        Game.cleanup();
     }
 
     @Override

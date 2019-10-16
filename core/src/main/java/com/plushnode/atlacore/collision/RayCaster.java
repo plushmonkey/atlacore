@@ -10,6 +10,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import java.util.*;
 
+// TODO: All of this code needs to be cleaned up and collapsed.
 public final class RayCaster {
     private static final List<Vector3D> DIRECTIONS = Arrays.asList(
             Vector3D.ZERO,
@@ -210,6 +211,49 @@ public final class RayCaster {
                 if (result.isPresent()) {
                     double distance = result.get();
                     if (distance < closestDistance && distance >= 0) {
+                        closestDistance = distance;
+                        closestBlock = block;
+                    }
+                }
+            }
+
+            // Break early after checking all neighbors for intersection.
+            if (closestDistance < maxRange) {
+                break;
+            }
+        }
+
+        return closestBlock;
+    }
+
+    public static Block blockCastIgnore(World world, Ray ray, double maxRange, boolean liquidCollision, List<Block> ignoreBlocks) {
+        Location origin = world.getLocation(ray.origin);
+        Block originBlock = origin.getBlock();
+        double closestDistance = Double.MAX_VALUE;
+        Block closestBlock = null;
+
+        // Progress through each block and check all neighbors for ray intersection.
+        for (double i = 0; i < maxRange + 1; ++i) {
+            Location current = origin.add(ray.direction.scalarMultiply(i));
+
+            for (Vector3D direction : DIRECTIONS) {
+                Location check = current.add(direction);
+                Block block = check.getBlock();
+                AABB localBounds = block.getBounds();
+
+                if (ignoreBlocks.contains(block)) continue;
+
+                if (liquidCollision && block.getType() == Material.WATER) {
+                    localBounds = AABB.BLOCK_BOUNDS;
+                }
+
+                AABB blockBounds = localBounds.at(block.getLocation());
+
+                Optional<Double> result = blockBounds.intersects(ray);
+                if (result.isPresent()) {
+                    double distance = result.get();
+
+                    if (distance < closestDistance && (distance >= 0 || block.equals(originBlock))) {
                         closestDistance = distance;
                         closestBlock = block;
                     }

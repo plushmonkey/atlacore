@@ -15,6 +15,7 @@ import com.plushnode.atlacore.game.ability.fire.HeatControl;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlast;
 import com.plushnode.atlacore.game.ability.fire.sequences.JetBlaze;
 import com.plushnode.atlacore.game.ability.sequence.Action;
+import com.plushnode.atlacore.game.ability.water.WaterSpout;
 import com.plushnode.atlacore.game.element.Elements;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.Player;
@@ -104,6 +105,7 @@ public class ActivationController {
 
     public void onUserMove(User user, Vector3D velocity) {
         AirSpout.handleMovement(user, velocity);
+        WaterSpout.handleMovement(user, velocity);
     }
 
     public boolean onFallDamage(User user) {

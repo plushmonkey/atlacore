@@ -1,7 +1,5 @@
 package com.plushnode.atlacore;
 
-import com.plushnode.atlacore.block.StandardTempBlockService;
-import com.plushnode.atlacore.block.TempBlockService;
 import com.plushnode.atlacore.command.*;
 import com.plushnode.atlacore.event.EventBus;
 import com.plushnode.atlacore.events.BendingEventBus;
@@ -101,8 +99,7 @@ public class AtlaCorePlugin extends JavaPlugin implements CorePlugin {
 
     @Override
     public void onDisable() {
-        Game.getTempArmorService().reload();
-        Game.getTempBlockService().resetAll();
+        Game.cleanup();
     }
 
     @Override
