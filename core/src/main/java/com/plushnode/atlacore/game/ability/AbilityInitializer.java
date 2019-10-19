@@ -19,6 +19,7 @@ import com.plushnode.atlacore.game.ability.sequence.SequenceService;
 import com.plushnode.atlacore.game.ability.water.WaterBubble;
 import com.plushnode.atlacore.game.ability.water.WaterManipulation;
 import com.plushnode.atlacore.game.ability.water.WaterSpout;
+import com.plushnode.atlacore.game.ability.water.WaterSpoutWave;
 import com.plushnode.atlacore.game.ability.water.arms.*;
 import com.plushnode.atlacore.game.ability.water.surge.Surge;
 import com.plushnode.atlacore.game.ability.water.surge.SurgeWall;
@@ -98,7 +99,14 @@ public final class AbilityInitializer {
         registerAbility("WaterBubble", WaterBubble.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("WaterManipulation", WaterManipulation.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak)
                 .setCanBypassCooldown(true);
-        registerAbility("WaterSpout", WaterSpout.class, Elements.WATER, ActivationMethod.Punch);
+        registerAbility("WaterSpout", WaterSpout.class, Elements.WATER, ActivationMethod.Punch)
+                .setSourcesPlants(true);
+
+        ConfigurableAbilityDescription<WaterSpoutWave> waterSpoutWave = new ConfigurableAbilityDescription<>("WaterSpoutWave", Elements.WATER, 0, WaterSpoutWave.class, ActivationMethod.Punch);
+
+        waterSpoutWave.setConfigNode("abilities", "water", "waterspout", "wave");
+        waterSpoutWave.setHidden(true);
+        abilityRegistry.registerAbility(waterSpoutWave);
 
         MultiAbilityDescription pullDesc = new MultiAbilityDescription<>("WaterArmsPull", Elements.WATER, 0, WaterArmsPull.class, ActivationMethod.Punch);
         pullDesc.setConfigNode("waterarms", "pull");

@@ -197,6 +197,8 @@ public class EarthSmash implements Ability {
     }
 
     public boolean isBoulderBlock(Block block) {
+        if (boulder == null) return false;
+
         double sizeBounds = boulder.getSize() + 1;
 
         Location blockCenter = block.getLocation().add(0.5, 0.5, 0.5);

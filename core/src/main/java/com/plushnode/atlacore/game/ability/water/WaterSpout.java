@@ -46,6 +46,23 @@ public class WaterSpout implements Ability {
             return false;
         }
 
+        WaterSpoutWave wave = new WaterSpoutWave();
+
+        // Attempt to source a wave. If successful, cancel this WaterSpout.
+        if (wave.activate(user, ActivationMethod.Punch)) {
+            Game.getAbilityInstanceManager().addAbility(user, wave);
+            return false;
+        }
+
+        Collection<WaterSpoutWave> waveInstances = Game.getAbilityInstanceManager().getPlayerInstances(user, WaterSpoutWave.class);
+
+        // Don't allow users to spout while riding a wave.
+        for (WaterSpoutWave waveInstance : waveInstances) {
+            if (waveInstance.isActive()) {
+                return false;
+            }
+        }
+
         if (user.getEyeLocation().getBlock().isLiquid()) {
             return false;
         }
@@ -66,6 +83,11 @@ public class WaterSpout implements Ability {
 
         this.flight = Flight.get(user);
         this.flight.setFlying(true);
+
+        // The only wave instances that are active are currently being sourced, so destroy them.
+        for (WaterSpoutWave waveInstance : waveInstances) {
+            Game.getAbilityInstanceManager().destroyInstance(user, waveInstance);
+        }
 
         return true;
     }

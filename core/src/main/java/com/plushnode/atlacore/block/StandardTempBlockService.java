@@ -102,7 +102,7 @@ public class StandardTempBlockService implements TempBlockService {
 
     @Override
     public void start() {
-        task = Game.plugin.createTaskTimer(this::update, 20, 20);
+        task = Game.plugin.createTaskTimer(this::update, 1, 1);
     }
 
     @Override
