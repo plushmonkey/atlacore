@@ -59,7 +59,8 @@ public class WaterArms implements MultiAbility {
 
     @Override
     public UpdateResult update() {
-        if (System.currentTimeMillis() > startTime + userConfig.duration || (!rightArm.isActive() && !leftArm.isActive())) {
+        boolean timedOut = System.currentTimeMillis() > startTime + userConfig.duration;
+        if (timedOut || !user.canBend(getDescription()) || (!rightArm.isActive() && !leftArm.isActive())) {
             rightArm.clear();
             leftArm.clear();
             return UpdateResult.Remove;

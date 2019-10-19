@@ -15,6 +15,7 @@ import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.platform.block.data.Levelled;
 import com.plushnode.atlacore.util.Flight;
 import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
@@ -34,8 +35,10 @@ public class WaterSpout implements Ability {
     private Config userConfig;
     private AABB collider;
     private Flight flight;
-    private List<Block> spoutBlocks;
+    private List<Block> columnBlocks;
+    private List<Block> spiralBlocks;
     private Block previousBlock;
+    private double rotation;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -49,7 +52,9 @@ public class WaterSpout implements Ability {
 
         this.user = user;
         recalculateConfig();
-        this.spoutBlocks = new ArrayList<>();
+        this.columnBlocks = new ArrayList<>();
+        this.spiralBlocks = new ArrayList<>();
+        this.rotation = 0.0;
 
         if (WorldUtil.distanceAboveGround(user, Material.WATER, Material.LAVA) > userConfig.height + userConfig.heightBuffer) {
             return false;
@@ -69,11 +74,15 @@ public class WaterSpout implements Ability {
     public UpdateResult update() {
         double maxHeight = userConfig.height + userConfig.heightBuffer;
 
+        clearBlocks(spiralBlocks);
+
         if (!user.canBend(getDescription()) || !isAboveWater()) {
             return UpdateResult.Remove;
         }
 
-        Location ground = RayCaster.cast(user.getWorld(), new Ray(user.getLocation(), Vector3D.MINUS_J), maxHeight + 1, true, spoutBlocks);
+        user.setSprinting(false);
+
+        Location ground = RayCaster.cast(user.getWorld(), new Ray(user.getLocation(), Vector3D.MINUS_J), maxHeight + 1, true, columnBlocks);
 
         // Remove if player gets too far away from ground.
         if (ground.distanceSquared(user.getLocation()) > maxHeight * maxHeight) {
@@ -101,46 +110,77 @@ public class WaterSpout implements Ability {
 
         Block currentBlock = user.getLocation().getBlock();
         if (!currentBlock.equals(previousBlock)) {
-            render(ground);
+            renderColumn(ground);
             previousBlock = currentBlock;
+        }
+
+        if (userConfig.spiralEnabled) {
+            renderSpiral(ground);
         }
 
         return UpdateResult.Continue;
     }
 
-    private void render(Location ground) {
+    private void renderColumn(Location ground) {
         double dy = user.getLocation().getY() - ground.getY();
 
-        clearColumn();
+        clearBlocks(columnBlocks);
 
         for (int i = 0; i < dy; ++i) {
             Location location = ground.add(0, i, 0);
 
+            // TODO: Waterlogged fence
             if (location.getBlock().getType() != Material.WATER) {
                 new TempBlock(location.getBlock(), Material.WATER);
-                spoutBlocks.add(location.getBlock());
+                columnBlocks.add(location.getBlock());
             }
+        }
+    }
+
+    private void renderSpiral(Location ground) {
+        double dy = user.getLocation().getY() - ground.getY() - userConfig.spiralBuffer;
+
+        ground = ground.getBlock().getLocation().add(0.5, 0.5, 0.5);
+
+        // Rotations need to be divisible by 45 so the angle lines up cleanly with the 8 surrounding blocks.
+        double angle = Math.floor(this.rotation / 45.0) * 45.0;
+
+        this.rotation += userConfig.spiralRotationSpeed;
+
+        for (int i = 0; i < dy; ++i) {
+            double x = Math.cos(Math.toRadians(angle));
+            double y = Math.sin(Math.toRadians(angle));
+
+            Location location = ground.add(x, i, y);
+
+            if (location.getBlock().getType() != Material.WATER) {
+                new TempBlock(location.getBlock(), Material.WATER.createBlockData(data -> ((Levelled)data).setLevel(1)));
+                spiralBlocks.add(location.getBlock());
+            }
+
+            angle += 360.0 / 8.0;
         }
     }
 
     private boolean isAboveWater() {
         double maxHeight = userConfig.height + userConfig.heightBuffer;
-        Block groundBlock = RayCaster.blockCastIgnore(user.getWorld(), new Ray(user.getLocation(), Vector3D.MINUS_J), maxHeight + 1, true, spoutBlocks);
+        Block groundBlock = RayCaster.blockCastIgnore(user.getWorld(), new Ray(user.getLocation(), Vector3D.MINUS_J), maxHeight + 1, true, columnBlocks);
 
         return groundBlock != null && groundBlock.getType() == Material.WATER;
     }
 
-    private void clearColumn() {
-        for (Block block : spoutBlocks) {
+    private void clearBlocks(List<Block> blocks) {
+        for (Block block : blocks) {
             Game.getTempBlockService().reset(block);
         }
 
-        spoutBlocks.clear();
+        blocks.clear();
     }
 
     @Override
     public void destroy() {
-        clearColumn();
+        clearBlocks(columnBlocks);
+        clearBlocks(spiralBlocks);
 
         flight.setFlying(false);
         flight.release();
@@ -201,6 +241,9 @@ public class WaterSpout implements Ability {
         public double height;
         public double heightBuffer;
         public double maxSpeed;
+        public boolean spiralEnabled;
+        public double spiralRotationSpeed;
+        public double spiralBuffer;
 
         @Override
         public void onConfigReload() {
@@ -211,6 +254,9 @@ public class WaterSpout implements Ability {
             height = abilityNode.getNode("height").getDouble(14.0);
             heightBuffer = abilityNode.getNode("height-buffer").getDouble(2.0);
             maxSpeed = abilityNode.getNode("max-speed").getDouble(0.2);
+            spiralEnabled = abilityNode.getNode("spiral").getNode("enabled").getBoolean(true);
+            spiralRotationSpeed = abilityNode.getNode("spiral").getNode("rotation-speed").getDouble(22.5);
+            spiralBuffer = abilityNode.getNode("spiral").getNode("block-buffer").getDouble(2.0);
         }
     }
 }

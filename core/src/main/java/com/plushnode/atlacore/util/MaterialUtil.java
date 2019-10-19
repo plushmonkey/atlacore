@@ -74,7 +74,8 @@ public final class MaterialUtil {
             Material.RED_MUSHROOM_BLOCK, Material.BROWN_MUSHROOM_BLOCK, Material.MELON, Material.VINE,
             Material.LILY_PAD, Material.SUNFLOWER, Material.LILAC, Material.LARGE_FERN, Material.ROSE_BUSH,
             Material.PEONY, Material.WHEAT, Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.SUGAR_CANE,
-            Material.PUMPKIN_STEM, Material.MELON_STEM
+            Material.PUMPKIN_STEM, Material.MELON_STEM, Material.BLUE_ORCHID, Material.OXEYE_DAISY, Material.ALLIUM,
+            Material.AZURE_BLUET, Material.RED_TULIP, Material.ORANGE_TULIP, Material.WHITE_TULIP, Material.PINK_TULIP
     };
 
     private MaterialUtil() {
