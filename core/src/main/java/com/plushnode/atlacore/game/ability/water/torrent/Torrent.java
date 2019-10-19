@@ -357,24 +357,22 @@ public class Torrent implements Ability {
         private List<Block> swirl;
         private Location origin;
         private Location location;
-        private Vector3D direction;
-        private double tailSize;
+        private List<Block> tail;
+        private double maxTailSize;
         private double movementBuffer;
         private boolean freezing;
         private List<Entity> affectedEntities = new ArrayList<>();
 
         TravelState(List<Block> swirl) {
             this.swirl = new ArrayList<>(swirl);
-            this.tailSize = 0.0;
             this.movementBuffer = 0.0;
             this.freezing = false;
             this.origin = user.getEyeLocation();
             this.location = swirl.get(0).getLocation().add(0.5, 0.5, 0.5);
+            this.tail = new ArrayList<>();
+            this.maxTailSize = swirl.size();
 
             user.setCooldown(Torrent.this, userConfig.cooldown);
-
-            Location target = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.range + userConfig.speed));
-            this.direction = target.subtract(location).toVector().normalize();
         }
 
         @Override
@@ -384,11 +382,17 @@ public class Torrent implements Ability {
 
             Location previous = location;
 
+            Location target = user.getEyeLocation().add(user.getDirection().scalarMultiply(userConfig.range + userConfig.speed));
+            Vector3D direction = target.subtract(location).toVector().normalize();
+
+            List<Block> trajectory = new ArrayList<>();
+
             while (this.movementBuffer > 1.0) {
                 if (!swirl.isEmpty()) {
                     popSwirl();
                 }
                 location = location.add(direction);
+                trajectory.add(location.getBlock());
                 this.movementBuffer -= 1.0;
             }
 
@@ -407,6 +411,10 @@ public class Torrent implements Ability {
 
 
             if (!Game.getProtectionSystem().canBuild(user, location)) {
+                return false;
+            }
+
+            if (!user.isSneaking()) {
                 return false;
             }
 
@@ -445,7 +453,16 @@ public class Torrent implements Ability {
                 return remove();
             }
 
-            tailSize += Math.min(userConfig.speed, swirl.size());
+            for (Block block : trajectory) {
+                if (tail.isEmpty() || !tail.get(tail.size() - 1).equals(block)) {
+                    if (this.tail.size() >= maxTailSize) {
+                        // This is slow, but shouldn't matter with array of this size.
+                        tail.remove(0);
+                    }
+
+                    tail.add(block);
+                }
+            }
 
             return true;
         }
@@ -494,8 +511,7 @@ public class Torrent implements Ability {
             });
 
             // Render the tail
-            for (int i = 0; i < this.tailSize; ++i) {
-                Block block = location.subtract(direction.scalarMultiply(i)).getBlock();
+            for (Block block : tail) {
                 tempBlocks.add(new TempBlock(block, Material.WATER));
             }
 
