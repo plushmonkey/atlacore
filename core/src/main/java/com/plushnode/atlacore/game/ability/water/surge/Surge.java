@@ -181,7 +181,7 @@ public class Surge implements Ability {
     interface State {
         boolean update();
         void onPunch();
-        void onSneak();
+        boolean onSneak();
         Collider getCollider();
     }
 

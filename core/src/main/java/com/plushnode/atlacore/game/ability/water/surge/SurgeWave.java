@@ -49,11 +49,9 @@ public class SurgeWave implements Ability {
         recalculateConfig();
 
         if (method == ActivationMethod.Sneak) {
-            if (user.isOnCooldown(getDescription())) {
-                return false;
-            }
+            boolean onCooldown = user.isOnCooldown(getDescription());
 
-            if (this.state == null || this.state instanceof WaveSourceState) {
+            if ((this.state == null || this.state instanceof WaveSourceState) && !onCooldown) {
                 SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant);
                 Optional<Block> newSource = SourceUtil.getSource(user, userConfig.selectRange, types);
 
@@ -62,11 +60,12 @@ public class SurgeWave implements Ability {
                 }
 
                 this.state = new WaveSourceState(newSource.get());
-            } else {
-                this.state.onSneak();
+            } else if (this.state != null) {
+                // Allow the state to determine if the calling Surge will exit. Returning false will allow SurgeWall to be sourced.
+                return this.state.onSneak();
             }
 
-            return true;
+            return !onCooldown;
         } else {
             if (this.state != null) {
                 this.state.onPunch();
@@ -147,8 +146,8 @@ public class SurgeWave implements Ability {
         }
 
         @Override
-        public void onSneak() {
-
+        public boolean onSneak() {
+            return false;
         }
     }
 
@@ -251,12 +250,18 @@ public class SurgeWave implements Ability {
 
         @Override
         public void onPunch() {
-            this.freeze = true;
+
         }
 
         @Override
-        public void onSneak() {
+        public boolean onSneak() {
+            if (!this.freeze) {
+                this.freeze = true;
+                return true;
+            }
 
+            // Allow the user to source SurgeWall after activating freeze.
+            return false;
         }
 
         @Override

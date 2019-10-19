@@ -140,8 +140,9 @@ public class SurgeWall implements Ability {
         }
 
         @Override
-        public void onSneak() {
+        public boolean onSneak() {
             state = new TravelState(sourceBlock.getLocation());
+            return false;
         }
     }
 
@@ -193,8 +194,8 @@ public class SurgeWall implements Ability {
         }
 
         @Override
-        public void onSneak() {
-
+        public boolean onSneak() {
+            return false;
         }
 
         @Override
@@ -249,8 +250,8 @@ public class SurgeWall implements Ability {
         }
 
         @Override
-        public void onSneak() {
-
+        public boolean onSneak() {
+            return false;
         }
 
         @Override
