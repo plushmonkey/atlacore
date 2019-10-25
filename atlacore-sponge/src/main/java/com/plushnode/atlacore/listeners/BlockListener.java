@@ -11,6 +11,7 @@ import com.plushnode.atlacore.util.SpongeTypeUtil;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.data.property.block.MatterProperty;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -89,18 +90,15 @@ public class BlockListener {
     }
 
     @Listener
-    public void onBlockFlow(ChangeBlockEvent.Place event, @First LocatableBlock from) {
-        if (Game.getTempBlockService().isTempBlock(new BlockWrapper(from.getLocation()))) {
-            event.setCancelled(true);
-            return;
-        }
+    public void onBlockFlow(ChangeBlockEvent.Pre event, @First LocatableBlock block) {
+        Optional<MatterProperty> matter = block.getBlockState().getProperty(MatterProperty.class);
 
-        for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-            Location<World> location = transaction.getOriginal().getLocation().orElse(null);
-
-            if (location != null && Game.getTempBlockService().isTempBlock(new BlockWrapper(location))) {
-                event.setCancelled(true);
-                return;
+        if (matter.isPresent() && matter.get().getValue() == MatterProperty.Matter.LIQUID) {
+            for (Location<World> location : event.getLocations()) {
+                if (Game.getTempBlockService().isTempBlock(new BlockWrapper(location))) {
+                    event.setCancelled(true);
+                    return;
+                }
             }
         }
     }

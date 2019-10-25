@@ -60,12 +60,8 @@ public class StandardTempBlockService implements TempBlockService {
     @Override
     public void reset(final TempBlock tempBlock) {
         if (tempBlock != null) {
-            temporaryBlocks.remove(tempBlock.getPreviousState().getLocation());
-
-            if (tempBlock.isApplyPhysics()) {
-                tempBlock.getPreviousState().update(true);
-            } else {
-                tempBlock.getSetter().setBlock(tempBlock.getPreviousState());
+            if (temporaryBlocks.remove(tempBlock.getPreviousState().getLocation()) != null) {
+                performReset(tempBlock);
             }
         }
     }
@@ -129,8 +125,17 @@ public class StandardTempBlockService implements TempBlockService {
             if (time >= endTime) {
                 iterator.remove();
                 // Reset after removing it from the list so it doesn't try to modify list while iterating.
-                entry.getValue().reset();
+
+                performReset(entry.getValue());
             }
+        }
+    }
+
+    private void performReset(TempBlock tempBlock) {
+        if (tempBlock.isApplyPhysics()) {
+            tempBlock.getPreviousState().update(true);
+        } else {
+            tempBlock.getSetter().setBlock(tempBlock.getPreviousState());
         }
     }
 }

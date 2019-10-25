@@ -6,6 +6,8 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.world.BlockChangeFlag;
+import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -55,7 +57,7 @@ public final class SpongeVersionUtil {
             }
         }
 
-        location.setBlock(state);
+        location.setBlock(state, BlockChangeFlags.NONE);
 
         return true;
     }
@@ -72,7 +74,7 @@ public final class SpongeVersionUtil {
             }
         }
 
-        location.setBlockType(type);
+        location.setBlockType(type, BlockChangeFlags.NONE);
 
         return true;
     }
