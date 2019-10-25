@@ -19,3 +19,5 @@ dependencies {
     shadow project(':core')
     compile 'org.spongepowered:spongeapi:7.0.0'
 }
+
+buildDir = 'bin'
