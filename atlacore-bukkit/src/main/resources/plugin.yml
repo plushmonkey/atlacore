@@ -55,6 +55,7 @@ permissions:
       atla.ability.Collapse: true
       atla.ability.EarthArmor: true
       atla.ability.EarthBlast: true
+      atla.ability.EarthGrab: true
       atla.ability.EarthSmash: true
       atla.ability.EarthTunnel: true
       atla.ability.RaiseEarth: true
@@ -72,7 +73,7 @@ permissions:
       atla.ability.FireShield: true
       atla.ability.HeatControl: true
       atla.ability.Lightning: true
-      atla.ability.WallOfFire: true
+      atla.ability.FireWall: true
       atla.ability.FireKick: true
       atla.ability.FireSpin: true
       atla.ability.FireWheel: true
@@ -90,3 +91,6 @@ permissions:
       atla.ability.WaterArmsPull: true
       atla.ability.WaterArmsPunch: true
       atla.ability.WaterArmsSpear: true
+      atla.ability.WaterBubble: true
+      atla.ability.WaterManipulation: true
+      atla.ability.WaterSpout: true
