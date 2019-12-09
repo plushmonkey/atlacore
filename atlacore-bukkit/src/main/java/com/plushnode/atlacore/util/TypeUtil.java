@@ -1,5 +1,6 @@
 package com.plushnode.atlacore.util;
 
+import com.plushnode.atlacore.material.BukkitMaterialUtil;
 import com.plushnode.atlacore.platform.ItemStack;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.LocationWrapper;
@@ -16,11 +17,11 @@ public final class TypeUtil {
     }
 
     public static Material adapt(com.plushnode.atlacore.platform.block.Material material) {
-        return Material.values()[material.ordinal()];
+        return BukkitMaterialUtil.convert(material);
     }
 
     public static com.plushnode.atlacore.platform.block.Material adapt(Material material) {
-        return com.plushnode.atlacore.platform.block.Material.values()[material.ordinal()];
+        return BukkitMaterialUtil.convert(material);
     }
 
     public static Vector adapt(Vector3D vec) {

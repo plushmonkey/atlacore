@@ -15,11 +15,14 @@ public final class MaterialUtil {
             Material.AIR, Material.OAK_SAPLING, Material.SPRUCE_SAPLING, Material.BIRCH_SAPLING,
             Material.JUNGLE_SAPLING, Material.ACACIA_SAPLING, Material.DARK_OAK_SAPLING,
             Material.COBWEB, Material.TALL_GRASS, Material.GRASS, Material.FERN, Material.DEAD_BUSH,
-            Material.DANDELION, Material.DANDELION_YELLOW, Material.POPPY, Material.BLUE_ORCHID, Material.ALLIUM,
+            Material.DANDELION, Material.POPPY, Material.BLUE_ORCHID, Material.ALLIUM,
             Material.AZURE_BLUET, Material.RED_TULIP, Material.ORANGE_TULIP, Material.WHITE_TULIP, Material.PINK_TULIP,
             Material.OXEYE_DAISY, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.TORCH, Material.FIRE,
             Material.WHEAT, Material.SNOW, Material.SUGAR_CANE, Material.VINE, Material.SUNFLOWER, Material.LILAC,
-            Material.LARGE_FERN, Material.ROSE_BUSH, Material.PEONY, Material.CAVE_AIR, Material.VOID_AIR
+            Material.LARGE_FERN, Material.ROSE_BUSH, Material.PEONY, Material.CAVE_AIR, Material.VOID_AIR,
+            Material.ACACIA_SIGN, Material.ACACIA_WALL_SIGN, Material.BIRCH_SIGN, Material.BIRCH_WALL_SIGN,
+            Material.DARK_OAK_SIGN, Material.DARK_OAK_WALL_SIGN, Material.JUNGLE_SIGN, Material.JUNGLE_WALL_SIGN,
+            Material.OAK_SIGN, Material.OAK_WALL_SIGN
     );
 
     private static final List<Material> EARTH_MATERIALS = Arrays.asList(

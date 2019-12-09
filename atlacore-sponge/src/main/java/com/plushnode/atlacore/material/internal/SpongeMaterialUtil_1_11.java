@@ -420,7 +420,12 @@ public class SpongeMaterialUtil_1_11 {
         blockTypes.put(Material.SANDSTONE_STAIRS, BlockTypes.SANDSTONE_STAIRS);
         blockTypes.put(Material.SEA_LANTERN, BlockTypes.SEA_LANTERN);
         blockTypes.put(Material.SHULKER_BOX, BlockTypes.YELLOW_SHULKER_BOX);
-        blockTypes.put(Material.SIGN, BlockTypes.STANDING_SIGN);
+        blockTypes.put(Material.ACACIA_SIGN, BlockTypes.STANDING_SIGN);
+        blockTypes.put(Material.BIRCH_SIGN, BlockTypes.STANDING_SIGN);
+        blockTypes.put(Material.DARK_OAK_SIGN, BlockTypes.STANDING_SIGN);
+        blockTypes.put(Material.JUNGLE_SIGN, BlockTypes.STANDING_SIGN);
+        blockTypes.put(Material.OAK_SIGN, BlockTypes.STANDING_SIGN);
+        blockTypes.put(Material.SPRUCE_SIGN, BlockTypes.STANDING_SIGN);
         blockTypes.put(Material.SKELETON_SKULL, BlockTypes.SKULL);
         blockTypes.put(Material.SLIME_BLOCK, BlockTypes.SLIME);
         blockTypes.put(Material.SMOOTH_QUARTZ, BlockTypes.QUARTZ_BLOCK);
@@ -465,7 +470,12 @@ public class SpongeMaterialUtil_1_11 {
         blockTypes.put(Material.TRIPWIRE, BlockTypes.TRIPWIRE);
         blockTypes.put(Material.TRIPWIRE_HOOK, BlockTypes.TRIPWIRE_HOOK);
         blockTypes.put(Material.VINE, BlockTypes.VINE);
-        blockTypes.put(Material.WALL_SIGN, BlockTypes.WALL_SIGN);
+        blockTypes.put(Material.ACACIA_WALL_SIGN, BlockTypes.WALL_SIGN);
+        blockTypes.put(Material.BIRCH_WALL_SIGN, BlockTypes.WALL_SIGN);
+        blockTypes.put(Material.DARK_OAK_WALL_SIGN, BlockTypes.WALL_SIGN);
+        blockTypes.put(Material.JUNGLE_WALL_SIGN, BlockTypes.WALL_SIGN);
+        blockTypes.put(Material.OAK_WALL_SIGN, BlockTypes.WALL_SIGN);
+        blockTypes.put(Material.SPRUCE_WALL_SIGN, BlockTypes.WALL_SIGN);
         blockTypes.put(Material.WALL_TORCH, BlockTypes.TORCH);
         blockTypes.put(Material.WATER, BlockTypes.WATER);
         blockTypes.put(Material.WET_SPONGE, BlockTypes.SPONGE);
@@ -519,6 +529,8 @@ public class SpongeMaterialUtil_1_11 {
         reverseBlockTypes.put(BlockTypes.LAVA, Material.LAVA);
         reverseBlockTypes.put(BlockTypes.FLOWING_LAVA, Material.LAVA);
         reverseBlockTypes.put(BlockTypes.FLOWING_WATER, Material.WATER);
+        reverseBlockTypes.put(BlockTypes.STANDING_SIGN, Material.OAK_SIGN);
+        reverseBlockTypes.put(BlockTypes.WALL_SIGN, Material.OAK_WALL_SIGN);
     }
 
     public static Material toMaterial(BlockType type) {

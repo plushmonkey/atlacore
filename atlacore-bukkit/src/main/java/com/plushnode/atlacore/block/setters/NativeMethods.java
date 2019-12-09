@@ -13,12 +13,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NativeMethods {
+    public static boolean enabled = false;
+
     private static Class<?> CraftWorld;
     private static Constructor<?> blockPositionConstructor, chunkSectionConstructor;
     private static Method getHandle, getChunkAt, notify, setType, getType, getFlag, getBlockDataState;
     private static Field sections, worldProviderField;
-    private static boolean blockDataNotify = false;
-    public static boolean enabled = false;
+    private static boolean blockDataNotify = false, chunkSectionFlag = false;
 
     static {
         try {
@@ -62,7 +63,13 @@ public class NativeMethods {
                 boolean flag = (Boolean)getFlag.invoke(worldProvider);
 
                 int yPos = (location.getBlockY() >> 4) << 4;
-                chunkSection = chunkSectionConstructor.newInstance(yPos, flag);
+
+                if (chunkSectionFlag) {
+                    chunkSection = chunkSectionConstructor.newInstance(yPos, flag);
+                } else {
+                    chunkSection = chunkSectionConstructor.newInstance(yPos);
+                }
+
                 chunkSections[location.getBlockY() >> 4] = chunkSection;
             }
 
@@ -97,7 +104,13 @@ public class NativeMethods {
         Class<?> ChunkSection = getNMSClass("net.minecraft.server.%s.ChunkSection");
 
         blockPositionConstructor = BlockPosition.getConstructor(int.class, int.class, int.class);
-        chunkSectionConstructor = ChunkSection.getConstructor(int.class, boolean.class);
+
+        try {
+            chunkSectionConstructor = ChunkSection.getConstructor(int.class);
+        } catch (NoSuchMethodException e) {
+            chunkSectionConstructor = ChunkSection.getConstructor(int.class, boolean.class);
+            chunkSectionFlag = true;
+        }
 
         getHandle = CraftWorld.getDeclaredMethod("getHandle");
         getChunkAt = World.getDeclaredMethod("getChunkAt", int.class, int.class);

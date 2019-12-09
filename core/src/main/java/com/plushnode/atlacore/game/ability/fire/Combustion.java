@@ -329,15 +329,17 @@ public class Combustion implements Ability {
         protected List<Material> blocks = Arrays.asList(
                 Material.AIR, Material.BEDROCK, Material.CHEST, Material.TRAPPED_CHEST, Material.OBSIDIAN,
                 Material.NETHER_PORTAL, Material.END_PORTAL, Material.END_PORTAL_FRAME, Material.FIRE,
-                Material.WALL_SIGN, Material.SIGN, Material.WATER, Material.LAVA, Material.DROPPER, Material.FURNACE,
+                Material.WATER, Material.LAVA, Material.DROPPER, Material.FURNACE,
                 Material.DISPENSER, Material.HOPPER, Material.BEACON, Material.BARRIER, Material.SPAWNER,
-                Material.CAVE_AIR, Material.VOID_AIR
+                Material.CAVE_AIR, Material.VOID_AIR, Material.ACACIA_SIGN, Material.ACACIA_WALL_SIGN, Material.BIRCH_SIGN,
+                Material.BIRCH_WALL_SIGN, Material.DARK_OAK_SIGN, Material.DARK_OAK_WALL_SIGN, Material.JUNGLE_SIGN,
+                Material.JUNGLE_WALL_SIGN, Material.OAK_SIGN, Material.OAK_WALL_SIGN
         );
 
         private boolean destroy;
         private Random rand = new Random();
 
-        public AbstractExplosionMethod(boolean destroy) {
+        AbstractExplosionMethod(boolean destroy) {
             this.destroy = destroy;
         }
 

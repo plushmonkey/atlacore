@@ -24,9 +24,6 @@ public final class BukkitAABB {
     private static Constructor<?> bpConstructor;
     private static int serverVersion;
 
-    private Vector min = null;
-    private Vector max = null;
-
     static {
         serverVersion = 9;
 
@@ -199,7 +196,12 @@ public final class BukkitAABB {
                 getBlockBoundingBox = Block.getDeclaredMethod("a", IBlockData, serverVersion >= 11 ? IBlockAccess : World, BlockPosition);
                 getBoundingBox = Entity.getDeclaredMethod("getBoundingBox");
             } else {
-                getVoxelShape = Block.getDeclaredMethod("f", IBlockData, IBlockAccess, BlockPosition);
+
+                if (serverVersion > 13) {
+                    getVoxelShape = Block.getDeclaredMethod("h", IBlockData, IBlockAccess, BlockPosition);
+                } else {
+                    getVoxelShape = Block.getDeclaredMethod("f", IBlockData, IBlockAccess, BlockPosition);
+                }
 
                 try {
                     getBlockBoundingBox = VoxelShape.getDeclaredMethod("getBoundingBox");
