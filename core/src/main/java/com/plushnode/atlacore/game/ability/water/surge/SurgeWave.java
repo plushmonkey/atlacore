@@ -52,7 +52,7 @@ public class SurgeWave implements Ability {
             boolean onCooldown = user.isOnCooldown(getDescription());
 
             if ((this.state == null || this.state instanceof WaveSourceState) && !onCooldown) {
-                SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant);
+                SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant).and(SourceType.Ice);
                 Optional<Block> newSource = SourceUtil.getSource(user, userConfig.selectRange, types);
 
                 if (!newSource.isPresent()) {

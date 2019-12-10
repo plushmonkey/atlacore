@@ -16,10 +16,7 @@ import com.plushnode.atlacore.game.ability.sequence.AbilityAction;
 import com.plushnode.atlacore.game.ability.sequence.Action;
 import com.plushnode.atlacore.game.ability.sequence.Sequence;
 import com.plushnode.atlacore.game.ability.sequence.SequenceService;
-import com.plushnode.atlacore.game.ability.water.WaterBubble;
-import com.plushnode.atlacore.game.ability.water.WaterManipulation;
-import com.plushnode.atlacore.game.ability.water.WaterSpout;
-import com.plushnode.atlacore.game.ability.water.WaterSpoutWave;
+import com.plushnode.atlacore.game.ability.water.*;
 import com.plushnode.atlacore.game.ability.water.arms.*;
 import com.plushnode.atlacore.game.ability.water.surge.Surge;
 import com.plushnode.atlacore.game.ability.water.surge.SurgeWall;
@@ -101,6 +98,7 @@ public final class AbilityInitializer {
                 .setCanBypassCooldown(true);
         registerAbility("WaterSpout", WaterSpout.class, Elements.WATER, ActivationMethod.Punch)
                 .setSourcesPlants(true);
+        registerAbility("PhaseChange", PhaseChange.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
 
         ConfigurableAbilityDescription<WaterSpoutWave> waterSpoutWave = new ConfigurableAbilityDescription<>("WaterSpoutWave", Elements.WATER, 0, WaterSpoutWave.class, ActivationMethod.Punch);
 

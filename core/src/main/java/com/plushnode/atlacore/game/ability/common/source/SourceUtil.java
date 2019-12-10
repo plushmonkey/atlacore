@@ -1,8 +1,10 @@
 package com.plushnode.atlacore.game.ability.common.source;
 
+import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.RayCaster;
 import com.plushnode.atlacore.collision.geometry.Ray;
 import com.plushnode.atlacore.game.Game;
+import com.plushnode.atlacore.game.ability.water.PhaseChange;
 import com.plushnode.atlacore.game.ability.water.util.BottleReturn;
 import com.plushnode.atlacore.platform.ItemStack;
 import com.plushnode.atlacore.platform.User;
@@ -38,11 +40,19 @@ public final class SourceUtil {
 
         Block block = RayCaster.blockCast(user.getWorld(), new Ray(user.getEyeLocation(), user.getDirection()), range, materials);
 
-        if (block == null || !materials.contains(block.getType()) || Game.getTempBlockService().isTempBlock(block)) {
+        if (block == null || !materials.contains(block.getType()) || !isBendableTempBlock(block)) {
             return Optional.empty();
         }
 
         return Optional.of(block);
+    }
+
+    private static boolean isBendableTempBlock(Block block) {
+        TempBlock tempBlock = Game.getTempBlockService().getTempBlock(block);
+
+        if (tempBlock == null) return true;
+
+        return PhaseChange.isFrozenBlock(tempBlock);
     }
 
     public static boolean hasFullBottle(User user) {

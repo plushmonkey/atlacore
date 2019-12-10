@@ -154,6 +154,10 @@ public final class MaterialUtil {
         return material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR;
     }
 
+    public static boolean isAir(Block block) {
+        return isAir(block.getType());
+    }
+
     public static boolean isSourceBlock(Block block) {
         BlockData blockData = block.getBlockData();
 

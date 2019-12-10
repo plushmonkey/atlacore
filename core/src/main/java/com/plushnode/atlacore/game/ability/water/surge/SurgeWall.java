@@ -47,7 +47,7 @@ public class SurgeWall implements Ability {
 
         if (method == ActivationMethod.Punch) {
             if (this.state == null || this.state instanceof WallSourceState) {
-                SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant);
+                SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant).and(SourceType.Ice);
                 Optional<Block> newSource = SourceUtil.getSource(user, userConfig.selectRange, types);
 
                 if (!newSource.isPresent()) {

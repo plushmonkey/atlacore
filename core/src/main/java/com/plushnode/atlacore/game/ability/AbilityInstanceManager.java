@@ -167,6 +167,20 @@ public class AbilityInstanceManager {
         return abilities.stream().filter(a -> a.getClass() == type).map(a -> (T)a).collect(Collectors.toList());
     }
 
+    public <T extends Ability> T getFirstInstance(User user, Class<T> type) {
+        List<Ability> abilities = globalInstances.get(user);
+
+        if (abilities == null) return null;
+
+        for (Ability ability : abilities) {
+            if (ability.getClass() == type) {
+                return type.cast(ability);
+            }
+        }
+
+        return null;
+    }
+
     public List<Ability> getInstances() {
         List<Ability> totalInstances = new ArrayList<>();
 
