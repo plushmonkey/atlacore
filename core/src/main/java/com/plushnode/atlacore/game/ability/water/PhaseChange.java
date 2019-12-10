@@ -12,10 +12,10 @@ import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
-import com.plushnode.atlacore.platform.World;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.Material;
+import com.plushnode.atlacore.policies.removal.*;
 import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -30,17 +30,21 @@ public class PhaseChange implements Ability {
 
     private User user;
     private Config userConfig;
-    private World world;
     private Set<TempBlock> frozen = new HashSet<>();
     private Block lastUserBlock;
     private long lastBlockCheck;
+    private RemovalPolicy removalPolicy;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
-        this.world = user.getWorld();
         this.lastUserBlock = user.getEyeLocation().getBlock();
         this.lastBlockCheck = System.currentTimeMillis();
+        this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
+                new IsDeadRemovalPolicy(user),
+                new IsOfflineRemovalPolicy(user),
+                new OutOfWorldRemovalPolicy(user)
+        );
 
         PhaseChange instance = Game.getAbilityInstanceManager().getFirstInstance(user, PhaseChange.class);
 
@@ -64,7 +68,7 @@ public class PhaseChange implements Ability {
     public UpdateResult update() {
         long time = System.currentTimeMillis();
 
-        if (!user.getWorld().equals(world)) {
+        if (removalPolicy.shouldRemove()) {
             return UpdateResult.Remove;
         }
 
@@ -103,8 +107,7 @@ public class PhaseChange implements Ability {
     private void freeze() {
         Location location = RayCaster.cast(user, user.getViewRay(), userConfig.freezeSelectRange, true, false);
 
-        for (Block block : WorldUtil.getNearbyBlocks(location, userConfig.freezeRadius)) {
-            if (block.getType() != Material.WATER) continue;
+        for (Block block : WorldUtil.getNearbyType(location, userConfig.freezeRadius, Material.WATER)) {
             if (!MaterialUtil.isAir(block.getRelative(BlockFace.UP))) continue;
             if (Game.getTempBlockService().isTempBlock(block)) continue;
 
@@ -119,9 +122,7 @@ public class PhaseChange implements Ability {
     private void melt() {
         Location location = RayCaster.cast(user, user.getViewRay(), userConfig.meltSelectRange, true, false);
 
-        for (Block block : WorldUtil.getNearbyBlocks(location, userConfig.meltRadius)) {
-            if (block.getType() != Material.ICE) continue;
-
+        for (Block block : WorldUtil.getNearbyType(location, userConfig.meltRadius, Material.ICE)) {
             if (Game.getProtectionSystem().canBuild(user, block.getLocation())) {
                 TempBlock tempBlock = Game.getTempBlockService().getTempBlock(block);
 

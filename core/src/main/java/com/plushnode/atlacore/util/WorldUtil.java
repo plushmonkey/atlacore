@@ -53,6 +53,34 @@ public final class WorldUtil {
         return blocks;
     }
 
+    public static Collection<Block> getNearbyType(Location location, double radius, Material type) {
+        int r = (int)radius + 2;
+
+        double originX = location.getX();
+        double originY = location.getY();
+        double originZ = location.getZ();
+
+        List<Block> blocks = new ArrayList<>();
+        Vector3D pos = location.toVector();
+
+        for (double x = originX - r; x <= originX + r; ++x) {
+            for (double y = originY - r; y <= originY + r; ++y) {
+                for (double z = originZ - r; z <= originZ + r; ++z) {
+                    if (pos.distanceSq(new Vector3D(x, y, z)) <= radius * radius) {
+                        Block block = location.getWorld().getBlockAt((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+
+                        if (block.getType() == type) {
+                            blocks.add(block);
+                        }
+                    }
+                }
+            }
+        }
+
+        return blocks;
+    }
+
+
     public static LivingEntity getTargetEntity(User user, int range) {
         Ray ray = new Ray(user.getEyeLocation(), user.getDirection());
 

@@ -38,7 +38,7 @@ public class WaterArms implements MultiAbility {
         this.userConfig = Game.getAttributeSystem().calculate(this, config);
         this.usedBottles = false;
 
-        SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant);
+        SourceTypes types = SourceTypes.of(SourceType.Water).and(SourceType.Plant).and(SourceType.Ice);
         Optional<Block> source = SourceUtil.getSource(user, userConfig.selectRange, types);
 
         // Don't activate if no source was selected and no bottle could be used.
