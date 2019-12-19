@@ -46,6 +46,14 @@ public class PhaseChange implements Ability {
                 new OutOfWorldRemovalPolicy(user)
         );
 
+        WaterSpoutWave wave = Game.getAbilityInstanceManager().getFirstInstance(user, WaterSpoutWave.class);
+
+        if (wave != null) {
+            if (wave.freeze()) {
+                return false;
+            }
+        }
+
         PhaseChange instance = Game.getAbilityInstanceManager().getFirstInstance(user, PhaseChange.class);
 
         if (instance == null) {

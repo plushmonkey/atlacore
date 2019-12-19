@@ -2,6 +2,8 @@ package com.plushnode.atlacore.game.ability.water;
 
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collision;
+import com.plushnode.atlacore.collision.CollisionUtil;
+import com.plushnode.atlacore.collision.geometry.Sphere;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -13,9 +15,7 @@ import com.plushnode.atlacore.game.ability.common.source.SourceTypes;
 import com.plushnode.atlacore.game.ability.common.source.SourceUtil;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.util.MaterialUtil;
@@ -40,10 +40,13 @@ public class WaterSpoutWave implements Ability {
     private User user;
     private Config userConfig;
     private State state;
+    private boolean iceWave;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
         this.user = user;
+        this.iceWave = false;
+
         recalculateConfig();
 
         if (!userConfig.enabled) {
@@ -83,6 +86,14 @@ public class WaterSpoutWave implements Ability {
 
     public boolean isActive() {
         return !(this.state instanceof SourceState);
+    }
+
+    public boolean freeze() {
+        boolean result = !this.iceWave;
+
+        this.iceWave = true;
+
+        return result;
     }
 
     @Override
@@ -303,6 +314,8 @@ public class WaterSpoutWave implements Ability {
     }
 
     private class WaveTravelState implements State {
+        private List<FutureBlock> futureBlocks = new ArrayList<>();
+        private List<Entity> affectedEntities = new ArrayList<>();
         private long startTime;
         private boolean active;
 
@@ -333,11 +346,51 @@ public class WaterSpoutWave implements Ability {
             user.setFallDistance(0);
 
             Location center = user.getLocation().subtract(0, 1, 0);
+            Material material = iceWave ? Material.ICE : Material.WATER;
 
-            for (Block block : WorldUtil.getNearbyBlocks(center, userConfig.waveRadius, Material.WATER)) {
-                if (MaterialUtil.isTransparent(block) || block.getType() == Material.WATER) {
-                    new TempBlock(block, Material.WATER, 1000);
+            for (Block block : WorldUtil.getNearbyBlocks(center, userConfig.waveRadius, Material.WATER, Material.ICE)) {
+                if (MaterialUtil.isTransparent(block)) {
+                    long futureTime = 0;
+
+                    if (iceWave) {
+                        futureTime = time + 100;
+                    }
+
+                    futureBlocks.add(new FutureBlock(block, material, futureTime));
                 }
+            }
+
+            // Render the ice in the future so it doesn't obstruct the traveling player. Water gets rendered immediately.
+            futureBlocks.removeIf(futureBlock -> {
+               if (time < futureBlock.time) {
+                   return false;
+               }
+
+               if (futureBlock.block.getType() == futureBlock.material) {
+                   return true;
+               }
+
+               new TempBlock(futureBlock.block, futureBlock.material, 1000);
+
+               return true;
+            });
+
+            if (iceWave) {
+                Sphere collider = new Sphere(user.getLocation(), userConfig.entityCollisionRadius);
+
+                CollisionUtil.handleEntityCollisions(user, collider, entity -> {
+                    if (affectedEntities.contains(entity)) return false;
+
+                    if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) {
+                        return false;
+                    }
+
+                    affectedEntities.add(entity);
+                    ((LivingEntity)entity).damage(userConfig.iceDamage);
+                    createIceSphere(entity.getLocation());
+
+                    return false;
+                }, true);
             }
 
             return true;
@@ -351,6 +404,26 @@ public class WaterSpoutWave implements Ability {
         @Override
         public void onPunch() {
             this.active = false;
+        }
+
+        private void createIceSphere(Location location) {
+            for (Block block : WorldUtil.getNearbyBlocks(location, userConfig.iceSphereRadius, Material.ICE)) {
+                if (MaterialUtil.isTransparent(block) && Game.getProtectionSystem().canBuild(user, block.getLocation())) {
+                    new TempBlock(block, Material.ICE, userConfig.iceSphereDuration);
+                }
+            }
+        }
+    }
+
+    private static class FutureBlock {
+        Block block;
+        Material material;
+        long time;
+
+        FutureBlock(Block block, Material material, long time) {
+            this.block = block;
+            this.material = material;
+            this.time = time;
         }
     }
 
@@ -376,17 +449,31 @@ public class WaterSpoutWave implements Ability {
 
     public static class Config extends Configurable {
         public boolean enabled;
+        @Attribute(Attributes.COOLDOWN)
         public long cooldown;
+        @Attribute(Attributes.SELECTION)
         public double selectRange;
+        @Attribute(Attributes.SELECTION)
         public double selectMaxDistance;
         public double sourceTravelSpeed;
         public int swirlIncrease;
         @Attribute(Attributes.CHARGE_TIME)
         public double swirlSpeed;
+        @Attribute(Attributes.CHARGE_TIME)
         public double swirlCollapseSpeed;
+        @Attribute(Attributes.RADIUS)
         public double waveRadius;
+        @Attribute(Attributes.SPEED)
         public double travelSpeed;
         public long travelDuration;
+        @Attribute(Attributes.STRENGTH)
+        public double iceSphereRadius;
+        @Attribute(Attributes.DAMAGE)
+        public double iceDamage;
+        @Attribute(Attributes.DURATION)
+        public long iceSphereDuration;
+        @Attribute(Attributes.ENTITY_COLLISION_RADIUS)
+        public double entityCollisionRadius;
 
         @Override
         public void onConfigReload() {
@@ -403,6 +490,10 @@ public class WaterSpoutWave implements Ability {
             waveRadius = abilityNode.getNode("radius").getDouble(1.5);
             travelSpeed = abilityNode.getNode("travel-speed").getDouble(1.3);
             travelDuration = abilityNode.getNode("travel-duration").getLong(2500);
+            entityCollisionRadius = abilityNode.getNode("ice").getNode("entity-collision-radius").getDouble(2.5);
+            iceSphereRadius = abilityNode.getNode("ice").getNode("sphere-radius").getDouble(2.5);
+            iceDamage = abilityNode.getNode("ice").getNode("damage").getDouble(3.0);
+            iceSphereDuration = abilityNode.getNode("ice").getNode("duration").getLong(4000);
         }
     }
 }
