@@ -2,6 +2,8 @@ package com.plushnode.atlacore.game.ability.water;
 
 import com.plushnode.atlacore.block.TempBlock;
 import com.plushnode.atlacore.collision.Collision;
+import com.plushnode.atlacore.collision.CollisionUtil;
+import com.plushnode.atlacore.collision.geometry.AABB;
 import com.plushnode.atlacore.config.Configurable;
 import com.plushnode.atlacore.game.Game;
 import com.plushnode.atlacore.game.ability.Ability;
@@ -12,9 +14,7 @@ import com.plushnode.atlacore.game.ability.common.source.SourceTypes;
 import com.plushnode.atlacore.game.ability.common.source.SourceUtil;
 import com.plushnode.atlacore.game.attribute.Attribute;
 import com.plushnode.atlacore.game.attribute.Attributes;
-import com.plushnode.atlacore.platform.Location;
-import com.plushnode.atlacore.platform.ParticleEffect;
-import com.plushnode.atlacore.platform.User;
+import com.plushnode.atlacore.platform.*;
 import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.BlockFace;
 import com.plushnode.atlacore.platform.block.Material;
@@ -33,6 +33,7 @@ public class OctopusForm implements Ability {
     private State state;
     private List<TempBlock> frozenBlocks = new ArrayList<>();
     private RemovalPolicy removalPolicy;
+    private boolean usedBottle;
 
     @Override
     public boolean activate(User user, ActivationMethod method) {
@@ -54,13 +55,8 @@ public class OctopusForm implements Ability {
 
             if (source.isPresent()) {
                 if (Game.getProtectionSystem().canBuild(user, source.get().getLocation())) {
+                    createRemovalPolicy();
                     this.state = new SourceState(source.get());
-
-                    this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
-                            new IsDeadRemovalPolicy(user),
-                            new IsOfflineRemovalPolicy(user),
-                            new OutOfWorldRemovalPolicy(user)
-                    );
 
                     return true;
                 }
@@ -73,10 +69,23 @@ public class OctopusForm implements Ability {
                 return false;
             }
 
-            // TODO: Bottles
+            if (SourceUtil.emptyBottle(user)) {
+                createRemovalPolicy();
+                this.state = new SwirlState();
+                this.usedBottle = true;
+                return true;
+            }
         }
 
         return false;
+    }
+
+    private void createRemovalPolicy() {
+        this.removalPolicy = new CompositeRemovalPolicy(getDescription(),
+                new IsDeadRemovalPolicy(user),
+                new IsOfflineRemovalPolicy(user),
+                new OutOfWorldRemovalPolicy(user)
+        );
     }
 
     @Override
@@ -103,6 +112,10 @@ public class OctopusForm implements Ability {
         }
 
         frozenBlocks.clear();
+
+        if (usedBottle) {
+            SourceUtil.fillBottle(user);
+        }
     }
 
     @Override
@@ -269,20 +282,18 @@ public class OctopusForm implements Ability {
     }
 
     private abstract class AbstractRenderState implements State {
-        protected static final double SWIRL_RADIUS = 3.0;
-
         protected List<TempBlock> swirl = new ArrayList<>();
 
         protected void render(double initialOrientation, double finalOrientation) {
             clear();
 
             Location base = user.getLocation();
-            double delta = Math.toDegrees((Math.PI * 2) / (8 * SWIRL_RADIUS));
+            double delta = Math.toDegrees((Math.PI * 2) / (8 * userConfig.radius));
 
             for (double angle = initialOrientation; angle < finalOrientation; angle += delta) {
                 double theta = Math.toRadians(angle);
-                double x = Math.cos(theta) * SWIRL_RADIUS;
-                double z = Math.sin(theta) * SWIRL_RADIUS;
+                double x = Math.cos(theta) * userConfig.radius;
+                double z = Math.sin(theta) * userConfig.radius;
 
                 Location location = base.add(x, 0, z);
                 Block block = location.getBlock();
@@ -381,6 +392,7 @@ public class OctopusForm implements Ability {
         private static final double TENTACLE_COUNT = 8;
 
         private List<TempBlock> tentacleBlocks = new ArrayList<>();
+        private long attackEndTime;
 
         @Override
         public boolean update() {
@@ -395,6 +407,8 @@ public class OctopusForm implements Ability {
         }
 
         private void render() {
+            long time = System.currentTimeMillis();
+
             // Render the base swirl
             super.render(0, 360);
 
@@ -407,18 +421,31 @@ public class OctopusForm implements Ability {
                 double topOffset = (Math.sin(tTop) + 1.0) / 2.0;
                 double bottomOffset = (Math.sin(tBottom) + 1.0) / 2.0;
 
+                // Extend the tentacles outwards during attack animation.
+                if (attackEndTime > time) {
+                    topOffset = 2.0;
+                    bottomOffset = 1.0;
+                }
+
                 double theta = Math.toRadians((i / TENTACLE_COUNT) * 360.0) + Math.toRadians(user.getYaw());
 
-                double xBottom = Math.cos(theta) * (SWIRL_RADIUS + bottomOffset);
-                double zBottom = Math.sin(theta) * (SWIRL_RADIUS + bottomOffset);
+                double xBottom = Math.cos(theta) * (userConfig.radius + bottomOffset);
+                double zBottom = Math.sin(theta) * (userConfig.radius + bottomOffset);
                 Location bottomLocation = user.getLocation().add(xBottom, 1, zBottom);
+                Block bottomBlock = bottomLocation.getBlock();
 
-                double xTop = Math.cos(theta) * (SWIRL_RADIUS + topOffset);
-                double zTop = Math.sin(theta) * (SWIRL_RADIUS + topOffset);
+                double xTop = Math.cos(theta) * (userConfig.radius + topOffset);
+                double zTop = Math.sin(theta) * (userConfig.radius + topOffset);
                 Location topLocation = user.getLocation().add(xTop, 2, zTop);
+                Block topBlock = topLocation.getBlock();
 
-                tentacleBlocks.add(new TempBlock(bottomLocation.getBlock(), Material.WATER));
-                tentacleBlocks.add(new TempBlock(topLocation.getBlock(), Material.WATER));
+                if (MaterialUtil.isTransparent(bottomBlock)) {
+                    tentacleBlocks.add(new TempBlock(bottomBlock, Material.WATER));
+                }
+
+                if (MaterialUtil.isTransparent(topBlock)) {
+                    tentacleBlocks.add(new TempBlock(topBlock, Material.WATER));
+                }
             }
         }
 
@@ -433,7 +460,38 @@ public class OctopusForm implements Ability {
 
         @Override
         public void onPunch() {
+            long time = System.currentTimeMillis();
+
             // Attack
+            if (userConfig.attackAnimation && attackEndTime <= time) {
+                attackEndTime = System.currentTimeMillis() + 200;
+            }
+
+            List<Entity> affected = new ArrayList<>();
+
+            for (int i = 0; i < TENTACLE_COUNT; ++i) {
+                double theta = Math.toRadians((i / TENTACLE_COUNT) * 360.0) + Math.toRadians(user.getYaw());
+
+                double x = Math.cos(theta) * (userConfig.radius + 0.5);
+                double z = Math.sin(theta) * (userConfig.radius + 0.5);
+
+                Location tentacleBase = user.getLocation().add(x, 0, z);
+                AABB hitbox = userConfig.attackHitbox.at(tentacleBase);
+
+                CollisionUtil.handleEntityCollisions(user, hitbox, entity -> {
+                    if (affected.contains(entity)) return false;
+                    if (!Game.getProtectionSystem().canBuild(user, entity.getLocation())) return false;
+
+                    ((LivingEntity)entity).damage(userConfig.attackDamage);
+
+                    Vector3D direction = tentacleBase.subtract(user.getLocation()).toVector().normalize();
+                    entity.setVelocity(direction.scalarMultiply(userConfig.attackKnockback));
+
+                    affected.add(entity);
+
+                    return false;
+                }, true);
+            }
         }
 
         @Override
@@ -460,6 +518,14 @@ public class OctopusForm implements Ability {
         public double sourceTravelSpeed;
         @Attribute(Attributes.CHARGE_TIME)
         public long chargeTime;
+        @Attribute(Attributes.RADIUS)
+        public double radius;
+        @Attribute(Attributes.DAMAGE)
+        public double attackDamage;
+        @Attribute(Attributes.STRENGTH)
+        public double attackKnockback;
+        public boolean attackAnimation;
+        public AABB attackHitbox;
 
         @Override
         public void onConfigReload() {
@@ -471,6 +537,17 @@ public class OctopusForm implements Ability {
             selectMaxDistance = abilityNode.getNode("select-max-distance").getDouble(30.0);
             sourceTravelSpeed = abilityNode.getNode("source-travel-speed").getDouble(1.0);
             chargeTime = abilityNode.getNode("charge-time").getLong(500);
+            radius = abilityNode.getNode("radius").getDouble(3.0);
+
+            attackDamage = abilityNode.getNode("attack").getNode("damage").getDouble(2.0);
+            attackKnockback = abilityNode.getNode("attack").getNode("knockback").getDouble(1.75);
+            attackAnimation = abilityNode.getNode("attack").getNode("animation").getBoolean(true);
+
+            double x = abilityNode.getNode("attack").getNode("hitbox").getNode("x").getDouble(2.0);
+            double y = abilityNode.getNode("attack").getNode("hitbox").getNode("y").getDouble(2.5);
+            double z = abilityNode.getNode("attack").getNode("hitbox").getNode("z").getDouble(2.0);
+
+            attackHitbox = new AABB(new Vector3D(-x / 2.0, 0.0, -z / 2.0), new Vector3D(x / 2.0, y, z / 2.0));
         }
     }
 }
