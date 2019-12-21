@@ -5,7 +5,6 @@ import com.plushnode.atlacore.platform.User;
 import com.plushnode.atlacore.game.element.Element;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AbilityInstanceManager {
     private Map<User, List<Ability>> globalInstances = new HashMap<>();
@@ -91,17 +90,30 @@ public class AbilityInstanceManager {
             }
         }
 
+        for (UserInstance userInstance : addQueue) {
+            if (userInstance.user.equals(user) && userInstance.instance.getClass().equals(abilityType)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
     public boolean hasAbility(User user, AbilityDescription desc) {
         Ability checkAbility = desc.createAbility();
+        Class<? extends Ability> clazz = checkAbility.getClass();
 
         List<Ability> abilities = globalInstances.get(user);
         if (abilities == null) return false;
 
         for (Ability ability : abilities) {
-            if (ability.getClass().equals(checkAbility.getClass())) {
+            if (ability.getClass().equals(clazz)) {
+                return true;
+            }
+        }
+
+        for (UserInstance userInstance : addQueue) {
+            if (userInstance.user.equals(user) && userInstance.instance.getClass().equals(clazz)) {
                 return true;
             }
         }
@@ -159,12 +171,27 @@ public class AbilityInstanceManager {
         return abilities;
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends Ability> List<T> getPlayerInstances(User user, Class<T> type) {
+        List<T> result = new ArrayList<>();
         List<Ability> abilities = globalInstances.get(user);
+
         if (abilities == null) return new ArrayList<>();
 
-        return abilities.stream().filter(a -> a.getClass() == type).map(a -> (T)a).collect(Collectors.toList());
+        for (Ability ability : abilities) {
+            if (ability.getClass() == type) {
+                result.add(type.cast(ability));
+            }
+        }
+
+        for (UserInstance userInstance : addQueue) {
+            if (!userInstance.user.equals(user)) continue;
+
+            if (userInstance.instance.getClass() == type) {
+                result.add(type.cast(userInstance.instance));
+            }
+        }
+
+        return result;
     }
 
     public <T extends Ability> T getFirstInstance(User user, Class<T> type) {
@@ -178,6 +205,12 @@ public class AbilityInstanceManager {
             }
         }
 
+        for (UserInstance userInstance : addQueue) {
+            if (userInstance.user.equals(user) && userInstance.instance.getClass() == type) {
+                return type.cast(userInstance.instance);
+            }
+        }
+
         return null;
     }
 
@@ -188,19 +221,26 @@ public class AbilityInstanceManager {
             totalInstances.addAll(instances);
         }
 
+        for (UserInstance userInstance : addQueue) {
+            totalInstances.add(userInstance.instance);
+        }
+
         return totalInstances;
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends Ability> List<T> getInstances(Class<T> type) {
         List<T> totalInstances = new ArrayList<>();
 
         for (List<Ability> instances : globalInstances.values()) {
             for (Ability ability : instances) {
                 if (ability.getClass().equals(type)) {
-                    totalInstances.add((T)ability);
+                    totalInstances.add(type.cast(ability));
                 }
             }
+        }
+
+        for (UserInstance userInstance : addQueue) {
+            totalInstances.add(type.cast(userInstance.instance));
         }
 
         return totalInstances;
