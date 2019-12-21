@@ -25,4 +25,6 @@ public interface TempBlockService  {
 
     void start();
     void stop();
+
+    int size();
 }

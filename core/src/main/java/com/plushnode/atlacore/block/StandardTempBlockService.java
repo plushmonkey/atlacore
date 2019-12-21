@@ -111,6 +111,11 @@ public class StandardTempBlockService implements TempBlockService {
         }
     }
 
+    @Override
+    public int size() {
+        return temporaryBlocks.size();
+    }
+
     private void update() {
         // TODO: This might end up being too slow to iterate through every block so often.
         // TODO: Some kind of priority queue could work.
