@@ -139,6 +139,14 @@ public class WaterSpoutWave implements Ability {
 
             return true;
         }
+
+        @Override
+        public void onPunch() {
+            SourceTypes sourceTypes = SourceTypes.of(SourceType.Water).and(SourceType.Ice).and(SourceType.Plant);
+            Optional<Block> source = SourceUtil.getSource(user, userConfig.selectRange, sourceTypes);
+
+            this.sourceBlock = source.orElseGet(() -> sourceBlock);
+        }
     }
 
     // This state occurs when the water is traveling from the source location to the player.
@@ -333,6 +341,10 @@ public class WaterSpoutWave implements Ability {
             }
 
             if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) {
+                return remove();
+            }
+
+            if (user.isSneaking()) {
                 return remove();
             }
 

@@ -17,6 +17,7 @@ import com.plushnode.atlacore.platform.block.Block;
 import com.plushnode.atlacore.platform.block.Material;
 import com.plushnode.atlacore.platform.block.data.Levelled;
 import com.plushnode.atlacore.util.Flight;
+import com.plushnode.atlacore.util.MaterialUtil;
 import com.plushnode.atlacore.util.VectorUtil;
 import com.plushnode.atlacore.util.WorldUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -175,7 +176,7 @@ public class WaterSpout implements Ability {
 
             Location location = ground.add(x, i, y);
 
-            if (location.getBlock().getType() != Material.WATER) {
+            if (MaterialUtil.isTransparent(location.getBlock())) {
                 new TempBlock(location.getBlock(), Material.WATER.createBlockData(data -> ((Levelled)data).setLevel(1)));
                 spiralBlocks.add(location.getBlock());
             }

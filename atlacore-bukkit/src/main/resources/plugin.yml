@@ -82,6 +82,8 @@ permissions:
   atla.water:
     children:
       atla.command.choose.Water: true
+      atla.ability.OctopusForm: true
+      atla.ability.PhaseChange: true
       atla.ability.Surge: true
       atla.ability.Torrent: true
       atla.ability.WaterArms: true
