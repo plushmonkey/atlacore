@@ -240,7 +240,9 @@ public class AbilityInstanceManager {
         }
 
         for (UserInstance userInstance : addQueue) {
-            totalInstances.add(type.cast(userInstance.instance));
+            if (userInstance.instance.getClass().equals(type)) {
+                totalInstances.add(type.cast(userInstance.instance));
+            }
         }
 
         return totalInstances;
