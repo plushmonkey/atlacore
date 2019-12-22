@@ -78,7 +78,7 @@ public class WaterSpout implements Ability {
             return false;
         }
 
-        if (!isAboveWater()) {
+        if (!isAboveBendableBlock()) {
             return false;
         }
 
@@ -99,7 +99,7 @@ public class WaterSpout implements Ability {
 
         clearBlocks(spiralBlocks);
 
-        if (!user.canBend(getDescription()) || !isAboveWater()) {
+        if (!user.canBend(getDescription()) || !isAboveBendableBlock()) {
             return UpdateResult.Remove;
         }
 
@@ -185,11 +185,11 @@ public class WaterSpout implements Ability {
         }
     }
 
-    private boolean isAboveWater() {
+    private boolean isAboveBendableBlock() {
         double maxHeight = userConfig.height + userConfig.heightBuffer;
         Block groundBlock = RayCaster.blockCastIgnore(user.getWorld(), new Ray(user.getLocation(), Vector3D.MINUS_J), maxHeight + 1, true, columnBlocks);
 
-        return groundBlock != null && groundBlock.getType() == Material.WATER;
+        return groundBlock != null && (groundBlock.getType() == Material.WATER || groundBlock.getType() == Material.ICE);
     }
 
     private void clearBlocks(List<Block> blocks) {

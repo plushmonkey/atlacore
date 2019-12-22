@@ -44,6 +44,9 @@ public final class SourceUtil {
             return Optional.empty();
         }
 
+        if (!Game.getProtectionSystem().canBuild(user, user.getLocation())) return Optional.empty();
+        if (!Game.getProtectionSystem().canBuild(user, block.getLocation())) return Optional.empty();
+
         return Optional.of(block);
     }
 

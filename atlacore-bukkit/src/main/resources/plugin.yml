@@ -82,6 +82,13 @@ permissions:
   atla.water:
     children:
       atla.command.choose.Water: true
+      atla.ability.Bloodbending: true
+      atla.ability.FastSwim: true
+      atla.ability.HealingWaters: true
+      atla.ability.Hydrosink: true
+      atla.ability.IceBlast: true
+      atla.ability.IceBullet: true
+      atla.ability.IceSpike: true
       atla.ability.OctopusForm: true
       atla.ability.PhaseChange: true
       atla.ability.Surge: true

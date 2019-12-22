@@ -100,6 +100,7 @@ public final class AbilityInitializer {
                 .setSourcesPlants(true);
         registerAbility("PhaseChange", PhaseChange.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
         registerAbility("OctopusForm", OctopusForm.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
+        registerAbility("IceBlast", IceBlast.class, Elements.WATER, ActivationMethod.Punch, ActivationMethod.Sneak);
 
         ConfigurableAbilityDescription<WaterSpoutWave> waterSpoutWave = new ConfigurableAbilityDescription<>("WaterSpoutWave", Elements.WATER, 0, WaterSpoutWave.class, ActivationMethod.Punch);
 
