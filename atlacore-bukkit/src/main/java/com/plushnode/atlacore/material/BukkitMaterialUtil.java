@@ -42,9 +42,13 @@ public class BukkitMaterialUtil {
             toAtla.put(wallSignMaterial, Material.OAK_WALL_SIGN);
         }
 
+        // TODO: 1.14
+
         if (Bukkit.getVersion().contains(" 1.13")) {
             map1_13();
-        }
+        }// else if (Bukkit.getVersion().contains(" 1.14")) {
+           // map1_14();
+        //}
     }
 
     public static Material convert(org.bukkit.Material bukkitMaterial) {
@@ -65,6 +69,10 @@ public class BukkitMaterialUtil {
         }
 
         return org.bukkit.Material.values()[material.ordinal()];
+    }
+
+    private static void map1_14() {
+
     }
 
     private static void map1_13() {

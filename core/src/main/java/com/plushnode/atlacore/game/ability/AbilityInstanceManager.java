@@ -123,7 +123,7 @@ public class AbilityInstanceManager {
 
     public void destroyInstance(User user, Ability ability) {
         List<Ability> abilities = globalInstances.get(user);
-        if (ability == null) {
+        if (ability == null || abilities == null) {
             return;
         }
 

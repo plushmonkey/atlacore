@@ -12,6 +12,7 @@ import com.plushnode.atlacore.game.ability.AbilityDescription;
 import com.plushnode.atlacore.protection.PluginNotFoundException;
 import com.plushnode.atlacore.protection.ProtectMethod;
 import com.plushnode.atlacore.platform.LocationWrapper;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -55,7 +56,7 @@ public class TownyProtectMethod implements ProtectMethod {
         boolean canBuild = true;
 
         try {
-            canBuild = PlayerCacheUtil.getCachePermission(player, bukkitLocation, 3, (byte) 0, TownyPermission.ActionType.BUILD);
+            canBuild = PlayerCacheUtil.getCachePermission(player, bukkitLocation, Material.STONE, TownyPermission.ActionType.BUILD);
         } catch (NullPointerException e) {
 
         }
