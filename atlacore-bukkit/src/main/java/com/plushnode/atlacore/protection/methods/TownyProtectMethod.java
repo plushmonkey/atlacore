@@ -1,10 +1,12 @@
 package com.plushnode.atlacore.protection.methods;
 
 import com.palmergames.bukkit.towny.Towny;
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.TownyUniverse;
 import com.palmergames.bukkit.towny.object.*;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
-import com.palmergames.bukkit.towny.war.flagwar.TownyWar;
-import com.palmergames.bukkit.towny.war.flagwar.TownyWarConfig;
+import com.palmergames.bukkit.towny.war.eventwar.WarUtil;
+import com.palmergames.bukkit.towny.war.flagwar.FlagWar;
 import com.plushnode.atlacore.platform.BukkitBendingPlayer;
 import com.plushnode.atlacore.platform.Location;
 import com.plushnode.atlacore.platform.User;
@@ -16,7 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
+import java.util.Collection;
 
 public class TownyProtectMethod implements ProtectMethod {
     private Towny towny;
@@ -32,7 +34,7 @@ public class TownyProtectMethod implements ProtectMethod {
     public boolean canBuild(User user, AbilityDescription abilityDescription, Location location) {
         // Surround with try-catch because Towny is garbage and might throw random exceptions.
         try {
-            TownyWorld world = this.towny.getTownyUniverse().getWorldMap().get(user.getWorld().getName());
+            TownyWorld world = com.palmergames.bukkit.towny.TownyUniverse.getInstance().getWorldMap().get(user.getWorld().getName());
 
             if (world != null && !world.isUsingTowny()) {
                 // Exit early if this world isn't being protected by Towny.
@@ -61,45 +63,45 @@ public class TownyProtectMethod implements ProtectMethod {
 
         }
 
-        if (!canBuild) {
+        if (!canBuild && TownyAPI.getInstance().isWarTime()) {
             try {
                 PlayerCache cache = this.towny.getCache(player);
                 PlayerCache.TownBlockStatus status = cache.getStatus();
 
-                if (status == PlayerCache.TownBlockStatus.ENEMY && TownyWarConfig.isAllowingAttacks()) {
+                if (status == PlayerCache.TownBlockStatus.ENEMY && !WarUtil.isPlayerNeutral(player)) {
                     TownyWorld townyWorld;
 
                     try {
-                        townyWorld = TownyUniverse.getDataSource().getWorld(player.getWorld().getName());
+                        townyWorld = TownyUniverse.getInstance().getDataSource().getWorld(player.getWorld().getName());
+
                         WorldCoord worldCoord = new WorldCoord(townyWorld.getName(), Coord.parseCoord(bukkitLocation));
-                        TownyWar.callAttackCellEvent(this.towny, player, bukkitLocation.getBlock(), worldCoord);
+                        FlagWar.callAttackCellEvent(this.towny, player, bukkitLocation.getBlock(), worldCoord);
                     } catch (Exception e) {
 
                     }
-                    return false;
-                } else if (status == PlayerCache.TownBlockStatus.WARZONE) {
 
-                } else {
-                    return false;
+                    canBuild = true;
+                } else if (status == PlayerCache.TownBlockStatus.WARZONE) {
+                    canBuild = true;
                 }
             } catch (Exception e) {
 
             }
         }
 
-        return true;
+        return canBuild;
     }
 
     // Checks if the location is in a town block.
     private boolean canEntityBuild(User user, Location location) {
-        List<TownBlock> blocks = TownyUniverse.getDataSource().getAllTownBlocks();
+        Collection<TownBlock> blocks = TownyUniverse.getInstance().getDataSource().getAllTownBlocks();
 
         int x = (int)Math.floor(location.getX() / 16.0);
         int z = (int)Math.floor(location.getZ() / 16.0);
 
         TownyWorld world;
         try {
-            world = TownyUniverse.getDataSource().getWorld(location.getWorld().getName());
+            world = TownyUniverse.getInstance().getDataSource().getWorld(location.getWorld().getName());
         } catch (Exception e) {
             return true;
         }

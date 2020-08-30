@@ -942,7 +942,6 @@ public class BukkitMaterialUtil {
         toAtla.put(org.bukkit.Material.valueOf("YELLOW_WOOL"), Material.YELLOW_WOOL);
         toAtla.put(org.bukkit.Material.valueOf("ZOMBIE_HEAD"), Material.ZOMBIE_HEAD);
         toAtla.put(org.bukkit.Material.valueOf("ZOMBIE_HORSE_SPAWN_EGG"), Material.ZOMBIE_HORSE_SPAWN_EGG);
-        toAtla.put(org.bukkit.Material.valueOf("ZOMBIE_PIGMAN_SPAWN_EGG"), Material.ZOMBIE_PIGMAN_SPAWN_EGG);
         toAtla.put(org.bukkit.Material.valueOf("ZOMBIE_SPAWN_EGG"), Material.ZOMBIE_SPAWN_EGG);
         toAtla.put(org.bukkit.Material.valueOf("ZOMBIE_VILLAGER_SPAWN_EGG"), Material.ZOMBIE_VILLAGER_SPAWN_EGG);
         toAtla.put(org.bukkit.Material.valueOf("ZOMBIE_WALL_HEAD"), Material.ZOMBIE_WALL_HEAD);
@@ -1815,7 +1814,6 @@ public class BukkitMaterialUtil {
         toBukkit.put(Material.YELLOW_WOOL, org.bukkit.Material.valueOf("YELLOW_WOOL"));
         toBukkit.put(Material.ZOMBIE_HEAD, org.bukkit.Material.valueOf("ZOMBIE_HEAD"));
         toBukkit.put(Material.ZOMBIE_HORSE_SPAWN_EGG, org.bukkit.Material.valueOf("ZOMBIE_HORSE_SPAWN_EGG"));
-        toBukkit.put(Material.ZOMBIE_PIGMAN_SPAWN_EGG, org.bukkit.Material.valueOf("ZOMBIE_PIGMAN_SPAWN_EGG"));
         toBukkit.put(Material.ZOMBIE_SPAWN_EGG, org.bukkit.Material.valueOf("ZOMBIE_SPAWN_EGG"));
         toBukkit.put(Material.ZOMBIE_VILLAGER_SPAWN_EGG, org.bukkit.Material.valueOf("ZOMBIE_VILLAGER_SPAWN_EGG"));
         toBukkit.put(Material.ZOMBIE_WALL_HEAD, org.bukkit.Material.valueOf("ZOMBIE_WALL_HEAD"));

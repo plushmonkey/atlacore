@@ -17,8 +17,8 @@ public class NativeMethods {
 
     private static Class<?> CraftWorld;
     private static Constructor<?> blockPositionConstructor, chunkSectionConstructor;
-    private static Method getHandle, getChunkAt, notify, setType, getType, getFlag, getBlockDataState;
-    private static Field sections, worldProviderField;
+    private static Method getHandle, getChunkAt, notify, setType, getType, getFlag, getBlockDataState, hasSkylight;
+    private static Field sections, worldProviderField, dimensionManagerField;
     private static boolean blockDataNotify = false, chunkSectionFlag = false;
 
     static {
@@ -59,8 +59,17 @@ public class NativeMethods {
             Object chunkSection = chunkSections[location.getBlockY() >> 4];
 
             if (chunkSection == null) {
-                Object worldProvider = worldProviderField.get(world);
-                boolean flag = (Boolean)getFlag.invoke(worldProvider);
+                boolean flag = false;
+
+                if (dimensionManagerField != null) {
+                    Object dimensionManager = dimensionManagerField.get(world);
+
+                    flag = !(Boolean)hasSkylight.invoke(dimensionManager);
+                } else if (worldProviderField != null) {
+                    Object worldProvider = worldProviderField.get(world);
+
+                    flag = (Boolean) getFlag.invoke(worldProvider);
+                }
 
                 int yPos = (location.getBlockY() >> 4) << 4;
 
@@ -102,6 +111,7 @@ public class NativeMethods {
         Class<?> IBlockData = getNMSClass("net.minecraft.server.%s.IBlockData");
         Class<?> Chunk = getNMSClass("net.minecraft.server.%s.Chunk");
         Class<?> ChunkSection = getNMSClass("net.minecraft.server.%s.ChunkSection");
+        Class<?> DimensionManager = getNMSClass("net.minecraft.server.%s.DimensionManager");
 
         blockPositionConstructor = BlockPosition.getConstructor(int.class, int.class, int.class);
 
@@ -133,7 +143,18 @@ public class NativeMethods {
             worldProviderField = World.getDeclaredField("worldProvider");
             worldProviderField.setAccessible(true);
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+
+        }
+
+        try {
+            dimensionManagerField = World.getDeclaredField("x");
+            dimensionManagerField.setAccessible(true);
+
+            if (DimensionManager != null) {
+                hasSkylight = DimensionManager.getDeclaredMethod("hasSkyLight");
+            }
+        } catch (NoSuchFieldException e) {
+
         }
 
         try {
