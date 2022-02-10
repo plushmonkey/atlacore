@@ -50,12 +50,12 @@ shadowJar {
 
 dependencies {
 	shadow project(':core')
-	compile 'org.spigotmc:spigot-api:1.16.2-R0.1-SNAPSHOT'
+	compile 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
 	shadow 'ninja.leaping.configurate:configurate-hocon:3.2'
-	compile 'com.sk89q.worldedit:worldedit-core:7.0.0-SNAPSHOT'
-	compile 'com.sk89q.worldedit:worldedit-bukkit:7.0.0-SNAPSHOT'
-	compile 'com.sk89q.worldguard:worldguard-core:7.0.0-SNAPSHOT'
-	compile 'com.sk89q.worldguard:worldguard-legacy:7.0.0-SNAPSHOT'
+	compile 'com.sk89q.worldedit:worldedit-core:7.2.8'
+	compile 'com.sk89q.worldedit:worldedit-bukkit:7.2.8'
+	compile 'com.sk89q.worldguard:worldguard-core:7.0.2'
+	compile 'com.sk89q.worldguard:worldguard-bukkit:7.0.2'
 	compile name: 'Towny'
 	compile name: 'Factions-2.7.5'
 	compile name: 'MassiveCore-2.7.5'

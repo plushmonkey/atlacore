@@ -410,7 +410,7 @@ public class BukkitMaterialUtil {
         toAtla.put(org.bukkit.Material.valueOf("GRANITE"), Material.GRANITE);
         toAtla.put(org.bukkit.Material.valueOf("GRASS"), Material.GRASS);
         toAtla.put(org.bukkit.Material.valueOf("GRASS_BLOCK"), Material.GRASS_BLOCK);
-        toAtla.put(org.bukkit.Material.valueOf("GRASS_PATH"), Material.GRASS_PATH);
+        toAtla.put(org.bukkit.Material.valueOf("GRASS_PATH"), Material.DIRT_PATH);
         toAtla.put(org.bukkit.Material.valueOf("GRAVEL"), Material.GRAVEL);
         toAtla.put(org.bukkit.Material.valueOf("GRAY_BANNER"), Material.GRAY_BANNER);
         toAtla.put(org.bukkit.Material.valueOf("GRAY_BED"), Material.GRAY_BED);
@@ -1282,7 +1282,7 @@ public class BukkitMaterialUtil {
         toBukkit.put(Material.GRANITE, org.bukkit.Material.valueOf("GRANITE"));
         toBukkit.put(Material.GRASS, org.bukkit.Material.valueOf("GRASS"));
         toBukkit.put(Material.GRASS_BLOCK, org.bukkit.Material.valueOf("GRASS_BLOCK"));
-        toBukkit.put(Material.GRASS_PATH, org.bukkit.Material.valueOf("GRASS_PATH"));
+        toBukkit.put(Material.DIRT_PATH, org.bukkit.Material.valueOf("GRASS_PATH"));
         toBukkit.put(Material.GRAVEL, org.bukkit.Material.valueOf("GRAVEL"));
         toBukkit.put(Material.GRAY_BANNER, org.bukkit.Material.valueOf("GRAY_BANNER"));
         toBukkit.put(Material.GRAY_BED, org.bukkit.Material.valueOf("GRAY_BED"));

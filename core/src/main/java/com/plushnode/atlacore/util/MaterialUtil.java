@@ -10,6 +10,7 @@ import com.plushnode.atlacore.platform.block.data.Levelled;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO: All configurable
 public final class MaterialUtil {
     private static final List<Material> TRANSPARENT_MATERIALS = Arrays.asList(
             Material.AIR, Material.OAK_SAPLING, Material.SPRUCE_SAPLING, Material.BIRCH_SAPLING,
@@ -26,13 +27,39 @@ public final class MaterialUtil {
     );
 
     private static final List<Material> EARTH_MATERIALS = Arrays.asList(
-            Material.DIRT, Material.MYCELIUM, Material.GRASS_BLOCK, Material.STONE, Material.GRANITE,
-            Material.POLISHED_GRANITE, Material.DIORITE, Material.POLISHED_DIORITE, Material.ANDESITE,
-            Material.POLISHED_ANDESITE, Material.GRAVEL, Material.CLAY, Material.COAL_ORE, Material.IRON_ORE,
-            Material.GOLD_ORE, Material.REDSTONE_ORE, Material.LAPIS_ORE, Material.DIAMOND_ORE, Material.NETHERRACK,
-            Material.NETHER_QUARTZ_ORE, Material.COBBLESTONE, Material.COBBLESTONE_STAIRS, Material.STONE_BRICK_STAIRS,
-            Material.STONE_BRICKS, Material.SAND, Material.SANDSTONE, Material.RED_SAND, Material.RED_SANDSTONE,
-            Material.GRASS_PATH, Material.COARSE_DIRT
+            Material.DIRT, Material.PODZOL, Material.COARSE_DIRT, Material.MYCELIUM, Material.GRASS_BLOCK,
+            Material.STONE, Material.GRANITE, Material.POLISHED_GRANITE, Material.DIORITE, Material.POLISHED_DIORITE,
+            Material.ANDESITE, Material.POLISHED_ANDESITE, Material.GRAVEL, Material.CLAY, Material.COAL_ORE,
+            Material.COAL_BLOCK, Material.IRON_ORE, Material.GOLD_ORE, Material.REDSTONE_ORE, Material.LAPIS_ORE,
+            Material.DIAMOND_ORE, Material.NETHERRACK, Material.NETHER_QUARTZ_ORE, Material.COBBLESTONE,
+            Material.COBBLESTONE_STAIRS, Material.COBBLESTONE_SLAB, Material.STONE_BRICK_STAIRS, Material.DIRT_PATH,
+            Material.STONE_BRICKS, Material.WHITE_CONCRETE, Material.ORANGE_CONCRETE, Material.MAGENTA_CONCRETE,
+            Material.LIGHT_BLUE_CONCRETE, Material.YELLOW_CONCRETE, Material.LIME_CONCRETE, Material.PINK_CONCRETE,
+            Material.GRAY_CONCRETE, Material.LIGHT_GRAY_CONCRETE, Material.CYAN_CONCRETE, Material.PURPLE_CONCRETE,
+            Material.BLUE_CONCRETE, Material.BROWN_CONCRETE, Material.GREEN_CONCRETE, Material.RED_CONCRETE,
+            Material.BLACK_CONCRETE, Material.MAGMA_BLOCK, Material.BRICK, Material.TERRACOTTA,
+            Material.BLACK_TERRACOTTA, Material.BLUE_TERRACOTTA,Material.BROWN_TERRACOTTA, Material.CYAN_TERRACOTTA,
+            Material.GRAY_TERRACOTTA, Material.GREEN_TERRACOTTA, Material.LIGHT_BLUE_TERRACOTTA,
+            Material.LIGHT_GRAY_TERRACOTTA, Material.LIME_TERRACOTTA, Material.MAGENTA_TERRACOTTA,
+            Material.ORANGE_TERRACOTTA, Material.PINK_TERRACOTTA, Material.PURPLE_TERRACOTTA, Material.RED_TERRACOTTA,
+            Material.WHITE_TERRACOTTA, Material.YELLOW_TERRACOTTA, Material.END_STONE, Material.GLOWSTONE,
+
+            Material.IRON_BLOCK, Material.GOLD_BLOCK, Material.SMOOTH_QUARTZ, Material.QUARTZ_BLOCK,
+            Material.QUARTZ_STAIRS, Material.QUARTZ_SLAB, Material.GLASS, Material.WHITE_STAINED_GLASS,
+            Material.ORANGE_STAINED_GLASS, Material.MAGENTA_STAINED_GLASS, Material.LIGHT_BLUE_STAINED_GLASS,
+            Material.YELLOW_STAINED_GLASS, Material.LIME_STAINED_GLASS, Material.PINK_STAINED_GLASS,
+            Material.GRAY_STAINED_GLASS, Material.LIGHT_GRAY_STAINED_GLASS, Material.CYAN_STAINED_GLASS,
+            Material.PURPLE_STAINED_GLASS, Material.BLUE_STAINED_GLASS, Material.BROWN_STAINED_GLASS,
+            Material.GREEN_STAINED_GLASS, Material.RED_STAINED_GLASS, Material.BLACK_STAINED_GLASS, Material.OBSIDIAN,
+
+            Material.SAND, Material.SANDSTONE, Material.SANDSTONE_STAIRS, Material.SANDSTONE_SLAB, Material.RED_SAND,
+            Material.RED_SANDSTONE, Material.RED_SANDSTONE, Material.RED_SANDSTONE_STAIRS, Material.RED_SANDSTONE_SLAB,
+            Material.GRAVEL, Material.WHITE_CONCRETE_POWDER, Material.ORANGE_CONCRETE_POWDER,
+            Material.MAGENTA_CONCRETE_POWDER, Material.LIGHT_BLUE_CONCRETE_POWDER, Material.YELLOW_CONCRETE_POWDER,
+            Material.LIME_CONCRETE_POWDER, Material.PINK_CONCRETE_POWDER, Material.GRAY_CONCRETE_POWDER,
+            Material.LIGHT_GRAY_CONCRETE_POWDER, Material.CYAN_CONCRETE_POWDER, Material.PURPLE_CONCRETE_POWDER,
+            Material.BLUE_CONCRETE_POWDER, Material.BROWN_CONCRETE_POWDER, Material.GREEN_CONCRETE_POWDER,
+            Material.RED_CONCRETE_POWDER, Material.BLACK_CONCRETE_POWDER, Material.SOUL_SAND
     );
 
     // These are materials that must be attached to a block.

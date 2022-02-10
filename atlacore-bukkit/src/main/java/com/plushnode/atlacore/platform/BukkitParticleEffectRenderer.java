@@ -153,8 +153,6 @@ public class BukkitParticleEffectRenderer implements ParticleEffectRenderer {
                 return Particle.SLIME;
             case HEART:
                 return Particle.HEART;
-            case BARRIER:
-                return Particle.BARRIER;
             case ITEM_CRACK:
                 return Particle.ITEM_CRACK;
             case BLOCK_CRACK:

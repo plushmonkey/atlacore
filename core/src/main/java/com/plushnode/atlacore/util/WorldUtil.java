@@ -146,7 +146,7 @@ public final class WorldUtil {
         Location location = entity.getLocation();
         Ray ray = new Ray(location, new Vector3D(0, -1, 0));
 
-        for (double y = location.getY() - 1; y >= 0; --y) {
+        for (double y = location.getY() - 1; y >= -64; --y) {
             location = location.setY(y);
 
             Block block = location.getBlock();

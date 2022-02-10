@@ -79,4 +79,16 @@ public class BlockListener implements Listener {
             event.setCancelled(true);
         }
     }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockFromTo(BlockFromToEvent event) {
+        BlockWrapper from = new BlockWrapper(event.getBlock());
+        BlockWrapper to = new BlockWrapper(event.getToBlock());
+
+        if (Game.getTempBlockService().isTempBlock(from)) {
+            event.setCancelled(true);
+        } else if (Game.getTempBlockService().isTempBlock(to)) {
+            event.setCancelled(true);
+        }
+    }
 }

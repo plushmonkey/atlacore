@@ -188,7 +188,7 @@ public class SpongeMaterialUtil_1_11 {
         blockTypes.put(Material.GRANITE, BlockTypes.STONE);
         blockTypes.put(Material.GRASS, BlockTypes.TALLGRASS);
         blockTypes.put(Material.GRASS_BLOCK, BlockTypes.GRASS);
-        blockTypes.put(Material.GRASS_PATH, BlockTypes.GRASS_PATH);
+        blockTypes.put(Material.DIRT_PATH, BlockTypes.GRASS_PATH);
         blockTypes.put(Material.GRAVEL, BlockTypes.GRAVEL);
         blockTypes.put(Material.GRAY_BANNER, BlockTypes.STANDING_BANNER);
         blockTypes.put(Material.GRAY_BED, BlockTypes.BED);

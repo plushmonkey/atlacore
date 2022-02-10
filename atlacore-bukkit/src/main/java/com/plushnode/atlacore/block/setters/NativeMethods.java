@@ -22,6 +22,8 @@ public class NativeMethods {
     private static boolean blockDataNotify = false, chunkSectionFlag = false;
 
     static {
+        enabled = false;
+        /*
         try {
             setupReflection();
             enabled = true;
@@ -30,7 +32,7 @@ public class NativeMethods {
               Game.warn("Failed to setup reflection for fast block setting.");
             }
             e.printStackTrace();
-        }
+        }*/
     }
 
     public static boolean setBlockFast(Block block, BlockData data) {

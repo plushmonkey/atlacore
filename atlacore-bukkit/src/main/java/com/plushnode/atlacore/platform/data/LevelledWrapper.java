@@ -43,11 +43,7 @@ public class LevelledWrapper implements Levelled {
 
     @Override
     public BlockData clone() {
-        try {
-            Object clone = super.clone();
-            return new LevelledWrapper((org.bukkit.block.data.Levelled) clone);
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+        org.bukkit.block.data.Levelled data = (org.bukkit.block.data.Levelled)levelled.clone();
+        return new LevelledWrapper(data);
     }
 }
